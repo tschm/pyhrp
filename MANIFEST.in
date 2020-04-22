@@ -1,0 +1,2 @@
+recursive-include pyhrp *.py
+recursive-exclude pyhrp *.pyc
