@@ -5,12 +5,3 @@ services:
       context: .
       dockerfile: Dockerfile
       target: builder
-
-  jupyter:
-     build:
-       context: ""
-       dockerfile: ./binder/Dockerfile
-     volumes:
-       - ./work:/home/jovyan/work
-     ports:
-        - 8822:8888
