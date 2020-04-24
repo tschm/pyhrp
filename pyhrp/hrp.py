@@ -1,53 +1,49 @@
-from itertools import chain
 import numpy as np
-
 from pyhrp.linalg import bilinear, sub
 
 
 def split(v_left, v_right):
     alpha = 1 - v_left / (v_left + v_right)
-    return np.array([alpha, 1 - alpha])
+    return alpha, 1 - alpha
+
+
+def leafs(node):
+    if node.is_leaf():
+        return [node.id]
+    else:
+        return leafs(node=node.left) + leafs(node=node.right)
 
 
 def __hrp(node, cov, weights):
-    def successors(node):
-        # get the list of ids following a node downstream
-        if node.is_leaf():
-            return [node.id]
-
-        return list(chain.from_iterable([[node.id], successors(node.left), successors(node.right)]))
 
     if node.is_leaf():
-        # weights[node.id] = 1.0
         return cov[node.id][node.id], weights
     else:
+        # compute the variance of the left branch
         v_left, _ = __hrp(node.left, cov, weights)
 
         # compute the variance of the right branch
         v_right, _ = __hrp(node.right, cov, weights)
 
-        # compute the split factor
-        alpha = split(v_left, v_right)
+        # compute the split factors alpha[0] and alpha[1]
+        alpha, beta = split(v_left, v_right)
 
-        # update the weights on the left and the ones on the right
-        left = successors(node=node.left)
-        right = successors(node=node.right)
+        # compile a list of reachable leafs from the left node and from the right node
+        left = leafs(node=node.left)
+        right = leafs(node=node.right)
 
-        weights[left] = alpha[0] * weights[left]
-        weights[right] = alpha[1] * weights[right]
+        # update the weights linked to those leafs
+        weights[left] = alpha * weights[left]
+        weights[right] = beta * weights[right]
 
-        idx = np.array(left + right)
-
-        # look only at all the leafs
-        idx = idx[idx < cov.shape[0]]
-
-        v = bilinear(x=weights[idx], A=sub(cov, idx=idx))
+        # this is the list of all reachable leafs from both nodes
+        idx = left + right
 
         # return the variance for the node and the updated weights
-        return v, weights
+        return bilinear(x=weights[idx], A=sub(cov, idx=idx)), weights
 
 
 def hrp_feed(node, cov):
-    weights = np.ones(2 * cov.shape[1] - 1)
+    weights = np.ones(cov.shape[1])
     v, weights = __hrp(node, cov, weights=weights)
-    return v, weights[0:cov.shape[1]]
+    return v, weights
