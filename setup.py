@@ -13,6 +13,8 @@ setup(
     author='Thomas Schmelzer',
     author_email='thomas.schmelzer@gmail.com',
     description='Python for Hierarchical Risk Parity',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/tschm/hrp',
     project_urls={
         "Source Code": "https://github.com/tschm/hrp"

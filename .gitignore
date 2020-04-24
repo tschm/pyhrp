@@ -12,7 +12,7 @@ html-report
 
 
 dist
-*.egg-info
+*egg-info
 
 */.ipynb_checkpoints
 
