@@ -9,3 +9,4 @@ services:
     volumes:
       - ./artifacts:/artifacts
       - ./test:/pyhrp/test:ro
+      - ./pyhrp:/pyhrp/pyhrp:ro

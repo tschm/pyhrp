@@ -19,3 +19,5 @@ dist
 */__pycache__
 */*.pyc
 .ipynb_checkpoints
+
+prices.csv

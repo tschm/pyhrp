@@ -8,6 +8,7 @@
 !work
 !setup.py
 !README.md
+!requirements.txt
 
 **/__pycache__
 **/*.pyc
