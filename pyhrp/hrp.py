@@ -26,6 +26,8 @@ def __hrp(node, cov, weights):
         v_right, _ = __hrp(node.right, cov, weights)
 
         # compute the split factors alpha[0] and alpha[1]
+        # the split is such that v_left * alpha == v_right * beta
+        # and alpha + beta = 1
         alpha, beta = split(v_left, v_right)
 
         # compile a list of reachable leafs from the left node and from the right node
