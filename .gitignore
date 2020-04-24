@@ -21,3 +21,6 @@ dist
 .ipynb_checkpoints
 
 prices.csv
+pyhrp/hierarchical_portfolio.py
+
+test/test_hrp_opt.py
