@@ -41,6 +41,5 @@ def __hrp(node, cov, weights):
 
 
 def hrp_feed(node, cov):
-    weights = np.ones(cov.shape[1])
-    v, weights = __hrp(node, cov, weights=weights)
-    return v, weights
+    return __hrp(node, cov, weights=np.ones(cov.shape[1]))
+
