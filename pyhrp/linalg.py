@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.spatial.distance as ssd
 
 
 def correlation_from_covariance(cov):
@@ -42,4 +43,9 @@ def dist(cor):
 
     """
     # This is DANGEROUS! 1.0 - 1.0 could easily be < 0, hence we clip the result before we take the square root
+    # if isinstance(cor, pd.DataFrame):
+    #    return pd.DataFrame(index=cor.index, columns=cor.keys(), data=np.sqrt(np.clip((1.0 - cor) / 2., a_min=0.0, a_max=1.0)))
+
     return np.sqrt(np.clip((1.0 - cor) / 2., a_min=0.0, a_max=1.0))
+    # https://stackoverflow.com/questions/18952587/
+    #return ssd.squareform(((1 - cor) / 2) ** 0.5)
