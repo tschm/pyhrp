@@ -20,10 +20,12 @@ def __hrp(node, cov, weights):
 
         # compute the split factors alpha[0] and alpha[1]
         # the split is such that v_left * alpha == v_right * beta
+        # shouldn't the split be v_left * alpha^2 == v_right * beta^2
         # and alpha + beta = 1
         alpha, beta = split(v_left, v_right)
 
         # compile a list of reachable leafs from the left node and from the right node
+        # this could be done with an expensive recursive function but scipy's tree provides a powerful pre_order
         left = node.left.pre_order(lambda x: x.id)
         right = node.right.pre_order(lambda x: x.id)
 
