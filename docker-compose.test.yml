@@ -8,5 +8,5 @@ services:
 
     volumes:
       - ./artifacts:/artifacts
-      - ./test:/pyhrp/test:ro
+      - ./test:/pyhrp/test
       - ./pyhrp:/pyhrp/pyhrp:ro
