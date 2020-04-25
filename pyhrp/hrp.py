@@ -7,13 +7,6 @@ def split(v_left, v_right):
     return alpha, 1 - alpha
 
 
-def leafs(node):
-    if node.is_leaf():
-        return [node.id]
-    else:
-        return leafs(node=node.left) + leafs(node=node.right)
-
-
 def __hrp(node, cov, weights):
 
     if node.is_leaf():
@@ -31,8 +24,8 @@ def __hrp(node, cov, weights):
         alpha, beta = split(v_left, v_right)
 
         # compile a list of reachable leafs from the left node and from the right node
-        left = leafs(node=node.left)
-        right = leafs(node=node.right)
+        left = node.left.pre_order(lambda x: x.id)
+        right = node.right.pre_order(lambda x: x.id)
 
         # update the weights linked to those leafs
         weights[left] = alpha * weights[left]
