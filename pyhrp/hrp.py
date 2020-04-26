@@ -8,7 +8,7 @@ import scipy.cluster.hierarchy as sch
 def linkage(dist, method="ward", **kwargs):
     """
     Based on distance matrix compute the underlying links
-    :param dist: The distance metric based on the correlation matrix
+    :param dist: The distance vector based on the correlation matrix
     :param method: "single", "ward", etc.
     :return: links  The links describing the graph (useful to draw the dendrogram) and basis for constructing the tree object
     """
