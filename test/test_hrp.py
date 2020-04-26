@@ -6,22 +6,16 @@ import numpy.testing as nt
 from pyhrp.linalg import dist, correlation_from_covariance
 
 
-def test_dist():
-    cov = np.array([[1.0, 0.2], [0.2, 2.0]])
-    a = dist(correlation_from_covariance(cov))
-    nt.assert_allclose(a, np.array([[0.000000e+00, 6.552017e-01], [6.552017e-01, 0.0]]), rtol=1e-6, atol=1e-6)
-
-
 def test_hrp():
     # use a small covariance matrix
     cov = np.array([[1, 0.5, 0], [0.5, 2, 0.0], [0, 0, 3]])
 
-    # we compute the rootnode of a graph here
-    # The rootnode points to left and right and has an id attribute.
+    # we compute the root of a graph here
+    # The root points to left and right and has an id attribute.
     link = linkage(dist(correlation_from_covariance(cov)), 'single')
-    rootnode = tree(link)
+    root = tree(link)
 
-    v, w = hrp_feed(node=rootnode, cov=cov)
+    v, w = hrp_feed(node=root, cov=cov)
     nt.assert_allclose(v, np.linalg.multi_dot([w, cov, w]))
     nt.assert_allclose(w.sum(), 1.0)
 

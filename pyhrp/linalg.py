@@ -42,10 +42,7 @@ def dist(cor):
     :return: The matrix d indicating the distance between column i and i. Note that all the diagonal entries are zero.
 
     """
-    # This is DANGEROUS! 1.0 - 1.0 could easily be < 0, hence we clip the result before we take the square root
-    # if isinstance(cor, pd.DataFrame):
-    #    return pd.DataFrame(index=cor.index, columns=cor.keys(), data=np.sqrt(np.clip((1.0 - cor) / 2., a_min=0.0, a_max=1.0)))
-
-    return np.sqrt(np.clip((1.0 - cor) / 2., a_min=0.0, a_max=1.0))
     # https://stackoverflow.com/questions/18952587/
-    #return ssd.squareform(((1 - cor) / 2) ** 0.5)
+    matrix = np.sqrt(np.clip((1.0 - cor) / 2., a_min=0.0, a_max=1.0))
+    np.fill_diagonal(matrix, val=0.0)
+    return ssd.squareform(matrix)
