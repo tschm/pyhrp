@@ -1,4 +1,5 @@
 import numpy as np
+import numpy.random as nr
 from pyhrp.linalg import variance, sub, correlation_from_covariance, dist
 
 import scipy.cluster.hierarchy as sch
@@ -35,6 +36,28 @@ def risk_parity(v_left, v_right):
     return v_right / (v_left + v_right), 1 - v_right / (v_left + v_right)
 
 
+def bisection(ids):
+    """
+    Compute the graph underlying the recursive bisection of Marcos Lopez de Prado
+
+    :param ids: A (ranked) set of indixes
+    :return: The root ClusterNode of this tree
+    """
+    def split(ids):
+        # split the vector ids in two parts, split in the middle
+        assert len(ids) >= 2
+        n = len(ids)
+        return ids[:n // 2], ids[n // 2:]
+
+    assert len(ids) >= 1
+
+    if len(ids) == 1:
+        return sch.ClusterNode(id=ids[0])
+
+    left, right = split(ids)
+    return sch.ClusterNode(id=nr.randint(low=100000, high=200000), left=bisection(ids=left), right=bisection(ids=right))
+
+
 def __hrp(node, cov, weights):
 
     if node.is_leaf():
@@ -51,12 +74,10 @@ def __hrp(node, cov, weights):
         # the split is such that v_left * alpha_left == v_right * alpha_right
         # and alpha + beta = 1
         alpha_left, alpha_right = risk_parity(v_left, v_right)
-        assert abs(v_left*alpha_left - v_right*alpha_right) < 1e-3
 
         # compile a list of reachable leafs from the left node and from the right node
         # this could be done with an expensive recursive function but scipy's tree provides a powerful pre_order
         left, right = node.left.pre_order(), node.right.pre_order()
-        print(left, right)
 
         # update the weights linked to those leafs
         weights[left], weights[right] = alpha_left * weights[left], alpha_right * weights[right]
@@ -78,3 +99,15 @@ def hrp_feed(cov, node=None):
 
     return __hrp(node, cov, weights=np.ones(cov.shape[1]))
 
+
+def marcos(cov, node=None):
+    if node is None:
+        cor = correlation_from_covariance(cov)
+        node = tree(linkage(dist(cor), method="single"))
+        # get the order of the leaves (Marcos calls this quasi-diagonalization)
+        ids = node.pre_order()
+        # apply bisection, root is now a ClusterNode of the graph
+        root = bisection(ids=ids)
+        # It's not clear to me why Marcos is going down this route. Rather than sticking with the graph computed above.
+
+    return __hrp(node=root, cov=cov, weights=np.ones(cov.shape[1]))
