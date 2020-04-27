@@ -44,7 +44,11 @@ def test_hrp2():
     # you can now drill into the subclusters
     assert root.left.assets == [2]
     assert root.right.assets == [0, 1]
-    assert nt.assert_allclose(root.right.weights, np.array([2.0, 1.0])/3.0)
+    print(root.right.assets)
+    print(root.right.weights)
+    print(root.right.weights)
+
+    nt.assert_allclose(root.right.weights, np.array([2.0/3.0, 1.0/3.0]))
 
 
 
