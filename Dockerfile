@@ -11,8 +11,8 @@ RUN buildDeps='gcc g++' && \
     #pip install --no-cache-dir pandas==0.25.3 scipy matplotlib && \
     pip install --no-cache-dir -r /tmp/pyhrp/requirements.txt && \
     pip install --no-cache-dir /tmp/pyhrp && \
-    rm -r /tmp/pyhrp
-    #apt-get purge -y --auto-remove $buildDeps
+    rm -r /tmp/pyhrp && \
+    apt-get purge -y --auto-remove $buildDeps
 
 
 
@@ -20,12 +20,8 @@ RUN buildDeps='gcc g++' && \
 FROM builder as test
 
 # COPY tools needed for testing into the image
-RUN pip install --no-cache-dir  pytest pytest-cov pytest-html cvxpy scikit-learn
+RUN pip install --no-cache-dir  pytest pytest-cov pytest-html
 
-#RUN buildDeps='gcc g++' && \
-#    apt-get update && apt-get install -y $buildDeps --no-install-recommends && \
-    #pip install --no-cache-dir cvxpy scikit-learn
-    #apt-get purge -y --auto-remove $buildDeps
 
 RUN pip install --no-cache-dir PyPortfolioOpt
 

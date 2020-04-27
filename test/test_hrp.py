@@ -1,6 +1,6 @@
 import numpy as np
 
-from pyhrp.hrp import hrp_feed, risk_parity, linkage, tree
+from pyhrp.hrp import hrp_feed, risk_parity, linkage, tree, hrp_feed2
 import numpy.testing as nt
 
 from pyhrp.linalg import dist, correlation_from_covariance
@@ -22,12 +22,30 @@ def test_hrp():
     # risk parity in the branch...
     nt.assert_approx_equal(w[0], w[1] * 2)
 
-    wi = np.array([2, 1]) / 3
 
-    v1 = 0.8888888888888888
-    v2 = 3.0
-    nt.assert_approx_equal(1 * wi[0] ** 2 + 2 * wi[1] ** 2 + wi[0] * wi[1], v1)
-    nt.assert_approx_equal(cov[2][2] * 1.0, v2)
+
+def test_hrp2():
+    # use a small covariance matrix
+    cov = np.array([[1, 0.5, 0], [0.5, 2, 0.0], [0, 0, 3]])
+
+    # we compute the root of a graph here
+    # The root points to left and right and has an id attribute.
+    link = linkage(dist(correlation_from_covariance(cov)), 'single')
+    root = tree(link)
+
+    root = hrp_feed2(node=root, cov=cov)
+
+    nt.assert_allclose(root.variance, np.linalg.multi_dot([root.weights_series.values, cov, root.weights_series.values]))
+    nt.assert_allclose(root.weights.sum(), 1.0)
+
+    # risk parity in the branch...
+    nt.assert_approx_equal(root.weights_series[0], root.weights_series[1] * 2)
+
+    # you can now drill into the subclusters
+    assert root.left.assets == [2]
+    assert root.right.assets == [0, 1]
+    assert nt.assert_allclose(root.right.weights, np.array([2.0, 1.0])/3.0)
+
 
 
 def test_risk_parity():

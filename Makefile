@@ -19,8 +19,6 @@ help:
 	@echo "make tag"
 	@echo "       Make a tag on Github."
 
-
-
 build:
 	docker-compose build pyhrp
 

@@ -1,5 +1,7 @@
 import numpy as np
 import numpy.random as nr
+
+from pyhrp.cluster import Cluster
 from pyhrp.linalg import variance, sub, correlation_from_covariance, dist
 
 import scipy.cluster.hierarchy as sch
@@ -43,6 +45,7 @@ def bisection(ids):
     :param ids: A (ranked) set of indixes
     :return: The root ClusterNode of this tree
     """
+
     def split(ids):
         # split the vector ids in two parts, split in the middle
         assert len(ids) >= 2
@@ -59,7 +62,6 @@ def bisection(ids):
 
 
 def __hrp(node, cov, weights):
-
     if node.is_leaf():
         # a node is a leaf if has no further relatives downstream. No leaves, no branches...
         return cov[node.id][node.id], weights
@@ -70,9 +72,8 @@ def __hrp(node, cov, weights):
         # compute the variance of the right branch
         v_right, _ = __hrp(node.right, cov, weights)
 
-        # compute the split factors alpha[0] and alpha[1]
-        # the split is such that v_left * alpha_left == v_right * alpha_right
-        # and alpha + beta = 1
+        # compute the split factors alpha_left and alpha_right
+        # the split is such that v_left * alpha_left == v_right * alpha_right and alpha + beta = 1
         alpha_left, alpha_right = risk_parity(v_left, v_right)
 
         # compile a list of reachable leafs from the left node and from the right node
@@ -84,6 +85,30 @@ def __hrp(node, cov, weights):
 
         # return the variance for the node and the updated weights
         return variance(w=weights[left + right], cov=sub(cov, idx=left + right)), weights
+
+
+def __hrp2(node, cov):
+    if node.is_leaf():
+        # a node is a leaf if has no further relatives downstream. No leaves, no branches...
+        # return cov[node.id][node.id], weights
+        return Cluster(assets=[node.id], weights=np.array([1.0]), variance=cov[node.id][node.id])
+    else:
+        cluster_left = __hrp2(node.left, cov)
+        cluster_right = __hrp2(node.right, cov)
+
+        # compute the split factors alpha_left and alpha_right
+        # the split is such that v_left * alpha_left == v_right * alpha_right and alpha + beta = 1
+        alpha_left, alpha_right = risk_parity(cluster_left.variance, cluster_right.variance)
+
+        # assets in the cluster are the assets of the left and right cluster further downstream
+        assets = cluster_left.assets + cluster_right.assets
+
+        # update the weights
+        weights = np.concatenate([alpha_left * cluster_left.weights, alpha_right * cluster_right.weights])
+
+        var = variance(w=weights, cov=sub(cov, idx=assets))
+
+        return Cluster(assets=assets, variance=var, weights=weights, left=cluster_left, right=cluster_right)
 
 
 def hrp_feed(cov, node=None):
@@ -98,6 +123,20 @@ def hrp_feed(cov, node=None):
         node = tree(linkage(dist(cor)))
 
     return __hrp(node, cov, weights=np.ones(cov.shape[1]))
+
+
+def hrp_feed2(cov, node=None, method="single"):
+    """
+    Computes the expected variance and the weights for the hierarchical risk parity portfolio
+    :param cov: This is the covariance matrix that shall be used
+    :param node: Optional. This is the rootnode of the graph describing the dendrogram
+    :return: variance, weights
+    """
+    if node is None:
+        cor = correlation_from_covariance(cov)
+        node = tree(linkage(dist(cor), method=method))
+
+    return __hrp2(node, cov)
 
 
 def marcos(cov, node=None):
