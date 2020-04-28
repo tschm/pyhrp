@@ -2,15 +2,15 @@ import numpy as np
 import scipy.spatial.distance as ssd
 
 
-def correlation_from_covariance(cov):
-    """
-    Compute a correlation from a covariance matrix.
-    :param cov: The n x n covariance matrix
-    :return: The n x n correlation matrix
-    """
-    # the vector of volatilities
-    v = np.sqrt(np.diag(cov))
-    return cov / np.outer(v, v)
+# def correlation_from_covariance(cov):
+#     """
+#     Compute a correlation from a covariance matrix.
+#     :param cov: The n x n covariance matrix
+#     :return: The n x n correlation matrix
+#     """
+#     # the vector of volatilities
+#     v = np.sqrt(np.diag(cov))
+#     return cov / np.outer(v, v)
 
 
 def variance(cov, w):

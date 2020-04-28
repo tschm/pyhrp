@@ -1,13 +1,11 @@
 import numpy as np
 import numpy.testing as nt
 
-from pyhrp.linalg import dist, correlation_from_covariance, sub, variance
+from pyhrp.linalg import dist, sub, variance
 
 
 def test_dist():
-    cov = np.array([[1.0, 0.2], [0.2, 2.0]])
-    a = correlation_from_covariance(cov)
-    nt.assert_allclose(a, np.array([[1.0, 0.2 / np.sqrt(2.0)], [0.2 / np.sqrt(2.0), 1.0]]))
+    a = np.array([[1.0, 0.2 / np.sqrt(2.0)], [0.2/np.sqrt(2.0), 1.0]])
     nt.assert_allclose(dist(a), np.array([6.552017e-01]), rtol=1e-6, atol=1e-6)
 
 
