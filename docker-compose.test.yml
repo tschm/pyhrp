@@ -7,6 +7,6 @@ services:
        target: test
 
     volumes:
-      - ./artifacts:/artifacts
+      - ./artifacts:/pyhrp/artifacts
       - ./test:/pyhrp/test
       - ./pyhrp:/pyhrp/pyhrp:ro
