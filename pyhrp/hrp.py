@@ -75,12 +75,11 @@ def tree(linkage):
 #         return variance(w=weights[left + right], cov=sub(cov, idx=left + right)), weights
 
 
-
-
 def _hrp2(node, cov):
     if node.is_leaf():
         # a node is a leaf if has no further relatives downstream. No leaves, no branches...
-        return Cluster(assets=[node.id], weights=np.array([1.0]), variance=cov[node.id][node.id])
+        asset = cov.keys().to_list()[node.id]
+        return Cluster(assets={asset: 1.0}, variance=cov[asset][asset])
     else:
         cluster_left = _hrp2(node.left, cov)
         cluster_right = _hrp2(node.right, cov)
@@ -109,9 +108,8 @@ def hrp_feed2(prices, node=None, method="single"):
     :return: variance, weights
     """
     returns = prices.pct_change().dropna(axis=0, how="all")
-    cov, cor = returns.cov().values, returns.corr().values
-
-    node = node or tree(linkage(dist(cor), method=method))
+    cov, cor = returns.cov(), returns.corr()
+    node = node or tree(linkage(dist(cor.values), method=method))
 
     return _hrp2(node, cov)
 

@@ -16,4 +16,4 @@ def test_marcos():
     x.name = "Weights"
     x.index.name = "Asset"
 
-    pd.testing.assert_series_equal(x, root.weights_series(index=list(prices.keys())), check_exact=False)
+    pd.testing.assert_series_equal(x, root.weights, check_exact=False)

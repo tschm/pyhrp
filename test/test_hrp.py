@@ -1,10 +1,7 @@
 import numpy as np
 import pandas as pd
-from pyhrp.cluster import Cluster
 
 from pyhrp.hrp import linkage, tree, hrp_feed2
-import numpy.testing as nt
-
 from pyhrp.linalg import dist
 from test.config import resource, get_data
 
@@ -77,7 +74,7 @@ def test_quasi_diag():
                                'AMZN', 'AAPL', 'GOOG', 'MA', 'GE', 'GM', 'BAC', 'JPM']
 
 
-def test_marcos():
+def test_hrp():
     prices = get_data()
 
     root = hrp_feed2(prices=prices)
@@ -89,4 +86,4 @@ def test_marcos():
     x.name = "Weights"
     x.index.name = "Asset"
 
-    pd.testing.assert_series_equal(x, root.weights_series(index=list(prices.keys())), check_exact=False)
+    pd.testing.assert_series_equal(x, root.weights, check_exact=False)

@@ -30,9 +30,9 @@ def bisection(ids):
 
 def marcos(prices, node=None):
     returns = prices.pct_change().dropna(axis=0, how="all")
-    cov, cor = returns.cov().values, returns.corr().values
+    cov, cor = returns.cov(), returns.corr()
 
-    node = node or tree(linkage(dist(cor), method="single"))
+    node = node or tree(linkage(dist(cor.values), method="single"))
 
     # this is an interesting step
     ids = node.pre_order()
