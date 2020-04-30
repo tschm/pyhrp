@@ -32,23 +32,16 @@ def risk_parity(cluster_left, cluster_right, cov):
 
 class Cluster(object):
     def __init__(self, assets, variance, left=None, right=None):
-        # assert len(assets) == len(weights)
-        # assert len(assets) == len(set(assets))
-        # assert isinstance(weights, np.ndarray)
         w = np.array(list(assets.values()))
 
         assert np.all(w > 0)
         assert variance >= 0
+
         # test that the weights are close to 1.0
         assert np.isclose(np.sum(w), 1.0)
 
-        # distinct values in assets dictionary
-        # assert len(set(assets.values())) == len(assets)
-
         self.__assets = assets
         self.__variance = variance
-        # self.__weights = weights
-
         self.__left = left
         self.__right = right
 
@@ -59,9 +52,6 @@ class Cluster(object):
             # left is not None, hence both left and right have to be clusters
             assert isinstance(left, Cluster)
             assert isinstance(right, Cluster)
-
-            # assert self.__assets == {**left.assets, **right.assets}
-            # assert set(left.assets.keys()).isdisjoint(set(right.assets.keys()))
             assert set(left.assets.keys()).isdisjoint(set(right.assets.keys()))
 
     @property
@@ -85,6 +75,4 @@ class Cluster(object):
 
     @property
     def weights(self):
-        a = pd.Series(self.assets, name="Weights")
-        a.index.name = "Asset"
-        return a.sort_index()
+        return pd.Series(self.assets, name="Weights").sort_index()

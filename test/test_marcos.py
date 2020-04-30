@@ -14,6 +14,6 @@ def test_marcos():
 
     x = pd.read_csv(resource("weights_marcos.csv"), squeeze=True, index_col=0, header=None)
     x.name = "Weights"
-    x.index.name = "Asset"
+    x.index.name = None
 
     pd.testing.assert_series_equal(x, root.weights, check_exact=False)

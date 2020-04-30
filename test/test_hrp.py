@@ -1,8 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from pyhrp.hrp import linkage, tree, hrp_feed2
-from pyhrp.linalg import dist
+from pyhrp.hrp import linkage, tree, hrp, dist
 from test.config import resource, get_data
 
 
@@ -49,6 +48,9 @@ from test.config import resource, get_data
 #     print(root.right.weights)
 #
 #     nt.assert_allclose(root.right.weights, np.array([2.0 / 3.0, 1.0 / 3.0]))
+def test_dist():
+    a = np.array([[1.0, 0.2 / np.sqrt(2.0)], [0.2/np.sqrt(2.0), 1.0]])
+    np.testing.assert_allclose(dist(a), np.array([6.552017e-01]), rtol=1e-6, atol=1e-6)
 
 
 def test_quasi_diag():
@@ -77,13 +79,13 @@ def test_quasi_diag():
 def test_hrp():
     prices = get_data()
 
-    root = hrp_feed2(prices=prices)
+    root = hrp(prices=prices)
 
     # uncomment this line if you want generating a new file
     # root.weights_series(index=list(prices.keys())).to_csv(resource("weights_hrp.csv"), header=False)
 
     x = pd.read_csv(resource("weights_hrp.csv"), squeeze=True, index_col=0, header=None)
     x.name = "Weights"
-    x.index.name = "Asset"
+    x.index.name = None
 
     pd.testing.assert_series_equal(x, root.weights, check_exact=False)

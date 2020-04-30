@@ -1,8 +1,11 @@
+# the original implementation by Marcos Lopez de Prado is using recursive bisection on a ranked list of columns of the covariance matrix
+# To get to this list Lopez de Prado is using what he calls the matrix quasi-diagonlization but it's induced by the order (from left to right) of the dendrogram
+# Based on that we build a tree reflecting the recursive bisection.
+# With that tree and the covariance matrix we go back to the hrp algorithm.
 import numpy.random as nr
 import scipy.cluster.hierarchy as sch
-from pyhrp.linalg import dist
 
-from pyhrp.hrp import tree, linkage, _hrp2
+from pyhrp.hrp import tree, linkage, _hrp, dist
 
 
 def bisection(ids):
@@ -40,4 +43,4 @@ def marcos(prices, node=None):
     root = bisection(ids=ids)
 
     # It's not clear to me why Marcos is going down this route. Rather than sticking with the graph computed above.
-    return _hrp2(node=root, cov=cov)
+    return _hrp(node=root, cov=cov)
