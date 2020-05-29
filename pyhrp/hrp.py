@@ -44,19 +44,19 @@ def _hrp(node, cov):
     if node.is_leaf():
         # a node is a leaf if has no further relatives downstream. No leaves, no branches...
         asset = cov.keys().to_list()[node.id]
-        return Cluster(assets={asset: 1.0}, variance=cov[asset][asset])
+        return Cluster(assets={asset: 1.0}, variance=cov[asset][asset], node=node)
     else:
         cluster_left = _hrp(node.left, cov)
         cluster_right = _hrp(node.right, cov)
-        return risk_parity(cluster_left, cluster_right, cov=cov)
+        return risk_parity(cluster_left, cluster_right, cov=cov, node=node)
 
 
 def hrp(prices, node=None, method="single"):
     """
-    Computes the expected variance and the weights for the hierarchical risk parity portfolio
+    Computes the root node for the hierarchical risk parity portfolio
     :param cov: This is the covariance matrix that shall be used
     :param node: Optional. This is the rootnode of the graph describing the dendrogram
-    :return: variance, weights
+    :return: the root cluster of the risk parity portfolio
     """
     returns = prices.pct_change().dropna(axis=0, how="all")
     cov, cor = returns.cov(), returns.corr()

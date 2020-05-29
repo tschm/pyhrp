@@ -2,6 +2,7 @@
 # To get to this list Lopez de Prado is using what he calls the matrix quasi-diagonlization but it's induced by the order (from left to right) of the dendrogram
 # Based on that we build a tree reflecting the recursive bisection.
 # With that tree and the covariance matrix we go back to the hrp algorithm.
+import pandas as pd
 import numpy.random as nr
 import scipy.cluster.hierarchy as sch
 
@@ -23,19 +24,28 @@ def bisection(ids):
         return ids[:n // 2], ids[n // 2:]
 
     assert len(ids) >= 1
+    assert len(ids) == len(set(ids))
 
     if len(ids) == 1:
         return sch.ClusterNode(id=ids[0])
 
     left, right = split(ids)
-    return sch.ClusterNode(id=nr.randint(low=100000, high=200000), left=bisection(ids=left), right=bisection(ids=right))
+    return sch.ClusterNode(id=0, left=bisection(ids=left), right=bisection(ids=right))
 
 
-def marcos(prices, node=None):
+def marcos(prices, node=None, method=None):
+    # make sure the prices are a DataFrame
+    assert isinstance(prices, pd.DataFrame)
+
+    # convert into returns
     returns = prices.pct_change().dropna(axis=0, how="all")
+
+    # compute covariance matrix and correlation matrices (both as DataFrames)
     cov, cor = returns.cov(), returns.corr()
 
-    node = node or tree(linkage(dist(cor.values), method="single"))
+    # Compute the root node of the tree
+    method = method or "ward"
+    node = node or tree(linkage(dist(cor.values), method=method))
 
     # this is an interesting step
     ids = node.pre_order()

@@ -8,24 +8,9 @@ def test_cluster_simple():
     c = Cluster(assets={"A": 0.2, "B": 0.8}, variance=1)
 
 
-def test_negative_weight():
-    with pytest.raises(AssertionError):
-        Cluster(assets={"A": -0.2, "B": 0.8}, variance=1)
-
-
-def test_double_column():
-    with pytest.raises(AssertionError):
-        Cluster(assets={"A": 0.5, "A": 0.5}, variance=1)
-
-
 def test_negative_variance():
     with pytest.raises(AssertionError):
         Cluster(assets={"A": -0.2, "B": 0.8}, variance=-1)
-
-
-def test_leverage():
-    with pytest.raises(AssertionError):
-        Cluster(assets={"A": 0.5, "B": 0.9}, variance=1)
 
 
 def test_only_left():

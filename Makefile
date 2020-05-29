@@ -4,7 +4,7 @@ PROJECT_VERSION := $(shell python setup.py --version)
 SHELL := /bin/bash
 PACKAGE := pyhrp
 
-.PHONY: help build test tag pypi
+.PHONY: help build test tag
 
 
 .DEFAULT: help
@@ -29,8 +29,3 @@ test:
 tag: test
 	git tag -a ${PROJECT_VERSION} -m "new tag"
 	git push --tags
-
-pypi: tag
-	python setup.py sdist
-	twine check dist/*
-	twine upload dist/*

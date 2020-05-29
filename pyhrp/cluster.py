@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def risk_parity(cluster_left, cluster_right, cov):
+def risk_parity(cluster_left, cluster_right, cov, node=None):
     # combine two clusters
 
     def rp(v_left, v_right):
@@ -27,23 +27,19 @@ def risk_parity(cluster_left, cluster_right, cov):
 
     var = np.linalg.multi_dot((w, c, w))
 
-    return Cluster(assets=assets, variance=var, left=cluster_left, right=cluster_right)
+    return Cluster(assets=assets, variance=var, left=cluster_left, right=cluster_right, node=node)
 
 
 class Cluster(object):
-    def __init__(self, assets, variance, left=None, right=None):
-        w = np.array(list(assets.values()))
-
-        assert np.all(w > 0)
+    def __init__(self, assets, variance, left=None, right=None, node=None):
         assert variance >= 0
 
-        # test that the weights are close to 1.0
-        assert np.isclose(np.sum(w), 1.0)
-
+        self.__node = node
         self.__assets = assets
         self.__variance = variance
         self.__left = left
         self.__right = right
+        self.__node = node
 
         if left is None:
             # if there is no left, there can't be a right
@@ -76,3 +72,7 @@ class Cluster(object):
     @property
     def weights(self):
         return pd.Series(self.assets, name="Weights").sort_index()
+
+    @property
+    def node(self):
+        return self.__node
