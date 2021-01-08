@@ -23,7 +23,6 @@ build:
 	docker-compose build pyhrp
 
 test:
-	mkdir -p artifacts
 	docker-compose -f docker-compose.test.yml run sut
 
 lint:

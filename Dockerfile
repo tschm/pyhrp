@@ -27,7 +27,7 @@ RUN pip install --no-cache-dir PyPortfolioOpt
 # COPY the tests over
 COPY test /pyhrp/test
 
-CMD py.test --cov=pyhrp  --cov-report html:artifacts/html-coverage --cov-report term --html=artifacts/html-report/report.html test
+CMD py.test --cov=pyhrp  --cov-report html:artifacts/html-coverage --cov-report term --html=artifacts/html-report/report.html /pyhrp/test
 
 # ----------------------------------------------------------------------------------------------------------------------
 FROM builder as lint
