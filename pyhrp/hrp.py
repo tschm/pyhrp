@@ -1,16 +1,18 @@
+# pylint: disable=missing-module-docstring
 import numpy as np
 import scipy.cluster.hierarchy as sch
+import scipy.spatial.distance as ssd
 
 from pyhrp.cluster import Cluster, risk_parity
-
-import scipy.spatial.distance as ssd
 
 
 def dist(cor):
     """
-    Compute the correlation based distance matrix d, compare with page 239 of the first book by Marcos
+    Compute the correlation based distance matrix d,
+    compare with page 239 of the first book by Marcos
     :param cor: the n x n correlation matrix
-    :return: The matrix d indicating the distance between column i and i. Note that all the diagonal entries are zero.
+    :return: The matrix d indicating the distance between column i and i.
+             Note that all the diagonal entries are zero.
 
     """
     # https://stackoverflow.com/questions/18952587/
@@ -19,25 +21,27 @@ def dist(cor):
     return ssd.squareform(matrix)
 
 
-def linkage(dist, method="ward", **kwargs):
+def linkage(dist_vec, method="ward", **kwargs):
     """
     Based on distance matrix compute the underlying links
-    :param dist: The distance vector based on the correlation matrix
+    :param dist_vec: The distance vector based on the correlation matrix
     :param method: "single", "ward", etc.
-    :return: links  The links describing the graph (useful to draw the dendrogram) and basis for constructing the tree object
+    :return: links  The links describing the graph (useful to draw the dendrogram)
+                    and basis for constructing the tree object
     """
     # compute the root node of the dendrogram
-    return sch.linkage(dist, method=method, **kwargs)
+    return sch.linkage(dist_vec, method=method, **kwargs)
 
 
-def tree(linkage):
+def tree(links):
     """
     Compute the root ClusterNode.
-    # see https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.ClusterNode.html
+    # see
+    # ^https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.ClusterNode.html
     :param links: The Linkage matrix compiled by the linkage function above
     :return: The root node. From there it's possible to reach the entire graph
     """
-    return sch.to_tree(linkage, rd=False)
+    return sch.to_tree(links, rd=False)
 
 
 def _hrp(node, cov):
@@ -45,10 +49,10 @@ def _hrp(node, cov):
         # a node is a leaf if has no further relatives downstream. No leaves, no branches...
         asset = cov.keys().to_list()[node.id]
         return Cluster(assets={asset: 1.0}, variance=cov[asset][asset], node=node)
-    else:
-        cluster_left = _hrp(node.left, cov)
-        cluster_right = _hrp(node.right, cov)
-        return risk_parity(cluster_left, cluster_right, cov=cov, node=node)
+
+    cluster_left = _hrp(node.left, cov)
+    cluster_right = _hrp(node.right, cov)
+    return risk_parity(cluster_left, cluster_right, cov=cov, node=node)
 
 
 def hrp(prices, node=None, method="single"):
@@ -64,4 +68,3 @@ def hrp(prices, node=None, method="single"):
     node = node or tree(links)
 
     return _hrp(node, cov)
-

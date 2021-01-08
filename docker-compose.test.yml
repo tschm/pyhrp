@@ -10,3 +10,13 @@ services:
       - ./artifacts:/pyhrp/artifacts
       - ./test:/pyhrp/test
       - ./pyhrp:/pyhrp/pyhrp:ro
+
+  lint:
+    build:
+       context: .
+       dockerfile: Dockerfile
+       target: lint
+
+    volumes:
+      - ./pyhrp:/pyhrp/pyhrp:ro
+      - ./.pylintrc:/pyhrp/.pylintrc:ro

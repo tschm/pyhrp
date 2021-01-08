@@ -26,6 +26,10 @@ test:
 	mkdir -p artifacts
 	docker-compose -f docker-compose.test.yml run sut
 
+lint:
+	docker-compose -f docker-compose.test.yml run lint
+
+
 tag: test
 	git tag -a ${PROJECT_VERSION} -m "new tag"
 	git push --tags
