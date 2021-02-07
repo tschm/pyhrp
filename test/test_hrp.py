@@ -79,10 +79,11 @@ def test_quasi_diag():
 def test_hrp():
     prices = get_data()
 
-    root = hrp(prices=prices)
+    root = hrp(prices=prices, method="single")
 
     # uncomment this line if you want generating a new file
-    # root.weights_series(index=list(prices.keys())).to_csv(resource("weights_hrp.csv"), header=False)
+    root2 = hrp(prices=prices, method="ward")
+    root2.weights.to_csv(resource("weights_hrp2.csv"), header=False)
 
     x = pd.read_csv(resource("weights_hrp.csv"), squeeze=True, index_col=0, header=None)
     x.name = "Weights"

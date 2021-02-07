@@ -8,7 +8,7 @@ services:
 
     volumes:
       - ./artifacts:/pyhrp/artifacts
-      - ./test:/pyhrp/test:ro
+      - ./test:/pyhrp/test
       - ./pyhrp:/pyhrp/pyhrp:ro
 
   lint:

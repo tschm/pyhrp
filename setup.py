@@ -19,5 +19,5 @@ setup(
     project_urls={
         "Source Code": "https://github.com/tschm/hrp"
     },
-    install_requires=['pandas>=0.25.3', 'scipy', 'numpy', 'matplotlib'],
+    install_requires=['pandas>=0.25.3', 'scipy', 'numpy', 'matplotlib>=3.3.3'],
 )
