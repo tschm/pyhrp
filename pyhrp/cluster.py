@@ -1,6 +1,9 @@
 # pylint: disable=too-many-arguments, missing-module-docstring, missing-function-docstring
 import numpy as np
 import pandas as pd
+from typing import Dict
+
+from dataclasses import dataclass
 
 
 def risk_parity(cluster_left, cluster_right, cov, node=None):
@@ -33,54 +36,34 @@ def risk_parity(cluster_left, cluster_right, cov, node=None):
     return Cluster(assets=assets, variance=var, left=cluster_left, right=cluster_right, node=node)
 
 
+@dataclass(frozen=True)
 class Cluster:
     """
     Clusters are the nodes of the graphs we build.
     Each cluster is aware of the left and the right cluster
     it is connecting to.
     """
-    def __init__(self, assets, variance, left=None, right=None, node=None):
-        assert variance >= 0
+    assets: Dict[str, float]
+    variance: float
+    node: object = None
+    left: object = None
+    right: object = None
 
-        self.__node = node
-        self.__assets = assets
-        self.__variance = variance
-        self.__left = left
-        self.__right = right
-        self.__node = node
-
-        if left is None:
+    def __post_init__(self):
+        assert self.variance > 0
+        if self.left is None:
             # if there is no left, there can't be a right
-            assert right is None
+            assert self.right is None
         else:
             # left is not None, hence both left and right have to be clusters
-            assert isinstance(left, Cluster)
-            assert isinstance(right, Cluster)
-            assert set(left.assets.keys()).isdisjoint(set(right.assets.keys()))
+            assert isinstance(self.left, Cluster)
+            assert isinstance(self.right, Cluster)
+            assert set(self.left.assets.keys()).isdisjoint(set(self.right.assets.keys()))
 
     @property
-    def variance(self):
-        return self.__variance
-
-    @property
-    def assets(self):
-        return self.__assets
-
-    @property
-    def left(self):
-        return self.__left
-
-    @property
-    def right(self):
-        return self.__right
-
     def is_leaf(self):
         return self.left is None and self.right is None
 
     @property
     def weights(self):
         return pd.Series(self.assets, name="Weights").sort_index()
-
-    @property
-    def node(self):
-        return self.__node

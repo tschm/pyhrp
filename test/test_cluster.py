@@ -29,8 +29,8 @@ def test_left_right():
 
     c = Cluster(assets={"A": 0.1, "B": 0.4, "C": 0.1, "D": 0.25, "F": 0.15}, variance=2.5, left=left, right=right)
 
-    assert c.left.is_leaf()
-    assert c.right.is_leaf()
+    assert c.left.is_leaf
+    assert c.right.is_leaf
 
     assert c.left
     assert c.right
