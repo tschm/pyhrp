@@ -54,7 +54,7 @@ def test_dist():
 
 
 def test_quasi_diag():
-    prices = get_data().truncate(before="2017-01-01")
+    prices = get_data()
 
     # compute returns
     returns = prices.pct_change().dropna(axis=0, how="all").fillna(0.0)
@@ -102,14 +102,9 @@ def test_quasi_diag():
 def test_hrp():
     prices = get_data()
 
-    root = hrp(prices=prices, method="single")
+    root = hrp(prices=prices, method="ward")
 
-    # uncomment this line if you want generating a new file
-    root2 = hrp(prices=prices, method="ward")
-    root2.weights.to_csv(resource("weights_hrp2.csv"), header=False)
-
-    x = pd.read_csv(resource("weights_hrp.csv"), squeeze=True, index_col=0, header=None)
-    x.name = "Weights"
+    x = pd.read_csv(resource("weights_hrp.csv"), squeeze=True, index_col=0, header=0)
     x.index.name = None
 
     pd.testing.assert_series_equal(x, root.weights, check_exact=False)

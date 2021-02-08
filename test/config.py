@@ -8,7 +8,7 @@ def resource(name):
 
 def get_data():
     # https://github.com/robertmartin8/PyPortfolioOpt
-    return pd.read_csv(resource("stock_prices.csv"), parse_dates=True, index_col="date")
+    return pd.read_csv(resource("stock_prices.csv"), parse_dates=True, index_col="date").truncate(before="2017-01-01")
 
 
 def get_benchmark_data():
