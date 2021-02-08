@@ -17,7 +17,7 @@ FROM builder as test
 RUN pip install --no-cache-dir  pytest pytest-cov pytest-html
 
 # Install package by Robert Martin
-RUN pip install --no-cache-dir PyPortfolioOpt
+# RUN pip install --no-cache-dir PyPortfolioOpt
 
 # COPY the tests over
 COPY test /pyhrp/test
