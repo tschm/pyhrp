@@ -32,4 +32,5 @@ jobs:
           name: artifacts
           path: artifacts # or path/to/artifact
 
-      - run: make lint
+      # switch off the linting
+      # - run: make lint
