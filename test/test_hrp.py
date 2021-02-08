@@ -54,10 +54,14 @@ def test_dist():
 
 
 def test_quasi_diag():
-    prices = get_data()
+    prices = get_data().truncate(before="2017-01-01")
 
     # compute returns
-    returns = prices.pct_change().dropna(axis=0, how="all")
+    returns = prices.pct_change().dropna(axis=0, how="all").fillna(0.0)
+
+    np.testing.assert_allclose(returns.cov().values, np.genfromtxt(resource("covariance2.csv")))
+    np.testing.assert_allclose(returns.corr().values, np.genfromtxt(resource("correlation2.csv")))
+
     cor = returns.corr().values
     links = linkage(dist(cor), method="single")
 
@@ -69,11 +73,30 @@ def test_quasi_diag():
     node = tree(links)
 
     ids = node.pre_order()
-    assert ids == [12, 6, 15, 14, 2, 7, 10, 3, 17, 11, 19, 13, 4, 1, 0, 16, 5, 9, 8, 18]
+    assert ids == [11, 7, 19, 6, 14, 5, 10, 13, 3, 1, 4, 16, 0, 2, 17, 9, 8, 18, 12, 15]
 
     ordered_tickers = prices.keys()[ids].to_list()
-    assert ordered_tickers == ['SHLD', 'AMD', 'BBY', 'RRC', 'FB', 'WMT', 'T', 'BABA', 'PFE', 'UAA', 'SBUX', 'XOM',
-                               'AMZN', 'AAPL', 'GOOG', 'MA', 'GE', 'GM', 'BAC', 'JPM']
+    print(ordered_tickers)
+    assert ordered_tickers == ['UAA',
+                               'WMT',
+                               'SBUX',
+                               'AMD',
+                               'RRC',
+                               'GE',
+                               'T',
+                               'XOM',
+                               'BABA',
+                               'AAPL',
+                               'AMZN',
+                               'MA',
+                               'GOOG',
+                               'FB',
+                               'PFE',
+                               'GM',
+                               'BAC',
+                               'JPM',
+                               'SHLD',
+                               'BBY']
 
 
 def test_hrp():
