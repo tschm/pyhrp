@@ -1,8 +1,9 @@
 import numpy as np
 import pandas as pd
 
-from pyhrp.hrp import dist, hrp, linkage, tree
 from pyhrp.graph import dendrogram
+from pyhrp.hrp import dist, hrp, linkage, tree
+
 
 def test_dist():
     a = np.array([[1.0, 0.2 / np.sqrt(2.0)], [0.2 / np.sqrt(2.0), 1.0]])
