@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 
-def risk_parity(cluster_left, cluster_right, cov, node=None):
+def risk_parity(cluster_left, cluster_right, cov):
     """
     Given two clusters compute in a bottom-up approach their parent.
 
@@ -46,7 +46,7 @@ def risk_parity(cluster_left, cluster_right, cov, node=None):
     var = np.linalg.multi_dot((weights, covariance, weights))
 
     return Cluster(
-        assets=assets, variance=var, left=cluster_left, right=cluster_right, node=node
+        assets=assets, variance=var, left=cluster_left, right=cluster_right #, node=node
     )
 
 
@@ -65,7 +65,7 @@ class Cluster:
     right: object = None
 
     def __post_init__(self):
-        """check input""
+        """check input"""
         
         if self.variance <= 0:
             raise AssertionError
