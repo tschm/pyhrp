@@ -6,7 +6,8 @@ from pyhrp.cluster import Cluster, risk_parity
 
 
 def test_cluster_simple():
-    Cluster(assets={"A": 0.2, "B": 0.8}, variance=1)
+    c = Cluster(assets={"A": 0.2, "B": 0.8}, variance=1)
+    assert c.is_leaf()
 
 
 def test_negative_variance():

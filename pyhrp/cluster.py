@@ -1,4 +1,4 @@
-# pylint: disable=too-many-arguments, missing-module-docstring, missing-function-docstring
+"""risk parity for clusters"""
 from dataclasses import dataclass
 from typing import Dict
 
@@ -6,7 +6,16 @@ import numpy as np
 import pandas as pd
 
 
-def risk_parity(cluster_left, cluster_right, cov, node=None):
+def risk_parity(cluster_left, cluster_right, cov):
+    """
+    Given two clusters compute in a bottom-up approach their parent.
+
+    :param cluster_left: left cluster
+    :param cluster_right: right cluster
+    :param cov: (global) covariance matrix. Will pick the correct sub-matrix
+
+    """
+
     # combine two clusters
 
     def parity(v_left, v_right):
@@ -37,7 +46,10 @@ def risk_parity(cluster_left, cluster_right, cov, node=None):
     var = np.linalg.multi_dot((weights, covariance, weights))
 
     return Cluster(
-        assets=assets, variance=var, left=cluster_left, right=cluster_right, node=node
+        assets=assets,
+        variance=var,
+        left=cluster_left,
+        right=cluster_right,  # , node=node
     )
 
 
@@ -51,11 +63,12 @@ class Cluster:
 
     assets: Dict[str, float]
     variance: float
-    node: object = None
     left: object = None
     right: object = None
 
     def __post_init__(self):
+        """check input"""
+
         if self.variance <= 0:
             raise AssertionError
         if self.left is None:
@@ -73,10 +86,11 @@ class Cluster:
             ):
                 raise AssertionError
 
-    @property
     def is_leaf(self):
+        """true if this cluster is a leaf, e.g. no clusters follow downstream"""
         return self.left is None and self.right is None
 
     @property
     def weights(self):
+        """weight series"""
         return pd.Series(self.assets, name="Weights").sort_index()
