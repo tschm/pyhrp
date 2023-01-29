@@ -4,7 +4,6 @@ import pandas as pd
 from pyhrp.hrp import dist, hrp, linkage, tree
 
 
-
 def test_dist():
     a = np.array([[1.0, 0.2 / np.sqrt(2.0)], [0.2 / np.sqrt(2.0), 1.0]])
     np.testing.assert_allclose(dist(a), np.array([6.552017e-01]), rtol=1e-6, atol=1e-6)
@@ -14,7 +13,6 @@ def test_quasi_diag(resource_dir):
     prices = pd.read_csv(
         resource_dir / "stock_prices.csv", parse_dates=True, index_col="date"
     ).truncate(before="2017-01-01")
-
 
     # compute returns
     returns = prices.pct_change().dropna(axis=0, how="all").fillna(0.0)
