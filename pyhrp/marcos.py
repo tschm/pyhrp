@@ -7,7 +7,7 @@
 import pandas as pd
 import scipy.cluster.hierarchy as sch
 
-from pyhrp.hrp import tree, linkage, _hrp, dist
+from pyhrp.hrp import _hrp, dist, linkage, tree
 
 
 def bisection(ids):
@@ -22,7 +22,7 @@ def bisection(ids):
         # split the vector ids in two parts, split in the middle
         assert len(ids) >= 2
         num = len(ids)
-        return ids[:num // 2], ids[num // 2:]
+        return ids[: num // 2], ids[num // 2 :]
 
     assert len(ids) >= 1
     assert len(ids) == len(set(ids))

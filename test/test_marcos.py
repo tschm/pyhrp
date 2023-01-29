@@ -1,7 +1,8 @@
+from test.config import get_data, resource
+
 import pandas as pd
 
 from pyhrp.marcos import marcos
-from test.config import resource, get_data
 
 
 def test_marcos():

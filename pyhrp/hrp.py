@@ -16,7 +16,7 @@ def dist(cor):
 
     """
     # https://stackoverflow.com/questions/18952587/
-    matrix = np.sqrt(np.clip((1.0 - cor) / 2., a_min=0.0, a_max=1.0))
+    matrix = np.sqrt(np.clip((1.0 - cor) / 2.0, a_min=0.0, a_max=1.0))
     np.fill_diagonal(matrix, val=0.0)
     return ssd.squareform(matrix)
 
