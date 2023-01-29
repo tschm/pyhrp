@@ -6,7 +6,7 @@ from pyhrp.cluster import Cluster, risk_parity
 
 
 def test_cluster_simple():
-    c = Cluster(assets={"A": 0.2, "B": 0.8}, variance=1)
+    Cluster(assets={"A": 0.2, "B": 0.8}, variance=1)
 
 
 def test_negative_variance():
