@@ -41,6 +41,8 @@ def bisection(ids):
 
 
 def marcos(prices, node=None, method=None):
+    """The algorithm as implemented in the book by Marcos Lopez de Prado"""
+
     # make sure the prices are a DataFrame
     if not isinstance(prices, pd.DataFrame):
         raise AssertionError
