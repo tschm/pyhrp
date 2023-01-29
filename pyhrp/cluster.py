@@ -65,6 +65,8 @@ class Cluster:
     right: object = None
 
     def __post_init__(self):
+        """check input""
+        
         if self.variance <= 0:
             raise AssertionError
         if self.left is None:
