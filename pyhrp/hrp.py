@@ -16,7 +16,7 @@ def dist(cor):
 
     """
     # https://stackoverflow.com/questions/18952587/
-    matrix = np.sqrt(np.clip((1.0 - cor) / 2., a_min=0.0, a_max=1.0))
+    matrix = np.sqrt(np.clip((1.0 - cor) / 2.0, a_min=0.0, a_max=1.0))
     np.fill_diagonal(matrix, val=0.0)
     return ssd.squareform(matrix)
 
@@ -48,11 +48,11 @@ def _hrp(node, cov):
     if node.is_leaf():
         # a node is a leaf if has no further relatives downstream. No leaves, no branches...
         asset = cov.keys().to_list()[node.id]
-        return Cluster(assets={asset: 1.0}, variance=cov[asset][asset]) #, node=node)
+        return Cluster(assets={asset: 1.0}, variance=cov[asset][asset])  # , node=node)
 
     cluster_left = _hrp(node.left, cov)
     cluster_right = _hrp(node.right, cov)
-    return risk_parity(cluster_left, cluster_right, cov=cov) #, node=node)
+    return risk_parity(cluster_left, cluster_right, cov=cov)  # , node=node)
 
 
 def hrp(prices, node=None, method="single"):
