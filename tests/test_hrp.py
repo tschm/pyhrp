@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from pyhrp.hrp import dist, hrp, linkage, tree
-
+from pyhrp.graph import dendrogram
 
 def test_dist():
     a = np.array([[1.0, 0.2 / np.sqrt(2.0)], [0.2 / np.sqrt(2.0), 1.0]])
@@ -26,7 +26,7 @@ def test_quasi_diag(resource_dir):
 
     cor = returns.corr().values
     links = linkage(dist(cor), method="single")
-
+    dendrogram(links=links)
     # uncomment this line if you want to generate a new test resource
     # np.savetxt(resource("links.csv"), links, delimiter=",")
 
