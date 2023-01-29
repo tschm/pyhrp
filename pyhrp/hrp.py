@@ -48,11 +48,11 @@ def _hrp(node, cov):
     if node.is_leaf():
         # a node is a leaf if has no further relatives downstream. No leaves, no branches...
         asset = cov.keys().to_list()[node.id]
-        return Cluster(assets={asset: 1.0}, variance=cov[asset][asset], node=node)
+        return Cluster(assets={asset: 1.0}, variance=cov[asset][asset]) #, node=node)
 
     cluster_left = _hrp(node.left, cov)
     cluster_right = _hrp(node.right, cov)
-    return risk_parity(cluster_left, cluster_right, cov=cov, node=node)
+    return risk_parity(cluster_left, cluster_right, cov=cov) #, node=node)
 
 
 def hrp(prices, node=None, method="single"):
