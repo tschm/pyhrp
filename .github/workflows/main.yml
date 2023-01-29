@@ -20,7 +20,7 @@ jobs:
       - name: install docstr
         run: |
           pip install docstr-coverage
-          docstr-coverage .
+          docstr-coverage pyhrp
           
   test:
     # The type of runner that the job will run on
