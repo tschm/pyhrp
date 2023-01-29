@@ -9,6 +9,7 @@ def test_cluster_simple():
     c = Cluster(assets={"A": 0.2, "B": 0.8}, variance=1)
     assert c.is_leaf()
 
+
 def test_negative_variance():
     with pytest.raises(AssertionError):
         Cluster(assets={"A": -0.2, "B": 0.8}, variance=-1)
