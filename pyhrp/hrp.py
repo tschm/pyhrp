@@ -1,4 +1,4 @@
-# pylint: disable=missing-module-docstring
+"""the hrp algorithm"""
 import numpy as np
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
@@ -44,15 +44,19 @@ def tree(links):
     return sch.to_tree(links, rd=False)
 
 
-def _hrp(node, cov):
+def build_cluster(node, cov):
+    """compute a cluster"""
     if node.is_leaf():
         # a node is a leaf if has no further relatives downstream. No leaves, no branches...
         asset = cov.keys().to_list()[node.id]
-        return Cluster(assets={asset: 1.0}, variance=cov[asset][asset])  # , node=node)
+        return Cluster(assets={asset: 1.0}, variance=cov[asset][asset])
 
-    cluster_left = _hrp(node.left, cov)
-    cluster_right = _hrp(node.right, cov)
-    return risk_parity(cluster_left, cluster_right, cov=cov)  # , node=node)
+    # drill down on the left
+    cluster_left = build_cluster(node.left, cov)
+    # drill down on the right
+    cluster_right = build_cluster(node.right, cov)
+    # combine left and right into a new cluster
+    return risk_parity(cluster_left, cluster_right, cov=cov)
 
 
 def hrp(prices, node=None, method="single"):
@@ -64,7 +68,6 @@ def hrp(prices, node=None, method="single"):
     """
     returns = prices.pct_change().dropna(axis=0, how="all")
     cov, cor = returns.cov(), returns.corr()
-    links = linkage(dist(cor.values), method=method)
-    node = node or tree(links)
+    node = node or tree(linkage(dist(cor.values), method=method))
 
-    return _hrp(node, cov)
+    return build_cluster(node, cov)

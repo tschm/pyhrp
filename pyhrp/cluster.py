@@ -63,7 +63,6 @@ class Cluster:
 
     assets: Dict[str, float]
     variance: float
-    node: object = None
     left: object = None
     right: object = None
 
@@ -87,7 +86,6 @@ class Cluster:
             ):
                 raise AssertionError
 
-    @property
     def is_leaf(self):
         """true if this cluster is a leaf, e.g. no clusters follow downstream"""
         return self.left is None and self.right is None
