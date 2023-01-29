@@ -8,4 +8,3 @@ import pytest
 def resource_fixture():
     """resource fixture"""
     return Path(__file__).parent / "resources"
-
