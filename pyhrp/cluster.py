@@ -1,9 +1,9 @@
 # pylint: disable=too-many-arguments, missing-module-docstring, missing-function-docstring
-import numpy as np
-import pandas as pd
+from dataclasses import dataclass
 from typing import Dict
 
-from dataclasses import dataclass
+import numpy as np
+import pandas as pd
 
 
 def risk_parity(cluster_left, cluster_right, cov, node=None):
@@ -25,15 +25,19 @@ def risk_parity(cluster_left, cluster_right, cov, node=None):
     alpha_left, alpha_right = parity(cluster_left.variance, cluster_right.variance)
 
     # assets in the cluster are the assets of the left and right cluster further downstream
-    assets = {**(alpha_left * cluster_left.weights).to_dict(),
-              **(alpha_right * cluster_right.weights).to_dict()}
+    assets = {
+        **(alpha_left * cluster_left.weights).to_dict(),
+        **(alpha_right * cluster_right.weights).to_dict(),
+    }
 
     weights = np.array(list(assets.values()))
     covariance = cov[assets.keys()].loc[assets.keys()]
 
     var = np.linalg.multi_dot((weights, covariance, weights))
 
-    return Cluster(assets=assets, variance=var, left=cluster_left, right=cluster_right, node=node)
+    return Cluster(
+        assets=assets, variance=var, left=cluster_left, right=cluster_right, node=node
+    )
 
 
 @dataclass(frozen=True)
@@ -43,6 +47,7 @@ class Cluster:
     Each cluster is aware of the left and the right cluster
     it is connecting to.
     """
+
     assets: Dict[str, float]
     variance: float
     node: object = None
@@ -58,7 +63,9 @@ class Cluster:
             # left is not None, hence both left and right have to be clusters
             assert isinstance(self.left, Cluster)
             assert isinstance(self.right, Cluster)
-            assert set(self.left.assets.keys()).isdisjoint(set(self.right.assets.keys()))
+            assert set(self.left.assets.keys()).isdisjoint(
+                set(self.right.assets.keys())
+            )
 
     @property
     def is_leaf(self):
