@@ -46,7 +46,10 @@ def risk_parity(cluster_left, cluster_right, cov):
     var = np.linalg.multi_dot((weights, covariance, weights))
 
     return Cluster(
-        assets=assets, variance=var, left=cluster_left, right=cluster_right #, node=node
+        assets=assets,
+        variance=var,
+        left=cluster_left,
+        right=cluster_right,  # , node=node
     )
 
 
@@ -66,7 +69,7 @@ class Cluster:
 
     def __post_init__(self):
         """check input"""
-        
+
         if self.variance <= 0:
             raise AssertionError
         if self.left is None:
