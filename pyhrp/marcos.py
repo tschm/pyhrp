@@ -1,11 +1,12 @@
-"""Replicate the implementation of HRP by Marcos Lopez de Prado using this package"""
+"""Replicate the implementation of HRP by Marcos Lopez de Prado using this package
 
-# the original implementation by Marcos Lopez de Prado is using recursive bisection
-# on a ranked list of columns of the covariance matrix
-# To get to this list Lopez de Prado is using what he calls the matrix quasi-diagonalization
-# but it's induced by the order (from left to right) of the dendrogram.
-# Based on that we build a tree reflecting the recursive bisection.
-# With that tree and the covariance matrix we go back to the hrp algorithm.
+The original implementation by Marcos Lopez de Prado is using recursive bisection
+on a ranked list of columns of the covariance matrix
+To get to this list Lopez de Prado is using a matrix quasi-diagonalization
+induced by the order (from left to right) of the dendrogram.
+Based on that we build a tree reflecting the recursive bisection.
+With that tree and the covariance matrix we go back to the hrp algorithm"""
+
 import pandas as pd
 import scipy.cluster.hierarchy as sch
 
