@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 
 from pyhrp.hrp import linkage, tree, hrp, dist
-from test.config import resource, get_data
 
 
 # def test_hrp():
@@ -53,14 +52,16 @@ def test_dist():
     np.testing.assert_allclose(dist(a), np.array([6.552017e-01]), rtol=1e-6, atol=1e-6)
 
 
-def test_quasi_diag():
-    prices = get_data()
+def test_quasi_diag(resource_dir):
+    prices = pd.read_csv(resource_dir / "stock_prices.csv", parse_dates=True, index_col="date").truncate(before="2017-01-01")
+
+    #prices = get_data()
 
     # compute returns
     returns = prices.pct_change().dropna(axis=0, how="all").fillna(0.0)
 
-    np.testing.assert_allclose(returns.cov().values, np.genfromtxt(resource("covariance2.csv")))
-    np.testing.assert_allclose(returns.corr().values, np.genfromtxt(resource("correlation2.csv")))
+    np.testing.assert_allclose(returns.cov().values, np.genfromtxt(resource_dir / "covariance2.csv"))
+    np.testing.assert_allclose(returns.corr().values, np.genfromtxt(resource_dir / "correlation2.csv"))
 
     cor = returns.corr().values
     links = linkage(dist(cor), method="single")
@@ -68,7 +69,7 @@ def test_quasi_diag():
     # uncomment this line if you want to generate a new test resource
     # np.savetxt(resource("links.csv"), links, delimiter=",")
 
-    np.testing.assert_array_almost_equal(links, np.loadtxt(resource("links.csv"), delimiter=','))
+    np.testing.assert_array_almost_equal(links, np.loadtxt(resource_dir / "links.csv", delimiter=','))
 
     node = tree(links)
 
@@ -99,12 +100,12 @@ def test_quasi_diag():
                                'BBY']
 
 
-def test_hrp():
-    prices = get_data()
+def test_hrp(resource_dir):
+    prices = pd.read_csv(resource_dir / "stock_prices.csv", parse_dates=True, index_col="date").truncate(before="2017-01-01")
 
     root = hrp(prices=prices, method="ward")
 
-    x = pd.read_csv(resource("weights_hrp.csv"), squeeze=True, index_col=0, header=0)
+    x = pd.read_csv(resource_dir / "weights_hrp.csv", squeeze=True, index_col=0, header=0)
     x.index.name = None
 
     pd.testing.assert_series_equal(x, root.weights, check_exact=False)
