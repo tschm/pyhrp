@@ -9,13 +9,13 @@ import pandas as pd
 def risk_parity(cluster_left, cluster_right, cov, node=None):
     """
     Given two clusters compute in a bottom-up approach their parent.
-    
+
     :param cluster_left: left cluster
     :param cluster_right: right cluster
     :param cov: (global) covariance matrix. Will pick the correct sub-matrix
-    
+
     """
-    
+
     # combine two clusters
 
     def parity(v_left, v_right):
