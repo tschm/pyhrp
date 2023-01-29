@@ -49,7 +49,6 @@ def test_left_right():
     assert c.variance == 2.5
     assert c.right.variance == 3.0
     assert c.left.variance == 2.0
-    # np.testing.assert_array_equal(c.weights, pd.Series(c.assets))
 
     pd.testing.assert_series_equal(c.weights, pd.Series(c.assets), check_names=False)
 
