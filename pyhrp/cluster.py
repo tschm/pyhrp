@@ -61,8 +61,8 @@ class Cluster:
     assets: Dict[str, float]
     variance: float
     node: object = None
-    left: Cluster = None
-    right: Cluster = None
+    left: object = None
+    right: object = None
 
     def __post_init__(self):
         if self.variance <= 0:
