@@ -36,8 +36,6 @@ def linkage(dist_vec, method="ward", **kwargs):
 def tree(links):
     """
     Compute the root ClusterNode.
-    # see
-    # ^https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.ClusterNode.html
     :param links: The Linkage matrix compiled by the linkage function above
     :return: The root node. From there it's possible to reach the entire graph
     """
@@ -47,7 +45,7 @@ def tree(links):
 def build_cluster(node, cov):
     """compute a cluster"""
     if node.is_leaf():
-        # a node is a leaf if has no further relatives downstream. No leaves, no branches...
+        # a node is a leaf if has no further relatives downstream. No leaves, no branches
         asset = cov.keys().to_list()[node.id]
         return Cluster(assets={asset: 1.0}, variance=cov[asset][asset])
 
