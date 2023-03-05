@@ -34,7 +34,7 @@ def risk_parity(cluster_left, cluster_right, cov):
     # split is s.t. v_left * alpha_left == v_right * alpha_right and alpha + beta = 1
     alpha_left, alpha_right = parity(cluster_left.variance, cluster_right.variance)
 
-    # assets in the cluster are the assets of the left and right cluster 
+    # assets in the cluster are the assets of the left and right cluster
     # further downstream
     assets = {
         **(alpha_left * cluster_left.weights).to_dict(),
