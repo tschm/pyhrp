@@ -45,7 +45,7 @@ def tree(links):
 def build_cluster(node, cov):
     """compute a cluster"""
     if node.is_leaf():
-        # a node is a leaf if has no further relatives downstream. 
+        # a node is a leaf if has no further relatives downstream.
         # no leaves, no branches, ...
         asset = cov.keys().to_list()[node.id]
         return Cluster(assets={asset: 1.0}, variance=cov[asset][asset])
