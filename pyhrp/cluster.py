@@ -24,14 +24,14 @@ def risk_parity(cluster_left, cluster_right, cov):
         :param v_left: Variance of the "left" portfolio
         :param v_right: Variance of the "right" portfolio
         :return: w, 1-w the weights for the left and the right portfolio.
-                 It is w*v_left == (1-w)*v_right and hence w = v_right / (v_right + v_left)
+                 It is w*v_left == (1-w)*v_right hence w = v_right / (v_right + v_left)
         """
         return v_right / (v_left + v_right), v_left / (v_left + v_right)
 
     if not set(cluster_left.assets).isdisjoint(set(cluster_right.assets)):
         raise AssertionError
 
-    # the split is such that v_left * alpha_left == v_right * alpha_right and alpha + beta = 1
+    # split is s.t. v_left * alpha_left == v_right * alpha_right and alpha + beta = 1
     alpha_left, alpha_right = parity(cluster_left.variance, cluster_right.variance)
 
     # assets in the cluster are the assets of the left and right cluster further downstream
