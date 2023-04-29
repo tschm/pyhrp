@@ -36,7 +36,14 @@ jobs:
             poetry build
             cat pyproject.toml      
             ls -all
-            
+            echo $ACTIONS_ID_TOKEN_REQUEST_TOKEN
+            echo $ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi
+            # retrieve the ambient OIDC token
+            resp=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+                           "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi")
+            echo "RESP ${resp}"
+      
+      #    oidc_token=$(jq '.value' <<< "${resp}")
       #- uses: dsaltares/fetch-gh-release-asset@1.1.0
       #  with:
       #    version: tags/${{ github.ref_name }}
