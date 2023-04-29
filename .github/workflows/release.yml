@@ -51,14 +51,20 @@ jobs:
 
           # see the next step in the workflow for an example of using this step output
           echo "api-token=${api_token}" >> "${GITHUB_OUTPUT}"
-
+          
+          # set poetry config
+          poetry config pypi-token.pypi ${api_token}
+          poetry publish
+          
       #- name: publish
       #  # gh-action-pypi-publish uses TWINE_PASSWORD automatically
       #  uses: pypa/gh-action-pypi-publish@release/v1
       #  with:
       #    password: ${{ steps.mint-token.outputs.api-token }}
           
-      - name: Publish the package to pypi
-        run : |
-            poetry config pypi-token.pypi ${{ steps.mint-token.outputs.api-token }}
-            poetry publish
+      #- name: Publish the package to pypi
+      #  run : |
+      #      echo "${{ steps.mint-token.outputs.api-token }}"
+      #      echo "${api-token}"
+      #      poetry config pypi-token.pypi ${{ steps.mint-token.outputs.api-token }}
+      #      poetry publish
