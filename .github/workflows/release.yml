@@ -1,4 +1,4 @@
-name: Release
+name: Release Trusted
 
 on:
   push:
@@ -6,12 +6,16 @@ on:
     - '[0-9]+.[0-9]+.[0-9]'
 
 jobs:
-  release:
+  pypi-publish:
+    name: Upload release to PyPI
     runs-on: ubuntu-latest
-
-    # Steps represent matrix sequence of tasks that will be executed as part of the job
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pyhrp
+    permissions:
+      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      # retrieve your distributions here
       - uses: actions/checkout@v3
 
       - name: Set up Python 3.10
@@ -22,18 +26,13 @@ jobs:
       - name: Install Poetry
         uses: snok/install-poetry@v1.3.3
         with:
-            virtualenvs-create: true
-            virtualenvs-in-project: true
+            virtualenvs-create: false
 
       - name: Change version in pyproject.toml
         run: |
             echo ${{  github.ref_name }}
             poetry version ${{  github.ref_name }}
             poetry build
-            cat pyproject.toml      
-      
-
-      #- name: Publish the package to pypi
-      #  run : |
-      #      poetry config pypi-token.pypi ${{ secrets.TWINE_TOKEN }} 
-      #      poetry publish
+            
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
