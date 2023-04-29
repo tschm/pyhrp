@@ -1,38 +1,61 @@
-name: Release Trusted
+name: Upload Python Package
 
 on:
-  push:
-    tags:
-    - '[0-9]+.[0-9]+.[0-9]'
+  release:
+    types: published
 
 jobs:
-  pypi:
-    name: Upload release to PyPI
+  deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/pyhrp
     permissions:
-      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+      # This permission is required for trusted publishing.
+      id-token: write
     steps:
-      # retrieve your distributions here
-      - uses: actions/checkout@v3
-
-      - name: Set up Python 3.10
-        uses: actions/setup-python@v4
+      - uses: dsaltares/fetch-gh-release-asset@1.1.0
         with:
-            python-version: '3.10'
+          version: tags/${{ github.event.release.tag_name }}
+          file: ${{ github.event.repository.name }}.*
+          regex: true
+          target: dist/
 
-      - name: Install Poetry
-        uses: snok/install-poetry@v1.3.3
-        with:
-            virtualenvs-create: false
+      - name: Publish release to production PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        
+#name: Release Trusted
 
-      - name: Change version in pyproject.toml
-        run: |
-            echo ${{  github.ref_name }}
-            poetry version ${{  github.ref_name }}
-            poetry build
+#on:
+#  push:
+#    tags:
+#    - '[0-9]+.[0-9]+.[0-9]'
+
+#jobs:
+#  pypi:
+#    name: Upload release to PyPI
+#    runs-on: ubuntu-latest
+#    environment:
+#      name: pypi
+#      url: https://pypi.org/p/pyhrp
+#    permissions:
+#      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+#    steps:
+#      # retrieve your distributions here
+#      - uses: actions/checkout@v3
+# 
+#       - name: Set up Python 3.10
+#        uses: actions/setup-python@v4
+#        with:
+#             python-version: '3.10'
+
+#      - name: Install Poetry
+#        uses: snok/install-poetry@v1.3.3
+#        with:
+#            virtualenvs-create: false
+
+#      - name: Change version in pyproject.toml
+#        run: |
+#            echo ${{  github.ref_name }}
+#            poetry version ${{  github.ref_name }}
+#             poetry build
     
       #- name: mint API token
       #  id: mint-token
@@ -61,8 +84,8 @@ jobs:
       #    poetry config pypi-token.pypi ${api_token}
       #    poetry publish
          
-      - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+ #     - name: Publish package distributions to PyPI
+ #       uses: pypa/gh-action-pypi-publish@release/v1
       
       #- name: publish
       #  # gh-action-pypi-publish uses TWINE_PASSWORD automatically
