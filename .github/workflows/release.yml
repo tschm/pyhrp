@@ -38,11 +38,20 @@ jobs:
             ls -all
             echo $ACTIONS_ID_TOKEN_REQUEST_TOKEN
             echo $ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi
+            
             # retrieve the ambient OIDC token
             resp=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
                            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi")
             echo "RESP ${resp}"
-      
+            oidc_token=$(jq '.value' <<< "${resp}")
+            echo "OIDC ${oidc_token}"
+            
+            # exchange the OIDC token for an API token
+            resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\": \"${oidc_token}\"}")
+            echo "RESP ${resp}"
+            api_token=$(jq '.token' <<< "${resp}")
+            echo "api_token ${api_token}"
+            
       #    oidc_token=$(jq '.value' <<< "${resp}")
       #- uses: dsaltares/fetch-gh-release-asset@1.1.0
       #  with:
