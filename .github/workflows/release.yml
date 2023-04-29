@@ -43,18 +43,20 @@ jobs:
           
           resp=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi")
           oidc_token=$(jq '.value' <<< "${resp}")
-
+          echo "OIDC ${oidc_token}"
+          
           # exchange the OIDC token for an API token
           resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\": \"${oidc_token}\"}")
           api_token=$(jq '.token' <<< "${resp}")
+          echo "API ${api_token}"
           
-          echo ${api_token}
+          # echo ${api_token}
           
           # mask the newly minted API token, so that we don't accidentally leak it
           # echo "::add-mask::${api_token}"
 
           # see the next step in the workflow for an example of using this step output
-          echo "api-token=${api_token}" >> "${GITHUB_OUTPUT}"
+          # echo "api-token=${api_token}" >> "${GITHUB_OUTPUT}"
           
           # set poetry config
           poetry config pypi-token.pypi ${api_token}
