@@ -6,12 +6,12 @@ on:
     - '[0-9]+.[0-9]+.[0-9]'
 
 jobs:
-  pypi-publish:
+  pypi:
     name: Upload release to PyPI
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/pyhrp
+    #environment:
+    #  name: pypi
+    #  url: https://pypi.org/p/pyhrp
     permissions:
       id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
     steps:
@@ -38,14 +38,18 @@ jobs:
         id: mint-token
         run: |
           # retrieve the ambient OIDC token
-          resp=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi")
+          #resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\": \"${oidc_token}\"}")
+          #api_token=$(jq '.token' <<< "${resp}")
+          
+          resp=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi")
           oidc_token=$(jq '.value' <<< "${resp}")
 
           # exchange the OIDC token for an API token
           resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\": \"${oidc_token}\"}")
           api_token=$(jq '.token' <<< "${resp}")
-
+          
+          echo ${api_token}
+          
           # mask the newly minted API token, so that we don't accidentally leak it
           # echo "::add-mask::${api_token}"
 
