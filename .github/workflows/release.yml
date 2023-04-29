@@ -1,8 +1,12 @@
 name: Upload Python Package
 
 on:
-  release:
-    types: published
+  push:
+    tags:
+    - '[0-9]+.[0-9]+.[0-9]'
+#on:
+#  release:
+#    types: published
 
 jobs:
   deploy:
@@ -10,13 +14,35 @@ jobs:
     permissions:
       # This permission is required for trusted publishing.
       id-token: write
+    
+    
     steps:
-      - uses: dsaltares/fetch-gh-release-asset@1.1.0
+      - uses: actions/checkout@v3
+    
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v4
         with:
-          version: tags/${{ github.event.release.tag_name }}
-          file: ${{ github.event.repository.name }}.*
-          regex: true
-          target: dist/
+            python-version: '3.10'
+                  
+      - name: Install Poetry
+        uses: snok/install-poetry@v1.3.3
+        with:
+            virtualenvs-create: false
+      
+      - name: Change version in pyproject.toml
+        run: |
+            echo ${{  github.ref_name }}
+            poetry version ${{  github.ref_name }}
+            poetry build
+            cat pyproject.toml      
+            ls -all
+            
+      #- uses: dsaltares/fetch-gh-release-asset@1.1.0
+      #  with:
+      #    version: tags/${{ github.ref_name }}
+      #    file: ${{ github.event.repository.name }}.*
+      #    regex: true
+      #    target: dist/
 
       - name: Publish release to production PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
