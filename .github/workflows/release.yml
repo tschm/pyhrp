@@ -47,9 +47,7 @@ jobs:
           # exchange the OIDC token for an API token
           resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\": \"${oidc_token}\"}")
           echo "RESP ${resp}"
-          api_token=$(jq '.token' <<< "${resp}
-          
-          
+          api_token=$(jq '.token' <<< "${resp}")
           
           # echo ${api_token}
           
