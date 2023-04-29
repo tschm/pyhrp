@@ -33,7 +33,7 @@ jobs:
             cat pyproject.toml      
       
 
-      - name: Publish the package to pypi
-        run : |
-            poetry config pypi-token.pypi ${{ secrets.TWINE_TOKEN }} 
-            poetry publish
+      #- name: Publish the package to pypi
+      #  run : |
+      #      poetry config pypi-token.pypi ${{ secrets.TWINE_TOKEN }} 
+      #      poetry publish
