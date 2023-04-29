@@ -58,6 +58,3 @@ jobs:
         with:
           password: ${{ steps.mint-token.outputs.api-token }}
           
-          
-      - name: Publish package distributions to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
