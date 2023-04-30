@@ -36,11 +36,11 @@ jobs:
             resp=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
                            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi")
                            
-            oidc_token=$(jq -c "{\"token\": \"(.value)\"} | @json" <<< "${resp}")               
-            echo "OIDC @oidc_token"
-            #oidc_token=$(jq '.value' <<< "${resp}")
+            #oidc_token=$(jq -c "{\"token\": \"\(.value)\"} | @json" <<< "${resp}")               
+            #echo "OIDC @oidc_token"
+            oidc_token=$(jq -r '.value' <<< "${resp}")
             
-            resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d $oidc_token)
+            resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\":\"${oidc_token}\"}")
             api_token=$(jq -r '.token' <<< "${resp}")
   
             poetry publish -u __token__ -p ${api_token}
