@@ -47,12 +47,14 @@ jobs:
             api_token=$(echo ${api_token:1:-1})
 
             # mask the newly minted API token, so that we don't accidentally leak it
-            echo "::add-mask::${api_token}"
+            # echo "::add-mask::${api_token}"
           
             # see the next step in the workflow for an example of using this step output
-            echo "api-token=${api_token}" >> ${GITHUB_OUTPUT}
+            # echo "api-token=${api_token}" >> ${GITHUB_OUTPUT}
   
-      - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ steps.mint-token.outputs.api-token }}
+            poetry publish -u __token__ -p ${api_token}
+            
+      #- name: Publish to PyPI
+      #  uses: pypa/gh-action-pypi-publish@release/v1
+      #  with:
+      #    password: ${{ steps.mint-token.outputs.api-token }}
