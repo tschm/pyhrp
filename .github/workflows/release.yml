@@ -27,6 +27,7 @@ jobs:
             virtualenvs-create: false
       
       - name: Change version in pyproject.toml
+        id: mint-token
         run: |
             echo ${{  github.ref_name }}
             poetry version ${{  github.ref_name }}
