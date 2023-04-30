@@ -43,7 +43,7 @@ jobs:
             resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\":${oidc_token}}")
             api_token=$(jq '.token' <<< "${resp}")
             
-            api_token=$(echo ${api_token}|tr -d '\n')
+            api_token=$(echo ${api_token})
             echo "API ${api_token}"
             poetry publish -u __token__ -p ${api_token}
 
