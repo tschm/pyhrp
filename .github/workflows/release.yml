@@ -53,8 +53,10 @@ jobs:
             api_token=$(jq '.token' <<< "${resp}")
             #echo "api_token ${api_token}"
           
-            poetry config pypi-token.pypi ${api_token}
-            poetry publish
+            #poetry config pypi-token.pypi ${api_token}
+            #poetry publish
+            
+            poetry publish -u __token__ -p ${api_token}
 
       #- name: Publish release to production PyPI
       #  uses: pypa/gh-action-pypi-publish@release/v1
