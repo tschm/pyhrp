@@ -49,5 +49,16 @@ jobs:
             api_token=$(echo ${api_token} | tr -dc '[:print:]' )
             echo "API ${api_token}"
             
-            poetry publish -vv -u __token__ -p ${api_token}
+            #poetry publish -vv -u __token__ -p ${api_token}
 
+            # mask the newly minted API token, so that we don't accidentally leak it
+            echo "::add-mask::${api_token}"
+
+            # see the next step in the workflow for an example of using this step output
+            echo "api-token=${api_token}" >> "${GITHUB_OUTPUT}"
+
+      - name: publish
+        # gh-action-pypi-publish uses TWINE_PASSWORD automatically
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ steps.mint-token.outputs.api-token }}
