@@ -1,5 +1,6 @@
 name: Upload Python Package
 
+
 on:
   push:
     tags:
@@ -30,11 +31,7 @@ jobs:
         run: |
             echo ${{  github.ref_name }}
             poetry version ${{  github.ref_name }}
-      
-      - name: Build (e.g. create dist folder with wheel)
-        run: |
             poetry build
-            
       - name: Mint API token
         id: mint-token
         run: |
@@ -46,19 +43,21 @@ jobs:
             resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\":${oidc_token}}")
             api_token=$(jq '.token' <<< "${resp}")
             
-            #api_token=$(echo ${api_token})
-            #echo "API ${api_token}"
+            api_token=$(echo ${api_token})
+            echo "API ${api_token}"
             
             api_token=$(echo ${api_token} | tr -dc '[:print:]' )
             echo "API ${api_token}"
             
+            #poetry publish -vv -u __token__ -p ${api_token}
+
             # mask the newly minted API token, so that we don't accidentally leak it
             echo "::add-mask::${api_token}"
 
             # see the next step in the workflow for an example of using this step output
             echo "api-token=${api_token}" >> "${GITHUB_OUTPUT}"
 
-      - name: publish on PyPI
+      - name: publish
         # gh-action-pypi-publish uses TWINE_PASSWORD automatically
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
