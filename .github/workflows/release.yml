@@ -49,7 +49,7 @@ jobs:
             #api_token=$(echo ${api_token})
             #echo "API ${api_token}"
             
-            #api_token=$(echo ${api_token} | tr -dc '[:print:]' )
+            api_token=$(echo ${api_token} | tr -dc '[:print:]' )
             echo "API ${api_token}"
             
             # mask the newly minted API token, so that we don't accidentally leak it
