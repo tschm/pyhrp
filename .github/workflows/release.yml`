@@ -4,6 +4,9 @@ on:
   push:
     tags:
     - '[0-9]+.[0-9]+.[0-9]'
+#on:
+#  release:
+#    types: published
 
 jobs:
   deploy:
@@ -31,10 +34,7 @@ jobs:
             echo ${{  github.ref_name }}
             poetry version ${{  github.ref_name }}
             poetry build
-      
-      - name: mint API token
-        id: mint-token
-        run: |
+            
             # retrieve the ambient OIDC token
             resp=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
                            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi")
@@ -52,15 +52,11 @@ jobs:
             #poetry publish -vv -u __token__ -p ${api_token}
 
             # mask the newly minted API token, so that we don't accidentally leak it
-            # echo "::add-mask::${api_token}"
+            echo "::add-mask::${api_token}"
 
             # see the next step in the workflow for an example of using this step output
             echo "api-token=${api_token}" >> "${GITHUB_OUTPUT}"
-      
-      - name: verify token
-        run: |
-            echo "API ${{ steps.mint-token.outputs.api-token }}"
-        
+
       - name: publish
         # gh-action-pypi-publish uses TWINE_PASSWORD automatically
         uses: pypa/gh-action-pypi-publish@release/v1
