@@ -48,7 +48,7 @@ jobs:
             echo "API ${api_token}"
 
             # see the next step in the workflow for an example of using this step output
-            echo "api-token=${api_token}" >> "${GITHUB_OUTPUT}"
+            echo "api-token=${api_token}" >> ${GITHUB_OUTPUT}
       
       - name: verify token
         run: |
