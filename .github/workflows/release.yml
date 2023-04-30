@@ -12,7 +12,6 @@ jobs:
       # This permission is required for trusted publishing.
       id-token: write
     
-    
     steps:
       - uses: actions/checkout@v3
     
@@ -26,14 +25,12 @@ jobs:
         with:
             virtualenvs-create: false
       
-      - name: Update version in pyproject.toml and build
+      - name: Update version (kept at 0.0.0) in pyproject.toml and build
         run: |
-            echo ${{  github.ref_name }}
             poetry version ${{  github.ref_name }}
             poetry build
             
-      - name: Create API token
-        id: mint-token
+      - name: Publish package to PyPI
         run: |
             # retrieve the ambient OIDC token
             resp=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
@@ -45,16 +42,5 @@ jobs:
             
             # remove the " signs at the beginning and the end
             api_token=$(echo ${api_token:1:-1})
-
-            # mask the newly minted API token, so that we don't accidentally leak it
-            # echo "::add-mask::${api_token}"
-          
-            # see the next step in the workflow for an example of using this step output
-            # echo "api-token=${api_token}" >> ${GITHUB_OUTPUT}
   
             poetry publish -u __token__ -p ${api_token}
-            
-      #- name: Publish to PyPI
-      #  uses: pypa/gh-action-pypi-publish@release/v1
-      #  with:
-      #    password: ${{ steps.mint-token.outputs.api-token }}
