@@ -49,7 +49,11 @@ jobs:
 
             # see the next step in the workflow for an example of using this step output
             echo "api-token=${api_token}" >> "${GITHUB_OUTPUT}"
-
+      
+      - name: verify token
+        run: |
+          echo  "API from Minting: ${{ steps.mint-token.outputs.api-token }}"
+  
       - name: publish
         # gh-action-pypi-publish uses TWINE_PASSWORD automatically
         uses: pypa/gh-action-pypi-publish@release/v1
