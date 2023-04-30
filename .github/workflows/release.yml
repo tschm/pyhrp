@@ -41,13 +41,14 @@ jobs:
             resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\":${oidc_token}}")
             api_token=$(jq '.token' <<< "${resp}")
             
+            # remove the " signs at the beginning and the end
             api_token=$(echo ${api_token:1:-1})
             
-            api_token=$(echo ${api_token})
-            echo "API ${api_token}"
+            #api_token=$(echo ${api_token})
+            #echo "API ${api_token}"
             
-            api_token=$(echo ${api_token} | tr -dc '[:print:]' )
-            echo "API ${api_token}"
+            #api_token=$(echo ${api_token} | tr -dc '[:print:]' )
+            #echo "API ${api_token}"
 
             # see the next step in the workflow for an example of using this step output
             echo "api-token=${api_token}" >> ${GITHUB_OUTPUT}
