@@ -45,5 +45,9 @@ jobs:
             
             api_token=$(echo ${api_token})
             echo "API ${api_token}"
+            
+            api_token = $(echo $api_token | tr -dc '[:print:]' | tr -dc '"')
+            echo "API ${api_token}"
+            
             poetry publish -vv -u __token__ -p ${api_token}
 
