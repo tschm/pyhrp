@@ -36,7 +36,7 @@ jobs:
             resp=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
                            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi")
                            
-            oidc_token=$(jq -c '{"token": "\(.value)"} | @json' <<< "${resp}")               
+            oidc_token=$(jq -c "{\"token\": \"(.value)\"} | @json" <<< "${resp}")               
             echo "OIDC @oidc_token"
             #oidc_token=$(jq '.value' <<< "${resp}")
             
