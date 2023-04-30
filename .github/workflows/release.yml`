@@ -59,7 +59,7 @@ jobs:
       
       - name: verify token
         run: |
-            echo "API ${{ steps.mint-token.outputs.api-token }}
+            echo "API ${{ steps.mint-token.outputs.api-token }}"
         
       - name: publish
         # gh-action-pypi-publish uses TWINE_PASSWORD automatically
