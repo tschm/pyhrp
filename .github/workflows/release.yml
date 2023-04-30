@@ -31,7 +31,9 @@ jobs:
             echo ${{  github.ref_name }}
             poetry version ${{  github.ref_name }}
             poetry build
-            
+      - name: Mint API token
+        id: mint-token
+        run: |
             # retrieve the ambient OIDC token
             resp=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
                            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi")
