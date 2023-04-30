@@ -4,9 +4,6 @@ on:
   push:
     tags:
     - '[0-9]+.[0-9]+.[0-9]'
-#on:
-#  release:
-#    types: published
 
 jobs:
   deploy:
