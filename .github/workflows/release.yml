@@ -41,7 +41,7 @@ jobs:
             resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\":${oidc_token}}")
             api_token=$(jq '.token' <<< "${resp}")
             
-            api_token=echo ${api_token:1:-1}
+            api_token=$(echo ${api_token:1:-1})
             
             api_token=$(echo ${api_token})
             echo "API ${api_token}"
