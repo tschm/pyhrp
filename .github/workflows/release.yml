@@ -34,19 +34,12 @@ jobs:
             echo ${{  github.ref_name }}
             poetry version ${{  github.ref_name }}
             poetry build
-            cat pyproject.toml      
-            ls -all
-            echo $ACTIONS_ID_TOKEN_REQUEST_TOKEN
-            echo $ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi
             
             # retrieve the ambient OIDC token
             resp=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
                            "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi")
             oidc_token=$(jq '.value' <<< "${resp}")
             echo "OIDC ${oidc_token}"
-            
-            # exchange the OIDC token for an API token
-            # curl -X POST https://pypi.org/_/oidc/github/mint-token -d '{"token":"${oidc_token}"}'
             
             resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\":${oidc_token}}")
             echo "RESP ${resp}"
@@ -58,84 +51,3 @@ jobs:
             
             poetry publish -u __token__ -p ${api_token}
 
-      #- name: Publish release to production PyPI
-      #  uses: pypa/gh-action-pypi-publish@release/v1
-        
-#name: Release Trusted
-
-#on:
-#  push:
-#    tags:
-#    - '[0-9]+.[0-9]+.[0-9]'
-
-#jobs:
-#  pypi:
-#    name: Upload release to PyPI
-#    runs-on: ubuntu-latest
-#    environment:
-#      name: pypi
-#      url: https://pypi.org/p/pyhrp
-#    permissions:
-#      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
-#    steps:
-#      # retrieve your distributions here
-#      - uses: actions/checkout@v3
-# 
-#       - name: Set up Python 3.10
-#        uses: actions/setup-python@v4
-#        with:
-#             python-version: '3.10'
-
-#      - name: Install Poetry
-#        uses: snok/install-poetry@v1.3.3
-#        with:
-#            virtualenvs-create: false
-
-#      - name: Change version in pyproject.toml
-#        run: |
-#            echo ${{  github.ref_name }}
-#            poetry version ${{  github.ref_name }}
-#             poetry build
-    
-      #- name: mint API token
-      #  id: mint-token
-      #  run: |
-      #    
-      #    # retrieve the ambient OIDC token
-      #    resp=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-      #      "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi")
-      #    echo "RESP ${resp}"
-      #    oidc_token=$(jq '.value' <<< "${resp}")
-      #
-      #    # exchange the OIDC token for an API token
-      #    resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\": \"${oidc_token}\"}")
-      #    echo "RESP ${resp}"
-      #    api_token=$(jq '.token' <<< "${resp}")
-      #    
-      #    # echo ${api_token}
-      #    
-      #    # mask the newly minted API token, so that we don't accidentally leak it
-      #    # echo "::add-mask::${api_token}"
-      #
-      #    # see the next step in the workflow for an example of using this step output
-      #    # echo "api-token=${api_token}" >> "${GITHUB_OUTPUT}"
-      #    
-      #    # set poetry config
-      #    poetry config pypi-token.pypi ${api_token}
-      #    poetry publish
-         
- #     - name: Publish package distributions to PyPI
- #       uses: pypa/gh-action-pypi-publish@release/v1
-      
-      #- name: publish
-      #  # gh-action-pypi-publish uses TWINE_PASSWORD automatically
-      #  uses: pypa/gh-action-pypi-publish@release/v1
-      #  with:
-      #    password: ${{ steps.mint-token.outputs.api-token }}
-          
-      #- name: Publish the package to pypi
-      #  run : |
-      #      echo "${{ steps.mint-token.outputs.api-token }}"
-      #      echo "${api-token}"
-      #      poetry config pypi-token.pypi ${{ steps.mint-token.outputs.api-token }}
-      #      poetry publish
