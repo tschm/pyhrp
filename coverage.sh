@@ -8,5 +8,3 @@ fi
 if [[ $OSTYPE == 'linux'* ]]; then
     xdg-open htmlcov/index.html 2> /dev/null
 fi
-
-
