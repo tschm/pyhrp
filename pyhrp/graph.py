@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
 """display a dendrogram"""
+from __future__ import annotations
+
 import matplotlib.pyplot as plt
 import scipy.cluster.hierarchy as sch
 

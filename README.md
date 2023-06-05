@@ -3,7 +3,7 @@
 [![DeepSource](https://deepsource.io/gh/tschm/hrp.svg/?label=active+issues&show_trend=true&token=qjT_aLQgo_1Xbe2Z9ZNdH3Cx)](https://deepsource.io/gh/tschm/hrp/?ref=repository-badge)
 
 A recursive implementation of the Hierarchical Risk Parity (hrp) approach by Marcos Lopez de Prado.
-We take heavily advantage of the scipy.cluster.hierarchy package. 
+We take heavily advantage of the scipy.cluster.hierarchy package.
 
 Here's a simple example
 

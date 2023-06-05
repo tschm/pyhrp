@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
 """risk parity for clusters"""
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Dict
 

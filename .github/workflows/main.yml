@@ -68,4 +68,4 @@ jobs:
         run: |
               export DEEPSOURCE_DSN=${{ secrets.DEEPSOURCE_DSN }}
               poetry run pytest --cache-clear --cov=./ tests --cov-report xml
-              ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml   
+              ./bin/deepsource report --analyzer test-coverage --key python --value-file ./coverage.xml

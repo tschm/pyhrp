@@ -1,9 +1,13 @@
+# -*- coding: utf-8 -*-
 """the hrp algorithm"""
+from __future__ import annotations
+
 import numpy as np
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
-from pyhrp.cluster import Cluster, risk_parity
+from pyhrp.cluster import Cluster
+from pyhrp.cluster import risk_parity
 
 
 def dist(cor):
