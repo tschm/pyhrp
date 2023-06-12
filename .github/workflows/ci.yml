@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         os: [ ubuntu-latest, windows-latest, macos-latest ]
-        python-version: ['3.8', '3.9', '3.10', '3.11' ]
+        python-version: [ '3.8', '3.9', '3.10', '3.11' ]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -23,19 +23,6 @@ jobs:
           os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
 
+      - name: Coveralls GitHub Action
+        uses: coverallsapp/github-action@v2
 
-  jupyter:
-    runs-on: "ubuntu-latest"
-    steps:
-
-      - name: Check out repository
-        uses: actions/checkout@v3
-
-      - uses: cvxgrp/.github/actions/book@main
-        with:
-          os: ${{ runner.os }}
-          python-version: "3.11"
-          sphinx-folder: "book/sphinx/"
-          source-folder: "pyhrp"
-          kernel: "pyhrp"
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
