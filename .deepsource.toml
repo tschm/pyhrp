@@ -7,13 +7,3 @@ name = "python"
 
   [analyzers.meta]
   runtime_version = "3.x.x"
-
-[[analyzers]]
-name = "test-coverage"
-enabled = true
-
-[[transformers]]
-name = "isort"
-
-[[transformers]]
-name = "black"
