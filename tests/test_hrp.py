@@ -5,7 +5,10 @@ import numpy as np
 import pandas as pd
 
 from pyhrp.graph import dendrogram
-from pyhrp.hrp import dist, hrp, linkage, tree
+from pyhrp.hrp import dist
+from pyhrp.hrp import hrp
+from pyhrp.hrp import linkage
+from pyhrp.hrp import tree
 
 
 def test_dist():
