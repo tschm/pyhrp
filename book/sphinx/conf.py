@@ -20,7 +20,7 @@ extensions = [
 
 source_dirs = "pyhrp"
 autoapi_type = "python"
-autoapi_dirs = ["../../%s" % d for d in source_dirs.split()]
+autoapi_dirs = [f"../../{folder}" for folder in source_dirs.split()]
 autoapi_options = [
     "members",
     "undoc-members",

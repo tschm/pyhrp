@@ -17,8 +17,9 @@ def test_marcos(resource_dir):
     # root.weights.to_csv(resource("weights_marcos.csv"), header=False)
 
     x = pd.read_csv(
-        resource_dir / "weights_marcos.csv", squeeze=True, index_col=0, header=0
-    )
+        resource_dir / "weights_marcos.csv", index_col=0, header=0
+    ).squeeze()
+
     x.index.name = None
 
     pd.testing.assert_series_equal(x, root.weights, check_exact=False)
