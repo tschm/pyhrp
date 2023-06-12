@@ -79,9 +79,8 @@ def test_hrp(resource_dir):
 
     root = hrp(prices=prices, method="ward")
 
-    x = pd.read_csv(
-        resource_dir / "weights_hrp.csv", squeeze=True, index_col=0, header=0
-    )
+    x = pd.read_csv(resource_dir / "weights_hrp.csv", index_col=0, header=0).squeeze()
+
     x.index.name = None
 
     pd.testing.assert_series_equal(x, root.weights, check_exact=False)
