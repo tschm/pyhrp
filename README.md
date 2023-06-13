@@ -1,4 +1,4 @@
-# [pyhrp](https://tschm.github.io/pyhrp)
+# [pyhrp](https://tschm.github.io/pyhrp/)
 
 [![DeepSource](https://deepsource.io/gh/tschm/hrp.svg/?label=active+issues&show_trend=true&token=qjT_aLQgo_1Xbe2Z9ZNdH3Cx)](https://deepsource.io/gh/tschm/hrp/?ref=repository-badge)
 
