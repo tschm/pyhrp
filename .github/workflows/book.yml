@@ -16,7 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: cvxgrp/.github/actions/test@main
-
+        with:
+          source-folder: 'pyhrp'
+  
   jupyter:
     runs-on: "ubuntu-latest"
     steps:
