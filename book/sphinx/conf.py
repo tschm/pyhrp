@@ -38,9 +38,9 @@ napoleon_numpy_docstring = True
 # html_logo = "_static/logo.png"
 html_title = "pyhrp Documentation"
 html_show_sourcelink = True
-#html_css_files = [
+# html_css_files = [
 #    "custom.css",
-#]
+# ]
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
