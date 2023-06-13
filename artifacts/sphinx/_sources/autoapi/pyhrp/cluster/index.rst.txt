@@ -1,0 +1,85 @@
+:py:mod:`pyhrp.cluster`
+=======================
+
+.. py:module:: pyhrp.cluster
+
+.. autoapi-nested-parse::
+
+   risk parity for clusters
+
+
+
+Module Contents
+---------------
+
+Classes
+~~~~~~~
+
+.. autoapisummary::
+
+   pyhrp.cluster.Cluster
+
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pyhrp.cluster.risk_parity
+
+
+
+.. py:function:: risk_parity(cluster_left, cluster_right, cov)
+
+   Given two clusters compute in a bottom-up approach their parent.
+
+   :param cluster_left: left cluster
+   :param cluster_right: right cluster
+   :param cov: (global) covariance matrix. Will pick the correct sub-matrix
+
+
+
+.. py:class:: Cluster
+
+   Clusters are the nodes of the graphs we build.
+   Each cluster is aware of the left and the right cluster
+   it is connecting to.
+
+   .. py:attribute:: assets
+      :annotation: :Dict[str, float]
+
+      
+
+   .. py:attribute:: variance
+      :annotation: :float
+
+      
+
+   .. py:attribute:: left
+      :annotation: :object
+
+      
+
+   .. py:attribute:: right
+      :annotation: :object
+
+      
+
+   .. py:method:: __post_init__(self)
+
+      check input
+
+
+   .. py:method:: is_leaf(self)
+
+      true if this cluster is a leaf, e.g. no clusters follow downstream
+
+
+   .. py:method:: weights(self)
+      :property:
+
+      weight series
+
+
+
