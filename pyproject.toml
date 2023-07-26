@@ -17,8 +17,21 @@ scikit-learn = ">=0.24.1"
 [tool.poetry.dev-dependencies]
 pytest = "7.2.0"
 pytest-cov = "*"
+mock = "*"
+
+[tool.poetry.group.jupyter.dependencies]
 jupyterlab = "*"
 jupyter-book = "0.15.1"
+pyyaml = "6.0"
+
+[tool.peotry.group.linting.dependencies]
+pylint = "*"
+ruff = "0.0.277"
+pre-commit = "*"
+black = "23.3.0"
+
+[tool.poetry.group.dev.dependencies]
+loguru = "*"
 
 [build-system]
 requires = ["poetry>=1.0.2"]
