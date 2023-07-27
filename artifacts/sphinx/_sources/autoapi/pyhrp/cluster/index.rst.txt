@@ -47,7 +47,7 @@ Functions
    it is connecting to.
 
    .. py:attribute:: assets
-      :annotation: :Dict[str, float]
+      :annotation: :dict[str, float]
 
       
 
