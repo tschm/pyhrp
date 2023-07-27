@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Replicate the implementation of HRP by Marcos Lopez de Prado using this package
 
 The original implementation by Marcos Lopez de Prado is using recursive bisection

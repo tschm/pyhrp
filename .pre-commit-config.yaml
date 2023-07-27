@@ -1,19 +1,39 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
     hooks:
-    -   id: check-toml
-    -   id: end-of-file-fixer
-    -   id: trailing-whitespace
-    -   id: fix-encoding-pragma
+      - id: check-toml
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
 
--   repo: https://github.com/psf/black
+  - repo: https://github.com/psf/black
     rev: 23.3.0
     hooks:
-    -   id: black
+      - id: black
 
--   repo: https://github.com/asottile/reorder_python_imports
+  - repo: https://github.com/asottile/reorder_python_imports
     rev: v3.9.0
     hooks:
-    -   id: reorder-python-imports
-        args: [--py37-plus, --add-import, 'from __future__ import annotations']
+      - id: reorder-python-imports
+        args: [ --py37-plus, --add-import, 'from __future__ import annotations' ]
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.35.0
+    hooks:
+      - id: markdownlint-fix
+        args: [ "--ignore", "book/**/*.md" ]
+
+
+  #  - repo: 'https://github.com/pre-commit/mirrors-mypy'
+  #    rev: v1.4.1
+  #    hooks:
+  #      - id: mypy
+  #        files: cvx
+  #        args: [ --strict, --ignore-missing-imports, --explicit-package-bases ]
+
+
+  # enforcing the use of new python syntax with pyupgrade
+  - repo: https://github.com/asottile/pyupgrade
+    rev: v3.9.0
+    hooks:
+      - id: pyupgrade

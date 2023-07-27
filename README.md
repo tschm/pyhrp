@@ -1,6 +1,7 @@
 # [pyhrp](https://tschm.github.io/pyhrp/)
 
-A recursive implementation of the Hierarchical Risk Parity (hrp) approach by Marcos Lopez de Prado.
+A recursive implementation of the Hierarchical Risk Parity (hrp) approach
+by Marcos Lopez de Prado.
 We take heavily advantage of the scipy.cluster.hierarchy package.
 
 Here's a simple example
@@ -21,7 +22,10 @@ rootcluster = _hrp(node, cov)
 ax = dendrogram(links, orientation="left")
 ax.get_figure().savefig("dendrogram.png")
 ```
-For your convenience you can bypass the construction of the covariance and correlation matrix, the links and the node, e.g. the root of the tree (dendrogram).
+
+For your convenience you can bypass the construction of the covariance and
+correlation matrix, the links and the node, e.g. the root of the tree (dendrogram).
+
 ```python
 import pandas as pd
 from pyhrp.hrp import hrp
@@ -29,7 +33,10 @@ from pyhrp.hrp import hrp
 prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
 root = hrp(prices=prices)
 ```
-You may expect a weight series here but instead the `hrp` function returns a `Cluster` object. The `Cluster` simplifies all further post-analysis.
+
+You may expect a weight series here but instead the `hrp` function returns a
+`Cluster` object. The `Cluster` simplifies all further post-analysis.
+
 ```python
 print(cluster.weights)
 print(cluster.variance)
@@ -38,7 +45,8 @@ print(cluster.left)
 print(cluster.right)
 ```
 
-## Installation:
-```
+## Installation
+
+```bash
 pip install pyhpr
 ```

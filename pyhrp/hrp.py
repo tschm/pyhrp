@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """the hrp algorithm"""
 from __future__ import annotations
 

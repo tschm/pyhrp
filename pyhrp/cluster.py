@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """risk parity for clusters"""
 from __future__ import annotations
 
@@ -65,7 +64,7 @@ class Cluster:
     it is connecting to.
     """
 
-    assets: Dict[str, float]
+    assets: dict[str, float]
     variance: float
     left: object = None
     right: object = None
