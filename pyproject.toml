@@ -8,20 +8,20 @@ repository = "https://github.com/tschm/pyhrp"
 packages = [{include = "pyhrp"}]
 
 [tool.poetry.dependencies]
-python = ">=3.8.0,<4.0"
+python = ">=3.9.0,<3.12"
 pandas = ">=1.2.0"
-scipy = ">=1.6.0"
+scipy = ">=1.10.0"
 matplotlib = ">=3.3.3"
 scikit-learn = ">=0.24.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "7.2.0"
+pytest = "7.4.0"
 pytest-cov = "*"
 mock = "*"
 
 [tool.poetry.group.jupyter.dependencies]
 jupyterlab = "*"
-jupyter-book = "0.15.1"
+jupyter-book = "*"
 pyyaml = "6.0"
 
 [tool.poetry.group.dev.dependencies]
