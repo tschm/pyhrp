@@ -21,8 +21,8 @@ mock = "*"
 
 [tool.poetry.group.jupyter.dependencies]
 jupyterlab = "*"
-jupyter-book = "*"
-pyyaml = "*"
+#jupyter-book = "*"
+#pyyaml = "*"
 
 [tool.poetry.group.dev.dependencies]
 loguru = "*"
