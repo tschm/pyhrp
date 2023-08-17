@@ -22,7 +22,7 @@ mock = "*"
 [tool.poetry.group.jupyter.dependencies]
 jupyterlab = "*"
 jupyter-book = "*"
-pyyaml = "6.0"
+pyyaml = "*"
 
 [tool.poetry.group.dev.dependencies]
 loguru = "*"
