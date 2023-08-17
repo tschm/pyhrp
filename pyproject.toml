@@ -19,8 +19,8 @@ pytest = "7.4.0"
 pytest-cov = "*"
 mock = "*"
 
-[tool.poetry.group.jupyter.dependencies]
-jupyterlab = "*"
+#[tool.poetry.group.jupyter.dependencies]
+#jupyterlab = "*"
 #jupyter-book = "*"
 #pyyaml = "*"
 
