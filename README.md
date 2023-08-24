@@ -1,4 +1,4 @@
-# [pyhrp](https://tschm.github.io/pyhrp/)
+# [pyhrp](https://tschm.github.io/pyhrp/book)
 
 A recursive implementation of the Hierarchical Risk Parity (hrp) approach
 by Marcos Lopez de Prado.
