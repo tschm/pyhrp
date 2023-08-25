@@ -8,13 +8,11 @@ jobs:
   sphinx:
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v3
       - uses: cvxgrp/.github/actions/sphinx@main
 
   test:
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v3
       - uses: cvxgrp/.github/actions/test@main
         with:
           source-folder: 'pyhrp'
@@ -22,24 +20,10 @@ jobs:
   jupyter:
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v3
       - uses: cvxgrp/.github/actions/jupyter@main
 
   book:
     runs-on: "ubuntu-latest"
     needs: [test, sphinx, jupyter]
     steps:
-
-      - name: Check out repository
-        uses: actions/checkout@v3
-
-      - name: Download all artifacts
-        uses: actions/download-artifact@v3
-        with:
-          path: .book
-
-      - name: GitHub Pages action
-        uses: JamesIves/github-pages-deploy-action@v4.4.3
-        with:
-          branch: gh-pages          # The branch the action should deploy to.
-          folder: .book             # The folder the action should deploy.
+      - uses: cvxgrp/.github/actions/book@main
