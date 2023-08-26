@@ -14,8 +14,8 @@ matplotlib 3.7.2 Python plotting package
     └── six >=1.5 
 pandas 2.0.3 Powerful data structures for data analysis, time series, and statistics
 ├── numpy >=1.20.3
-├── numpy >=1.21.0
 ├── numpy >=1.23.2
+├── numpy >=1.21.0
 ├── python-dateutil >=2.8.2
 │   └── six >=1.5 
 ├── pytz >=2020.1
