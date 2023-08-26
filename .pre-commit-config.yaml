@@ -37,3 +37,10 @@ repos:
     rev: v3.9.0
     hooks:
       - id: pyupgrade
+
+  - repo: https://github.com/python-jsonschema/check-jsonschema
+    rev: 0.26.1
+    hooks:
+      - id: check-dependabot
+      - id: check-github-actions
+      - id: check-github-workflows
