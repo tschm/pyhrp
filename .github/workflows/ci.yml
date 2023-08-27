@@ -6,7 +6,7 @@ on:
 jobs:
   test:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
@@ -17,7 +17,6 @@ jobs:
     steps:
       - uses: cvxgrp/.github/actions/test@main
         with:
-          os: ${{ matrix.os }}
           python-version: ${{ matrix.python-version }}
           source-folder: 'pyhrp'
 
