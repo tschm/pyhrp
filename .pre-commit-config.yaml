@@ -23,15 +23,6 @@ repos:
       - id: markdownlint-fix
         args: [ "--ignore", "book/**/*.md" ]
 
-
-  #  - repo: 'https://github.com/pre-commit/mirrors-mypy'
-  #    rev: v1.4.1
-  #    hooks:
-  #      - id: mypy
-  #        files: cvx
-  #        args: [ --strict, --ignore-missing-imports, --explicit-package-bases ]
-
-
   # enforcing the use of new python syntax with pyupgrade
   - repo: https://github.com/asottile/pyupgrade
     rev: v3.9.0
@@ -42,7 +33,6 @@ repos:
     rev: 0.26.1
     hooks:
       - id: check-dependabot
-      - id: check-github-actions
       - id: check-github-workflows
 
   - repo: https://github.com/python-poetry/poetry
