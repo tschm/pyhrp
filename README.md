@@ -1,5 +1,10 @@
 # [pyhrp](https://tschm.github.io/pyhrp/book)
 
+[![PyPI version](https://badge.fury.io/py/cvxcla.svg)](https://badge.fury.io/py/cvxcla)
+[![Apache 2.0 License](https://img.shields.io/badge/License-APACHEv2-brightgreen.svg)](https://github.com/cvxgrp/cvxcla/blob/master/LICENSE)
+[![Downloads](https://static.pepy.tech/personalized-badge/cvxcla?period=month&units=international_system&left_color=black&right_color=orange&left_text=PyPI%20downloads%20per%20month)](https://pepy.tech/project/cvxcla)
+[![Coverage Status](https://coveralls.io/repos/github/cvxgrp/cvxcla/badge.png?branch=main)](https://coveralls.io/github/cvxgrp/cvxcla?branch=main)
+
 A recursive implementation of the Hierarchical Risk Parity (hrp) approach
 by Marcos Lopez de Prado.
 We take heavily advantage of the scipy.cluster.hierarchy package.
