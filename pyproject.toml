@@ -15,7 +15,7 @@ matplotlib = ">=3.3.3"
 scikit-learn = ">=0.24.1"
 
 [tool.poetry.dev-dependencies]
-pytest = "7.4.0"
+pytest = "*"
 pytest-cov = "*"
 mock = "*"
 
