@@ -12,3 +12,17 @@ jobs:
     - uses: pre-commit/action@v3.0.0
       with:
         extra_args: '--verbose --all-files'
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: cvxgrp/.github/actions/test@main
+      with:
+        python-version: '3.10'
+
+    - name: Coveralls GitHub Action
+      uses: coverallsapp/github-action@v2
+      with:
+        files: artifacts/tests/coverage/coverage.info
+        format: lcov
