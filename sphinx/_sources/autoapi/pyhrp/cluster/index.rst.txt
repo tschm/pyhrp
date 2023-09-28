@@ -42,44 +42,43 @@ Functions
 
 .. py:class:: Cluster
 
+
    Clusters are the nodes of the graphs we build.
    Each cluster is aware of the left and the right cluster
    it is connecting to.
 
+   .. py:property:: weights
+
+      weight series
+
    .. py:attribute:: assets
-      :annotation: :dict[str, float]
+      :type: dict[str, float]
 
       
 
    .. py:attribute:: variance
-      :annotation: :float
+      :type: float
 
       
 
    .. py:attribute:: left
-      :annotation: :object
+      :type: object
 
       
 
    .. py:attribute:: right
-      :annotation: :object
+      :type: object
 
       
 
-   .. py:method:: __post_init__(self)
+   .. py:method:: __post_init__()
 
       check input
 
 
-   .. py:method:: is_leaf(self)
+   .. py:method:: is_leaf()
 
       true if this cluster is a leaf, e.g. no clusters follow downstream
-
-
-   .. py:method:: weights(self)
-      :property:
-
-      weight series
 
 
 

@@ -11,11 +11,11 @@
     <script src="../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-        <script src="../../_static/jquery.js"></script>
-        <script src="../../_static/underscore.js"></script>
-        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
-        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" /> 
@@ -26,11 +26,15 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-            <a href="../../index.html" class="icon icon-home"> pyhrp
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pyhrp
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
     <input type="hidden" name="check_keywords" value="yes" />
     <input type="hidden" name="area" value="default" />
   </form>
@@ -54,9 +58,9 @@
         <div class="rst-content">
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
-          <li><a href="../index.html">Module code</a> &raquo;</li>
-      <li>pyhrp.cluster</li>
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyhrp.cluster</li>
       <li class="wy-breadcrumbs-aside">
       </li>
   </ul>
@@ -75,7 +79,9 @@
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 
 
-<div class="viewcode-block" id="risk_parity"><a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.risk_parity">[docs]</a><span class="k">def</span> <span class="nf">risk_parity</span><span class="p">(</span><span class="n">cluster_left</span><span class="p">,</span> <span class="n">cluster_right</span><span class="p">,</span> <span class="n">cov</span><span class="p">):</span>
+<div class="viewcode-block" id="risk_parity">
+<a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.risk_parity">[docs]</a>
+<span class="k">def</span> <span class="nf">risk_parity</span><span class="p">(</span><span class="n">cluster_left</span><span class="p">,</span> <span class="n">cluster_right</span><span class="p">,</span> <span class="n">cov</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Given two clusters compute in a bottom-up approach their parent.</span>
 
@@ -123,20 +129,37 @@
     <span class="p">)</span></div>
 
 
+
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<div class="viewcode-block" id="Cluster"><a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster">[docs]</a><span class="k">class</span> <span class="nc">Cluster</span><span class="p">:</span>
+<div class="viewcode-block" id="Cluster">
+<a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster">[docs]</a>
+<span class="k">class</span> <span class="nc">Cluster</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Clusters are the nodes of the graphs we build.</span>
 <span class="sd">    Each cluster is aware of the left and the right cluster</span>
 <span class="sd">    it is connecting to.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Cluster.assets"><a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster.assets">[docs]</a>    <span class="n">assets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span></div>
-<div class="viewcode-block" id="Cluster.variance"><a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster.variance">[docs]</a>    <span class="n">variance</span><span class="p">:</span> <span class="nb">float</span></div>
-<div class="viewcode-block" id="Cluster.left"><a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster.left">[docs]</a>    <span class="n">left</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span></div>
-<div class="viewcode-block" id="Cluster.right"><a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster.right">[docs]</a>    <span class="n">right</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span></div>
+<div class="viewcode-block" id="Cluster.assets">
+<a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster.assets">[docs]</a>
+    <span class="n">assets</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="Cluster.__post_init__"><a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster.__post_init__">[docs]</a>    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Cluster.variance">
+<a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster.variance">[docs]</a>
+    <span class="n">variance</span><span class="p">:</span> <span class="nb">float</span></div>
+
+<div class="viewcode-block" id="Cluster.left">
+<a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster.left">[docs]</a>
+    <span class="n">left</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Cluster.right">
+<a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster.right">[docs]</a>
+    <span class="n">right</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="Cluster.__post_init__">
+<a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster.__post_init__">[docs]</a>
+    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;check input&quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variance</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -156,14 +179,22 @@
             <span class="p">):</span>
                 <span class="k">raise</span> <span class="ne">AssertionError</span></div>
 
-<div class="viewcode-block" id="Cluster.is_leaf"><a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster.is_leaf">[docs]</a>    <span class="k">def</span> <span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Cluster.is_leaf">
+<a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster.is_leaf">[docs]</a>
+    <span class="k">def</span> <span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;true if this cluster is a leaf, e.g. no clusters follow downstream&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span></div>
 
+
     <span class="nd">@property</span>
-<div class="viewcode-block" id="Cluster.weights"><a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster.weights">[docs]</a>    <span class="k">def</span> <span class="nf">weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Cluster.weights">
+<a class="viewcode-back" href="../../autoapi/pyhrp/cluster/index.html#pyhrp.cluster.Cluster.weights">[docs]</a>
+    <span class="k">def</span> <span class="nf">weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;weight series&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assets</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Weights&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span></div></div>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assets</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Weights&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span></div>
+</div>
+
 </pre></div>
 
            </div>
