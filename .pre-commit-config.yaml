@@ -12,7 +12,7 @@ repos:
       - id: black
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.1.3'
+    rev: 'v0.1.4'
     hooks:
       - id: ruff
         args: [ --fix, --exit-non-zero-on-fix ]
@@ -29,7 +29,7 @@ repos:
       - id: pyupgrade
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.27.0
+    rev: 0.27.1
     hooks:
       - id: check-dependabot
         args: [ "--verbose" ]
@@ -38,7 +38,7 @@ repos:
         args: ["--verbose"]
 
   - repo: https://github.com/python-poetry/poetry
-    rev: '1.6.0'  # add version here
+    rev: '1.7.0'  # add version here
     hooks:
       - id: poetry-check
       # - id: poetry-lock
