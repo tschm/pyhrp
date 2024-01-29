@@ -6,6 +6,7 @@ To get to this list Lopez de Prado is using a matrix quasi-diagonalization
 induced by the order (from left to right) of the dendrogram.
 Based on that we build a tree reflecting the recursive bisection.
 With that tree and the covariance matrix we go back to the hrp algorithm"""
+
 from __future__ import annotations
 
 import pandas as pd
