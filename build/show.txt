@@ -1,6 +1,6 @@
 matplotlib 3.8.2 Python plotting package
 ├── contourpy >=1.0.1
-│   └── numpy >=1.16 
+│   └── numpy >=1.20,<2.0 
 ├── cycler >=0.10
 ├── fonttools >=4.22.0
 ├── importlib-resources >=3.2.0
