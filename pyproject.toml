@@ -15,9 +15,10 @@ scipy = ">=1.10.0"
 matplotlib = ">=3.3.3"
 scikit-learn = ">=0.24.1"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.test.dependencies]
 pytest = "*"
 pytest-cov = "*"
+pre-commit = "*"
 mock = "*"
 
 [tool.poetry.group.dev.dependencies]
