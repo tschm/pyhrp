@@ -1,0 +1,29 @@
+:py:mod:`pyhrp.graph`
+=====================
+
+.. py:module:: pyhrp.graph
+
+.. autoapi-nested-parse::
+
+   display a dendrogram
+
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pyhrp.graph.dendrogram
+
+
+
+.. py:function:: dendrogram(links, ax=None, **kwargs)
+
+   Plot a dendrogram using matplotlib
+
+

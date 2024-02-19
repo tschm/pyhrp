@@ -1,0 +1,67 @@
+:py:mod:`pyhrp.hrp`
+===================
+
+.. py:module:: pyhrp.hrp
+
+.. autoapi-nested-parse::
+
+   the hrp algorithm
+
+
+
+Module Contents
+---------------
+
+
+Functions
+~~~~~~~~~
+
+.. autoapisummary::
+
+   pyhrp.hrp.dist
+   pyhrp.hrp.linkage
+   pyhrp.hrp.tree
+   pyhrp.hrp.build_cluster
+   pyhrp.hrp.hrp
+
+
+
+.. py:function:: dist(cor)
+
+   Compute the correlation based distance matrix d,
+   compare with page 239 of the first book by Marcos
+   :param cor: the n x n correlation matrix
+   :return: The matrix d indicating the distance between column i and i.
+            Note that all the diagonal entries are zero.
+
+
+
+.. py:function:: linkage(dist_vec, method='ward', **kwargs)
+
+   Based on distance matrix compute the underlying links
+   :param dist_vec: The distance vector based on the correlation matrix
+   :param method: "single", "ward", etc.
+   :return: links  The links describing the graph (useful to draw the dendrogram)
+                   and basis for constructing the tree object
+
+
+.. py:function:: tree(links)
+
+   Compute the root ClusterNode.
+   :param links: The Linkage matrix compiled by the linkage function above
+   :return: The root node. From there it's possible to reach the entire graph
+
+
+.. py:function:: build_cluster(node, cov)
+
+   compute a cluster
+
+
+.. py:function:: hrp(prices, node=None, method='single')
+
+   Computes the root node for the hierarchical risk parity portfolio
+   :param cov: This is the covariance matrix that shall be used
+   :param node: Optional. This is the rootnode of the graph describing the dendrogram
+   :return: the root cluster of the risk parity portfolio
+
+
