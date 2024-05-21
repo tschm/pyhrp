@@ -48,12 +48,12 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp</span></code></a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">pyhrp</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l4 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp.cluster</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../graph/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp.graph</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../hrp/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp.hrp</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../marcos/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp.marcos</span></code></a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pyhrp.cluster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../graph/index.html">pyhrp.graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../hrp/index.html">pyhrp.hrp</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../marcos/index.html">pyhrp.marcos</a></li>
 </ul>
 </li>
 </ul>
@@ -77,8 +77,8 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
-          <li class="breadcrumb-item"><a href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp</span></code></a></li>
-      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp.cluster</span></code></li>
+          <li class="breadcrumb-item"><a href="../index.html">pyhrp</a></li>
+      <li class="breadcrumb-item active">pyhrp.cluster</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../../_sources/autoapi/pyhrp/cluster/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -89,12 +89,10 @@
            <div itemprop="articleBody">
              
   <section id="module-pyhrp.cluster">
-<span id="pyhrp-cluster"></span><h1><a class="reference internal" href="#module-pyhrp.cluster" title="pyhrp.cluster"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp.cluster</span></code></a><a class="headerlink" href="#module-pyhrp.cluster" title="Link to this heading"></a></h1>
+<span id="pyhrp-cluster"></span><h1>pyhrp.cluster<a class="headerlink" href="#module-pyhrp.cluster" title="Link to this heading"></a></h1>
 <p>risk parity for clusters</p>
-<section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
 <section id="classes">
-<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h3>
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pyhrp.cluster.Cluster" title="pyhrp.cluster.Cluster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Cluster</span></code></a></p></td>
@@ -104,7 +102,7 @@
 </table>
 </section>
 <section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h3>
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pyhrp.cluster.risk_parity" title="pyhrp.cluster.risk_parity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">risk_parity</span></code></a>(cluster_left, cluster_right, cov)</p></td>
@@ -112,6 +110,9 @@
 </tr>
 </tbody>
 </table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyhrp.cluster.risk_parity">
 <span class="sig-prename descclassname"><span class="pre">pyhrp.cluster.</span></span><span class="sig-name descname"><span class="pre">risk_parity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_left</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cluster_right</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyhrp/cluster.html#risk_parity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyhrp.cluster.risk_parity" title="Link to this definition"></a></dt>
@@ -133,12 +134,6 @@
 <dd><p>Clusters are the nodes of the graphs we build.
 Each cluster is aware of the left and the right cluster
 it is connecting to.</p>
-<dl class="py property">
-<dt class="sig sig-object py" id="pyhrp.cluster.Cluster.weights">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">weights</span></span><a class="reference internal" href="../../../_modules/pyhrp/cluster.html#Cluster.weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyhrp.cluster.Cluster.weights" title="Link to this definition"></a></dt>
-<dd><p>weight series</p>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pyhrp.cluster.Cluster.assets">
 <span class="sig-name descname"><span class="pre">assets</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="reference internal" href="../../../_modules/pyhrp/cluster.html#Cluster.assets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyhrp.cluster.Cluster.assets" title="Link to this definition"></a></dt>
@@ -151,12 +146,12 @@ it is connecting to.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pyhrp.cluster.Cluster.left">
-<span class="sig-name descname"><span class="pre">left</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">object</span></em><a class="reference internal" href="../../../_modules/pyhrp/cluster.html#Cluster.left"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyhrp.cluster.Cluster.left" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">left</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">object</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/pyhrp/cluster.html#Cluster.left"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyhrp.cluster.Cluster.left" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="pyhrp.cluster.Cluster.right">
-<span class="sig-name descname"><span class="pre">right</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">object</span></em><a class="reference internal" href="../../../_modules/pyhrp/cluster.html#Cluster.right"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyhrp.cluster.Cluster.right" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">right</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">object</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="reference internal" href="../../../_modules/pyhrp/cluster.html#Cluster.right"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyhrp.cluster.Cluster.right" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -171,9 +166,15 @@ it is connecting to.</p>
 <dd><p>true if this cluster is a leaf, e.g. no clusters follow downstream</p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="pyhrp.cluster.Cluster.weights">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">weights</span></span><a class="reference internal" href="../../../_modules/pyhrp/cluster.html#Cluster.weights"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyhrp.cluster.Cluster.weights" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">weight</span> <span class="pre">series</span></span></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
-</section>
 </section>
 </section>
 

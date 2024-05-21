@@ -1,5 +1,5 @@
-:py:mod:`pyhrp.cluster`
-=======================
+pyhrp.cluster
+=============
 
 .. py:module:: pyhrp.cluster
 
@@ -9,26 +9,24 @@
 
 
 
-Module Contents
----------------
-
 Classes
-~~~~~~~
+-------
 
 .. autoapisummary::
 
    pyhrp.cluster.Cluster
 
 
-
 Functions
-~~~~~~~~~
+---------
 
 .. autoapisummary::
 
    pyhrp.cluster.risk_parity
 
 
+Module Contents
+---------------
 
 .. py:function:: risk_parity(cluster_left, cluster_right, cov)
 
@@ -42,43 +40,44 @@ Functions
 
 .. py:class:: Cluster
 
-
    Clusters are the nodes of the graphs we build.
    Each cluster is aware of the left and the right cluster
    it is connecting to.
 
-   .. py:property:: weights
-
-      weight series
 
    .. py:attribute:: assets
-      :type: dict[str, float]
+      :type:  dict[str, float]
 
-      
 
    .. py:attribute:: variance
-      :type: float
+      :type:  float
 
-      
 
    .. py:attribute:: left
-      :type: object
+      :type:  object
+      :value: None
 
-      
+
 
    .. py:attribute:: right
-      :type: object
+      :type:  object
+      :value: None
 
-      
+
 
    .. py:method:: __post_init__()
 
       check input
 
 
+
    .. py:method:: is_leaf()
 
       true if this cluster is a leaf, e.g. no clusters follow downstream
 
+
+
+   .. py:property:: weights
+      weight series
 
 

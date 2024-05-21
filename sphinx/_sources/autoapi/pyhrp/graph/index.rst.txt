@@ -1,5 +1,5 @@
-:py:mod:`pyhrp.graph`
-=====================
+pyhrp.graph
+===========
 
 .. py:module:: pyhrp.graph
 
@@ -9,18 +9,16 @@
 
 
 
-Module Contents
----------------
-
-
 Functions
-~~~~~~~~~
+---------
 
 .. autoapisummary::
 
    pyhrp.graph.dendrogram
 
 
+Module Contents
+---------------
 
 .. py:function:: dendrogram(links, ax=None, **kwargs)
 

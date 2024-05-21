@@ -1,18 +1,18 @@
-:py:mod:`pyhrp`
-===============
+pyhrp
+=====
 
 .. py:module:: pyhrp
 
 
 Submodules
 ----------
+
 .. toctree::
-   :titlesonly:
    :maxdepth: 1
 
-   cluster/index.rst
-   graph/index.rst
-   hrp/index.rst
-   marcos/index.rst
+   /autoapi/pyhrp/cluster/index
+   /autoapi/pyhrp/graph/index
+   /autoapi/pyhrp/hrp/index
+   /autoapi/pyhrp/marcos/index
 
 

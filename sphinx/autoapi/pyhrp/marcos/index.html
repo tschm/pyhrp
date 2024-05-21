@@ -47,12 +47,12 @@
               <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../../index.html">API Reference</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp</span></code></a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">pyhrp</a><ul class="current">
 <li class="toctree-l3 current"><a class="reference internal" href="../index.html#submodules">Submodules</a><ul class="current">
-<li class="toctree-l4"><a class="reference internal" href="../cluster/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp.cluster</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../graph/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp.graph</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../hrp/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp.hrp</span></code></a></li>
-<li class="toctree-l4 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp.marcos</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../cluster/index.html">pyhrp.cluster</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../graph/index.html">pyhrp.graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../hrp/index.html">pyhrp.hrp</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">pyhrp.marcos</a></li>
 </ul>
 </li>
 </ul>
@@ -76,8 +76,8 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../../index.html">API Reference</a></li>
-          <li class="breadcrumb-item"><a href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp</span></code></a></li>
-      <li class="breadcrumb-item active"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp.marcos</span></code></li>
+          <li class="breadcrumb-item"><a href="../index.html">pyhrp</a></li>
+      <li class="breadcrumb-item active">pyhrp.marcos</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../../_sources/autoapi/pyhrp/marcos/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -88,7 +88,7 @@
            <div itemprop="articleBody">
              
   <section id="module-pyhrp.marcos">
-<span id="pyhrp-marcos"></span><h1><a class="reference internal" href="#module-pyhrp.marcos" title="pyhrp.marcos"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyhrp.marcos</span></code></a><a class="headerlink" href="#module-pyhrp.marcos" title="Link to this heading"></a></h1>
+<span id="pyhrp-marcos"></span><h1>pyhrp.marcos<a class="headerlink" href="#module-pyhrp.marcos" title="Link to this heading"></a></h1>
 <p>Replicate the implementation of HRP by Marcos Lopez de Prado using this package</p>
 <p>The original implementation by Marcos Lopez de Prado is using recursive bisection
 on a ranked list of columns of the covariance matrix
@@ -96,12 +96,22 @@ To get to this list Lopez de Prado is using a matrix quasi-diagonalization
 induced by the order (from left to right) of the dendrogram.
 Based on that we build a tree reflecting the recursive bisection.
 With that tree and the covariance matrix we go back to the hrp algorithm</p>
-<section id="module-contents">
-<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
 <section id="functions">
-<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h3>
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h2>
 <table class="autosummary longtable docutils align-default">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyhrp.marcos.build_cluster" title="pyhrp.marcos.build_cluster"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_cluster</span></code></a>(node, cov)</p></td>
+<td><p>compute a cluster</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyhrp.marcos.dist" title="pyhrp.marcos.dist"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dist</span></code></a>(cor)</p></td>
+<td><p>Compute the correlation based distance matrix d,</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyhrp.marcos.linkage" title="pyhrp.marcos.linkage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linkage</span></code></a>(dist_vec[, method])</p></td>
+<td><p>Based on distance matrix compute the underlying links</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyhrp.marcos.tree" title="pyhrp.marcos.tree"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tree</span></code></a>(links)</p></td>
+<td><p>Compute the root ClusterNode.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#pyhrp.marcos.bisection" title="pyhrp.marcos.bisection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bisection</span></code></a>(ids)</p></td>
 <td><p>Compute the graph underlying the recursive bisection of Marcos Lopez de Prado</p></td>
 </tr>
@@ -110,6 +120,47 @@ With that tree and the covariance matrix we go back to the hrp algorithm</p>
 </tr>
 </tbody>
 </table>
+</section>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyhrp.marcos.build_cluster">
+<span class="sig-prename descclassname"><span class="pre">pyhrp.marcos.</span></span><span class="sig-name descname"><span class="pre">build_cluster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cov</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyhrp/hrp.html#build_cluster"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyhrp.marcos.build_cluster" title="Link to this definition"></a></dt>
+<dd><p>compute a cluster</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyhrp.marcos.dist">
+<span class="sig-prename descclassname"><span class="pre">pyhrp.marcos.</span></span><span class="sig-name descname"><span class="pre">dist</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cor</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyhrp/hrp.html#dist"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyhrp.marcos.dist" title="Link to this definition"></a></dt>
+<dd><p>Compute the correlation based distance matrix d,
+compare with page 239 of the first book by Marcos
+:param cor: the n x n correlation matrix
+:return: The matrix d indicating the distance between column i and i.</p>
+<blockquote>
+<div><p>Note that all the diagonal entries are zero.</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyhrp.marcos.linkage">
+<span class="sig-prename descclassname"><span class="pre">pyhrp.marcos.</span></span><span class="sig-name descname"><span class="pre">linkage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_vec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ward'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyhrp/hrp.html#linkage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyhrp.marcos.linkage" title="Link to this definition"></a></dt>
+<dd><p>Based on distance matrix compute the underlying links
+:param dist_vec: The distance vector based on the correlation matrix
+:param method: “single”, “ward”, etc.
+:return: links  The links describing the graph (useful to draw the dendrogram)</p>
+<blockquote>
+<div><p>and basis for constructing the tree object</p>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyhrp.marcos.tree">
+<span class="sig-prename descclassname"><span class="pre">pyhrp.marcos.</span></span><span class="sig-name descname"><span class="pre">tree</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">links</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyhrp/hrp.html#tree"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyhrp.marcos.tree" title="Link to this definition"></a></dt>
+<dd><p>Compute the root ClusterNode.
+:param links: The Linkage matrix compiled by the linkage function above
+:return: The root node. From there it’s possible to reach the entire graph</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="pyhrp.marcos.bisection">
 <span class="sig-prename descclassname"><span class="pre">pyhrp.marcos.</span></span><span class="sig-name descname"><span class="pre">bisection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyhrp/marcos.html#bisection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyhrp.marcos.bisection" title="Link to this definition"></a></dt>
@@ -130,7 +181,6 @@ With that tree and the covariance matrix we go back to the hrp algorithm</p>
 <dd><p>The algorithm as implemented in the book by Marcos Lopez de Prado</p>
 </dd></dl>
 
-</section>
 </section>
 </section>
 
