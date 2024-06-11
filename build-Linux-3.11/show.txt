@@ -1,0 +1,29 @@
+matplotlib 3.9.0 Python plotting package
+├── contourpy >=1.0.1
+│   └── numpy >=1.20,<2.0 
+├── cycler >=0.10
+├── fonttools >=4.22.0
+├── importlib-resources >=3.2.0
+│   └── zipp >=3.1.0 
+├── kiwisolver >=1.3.1
+├── numpy >=1.23
+├── packaging >=20.0
+├── pillow >=8
+├── pyparsing >=2.3.1
+└── python-dateutil >=2.7
+    └── six >=1.5 
+pandas 2.2.2 Powerful data structures for data analysis, time series, and statistics
+├── numpy >=1.22.4
+├── numpy >=1.23.2
+├── python-dateutil >=2.8.2
+│   └── six >=1.5 
+├── pytz >=2020.1
+└── tzdata >=2022.7
+scikit-learn 1.5.0 A set of python modules for machine learning and data mining
+├── joblib >=1.2.0
+├── numpy >=1.19.5
+├── scipy >=1.6.0
+│   └── numpy >=1.22.4,<2.3 
+└── threadpoolctl >=3.1.0
+scipy 1.13.1 Fundamental algorithms for scientific computing in Python
+└── numpy >=1.22.4,<2.3
