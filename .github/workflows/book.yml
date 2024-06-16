@@ -13,7 +13,7 @@ jobs:
   test:
     runs-on: "ubuntu-latest"
     steps:
-      - uses: cvxgrp/.github/actions/test@main
+      - uses: cvxgrp/.github/actions/coverage@main
         with:
           source-folder: 'pyhrp'
 
