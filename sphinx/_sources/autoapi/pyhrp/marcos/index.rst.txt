@@ -21,47 +21,12 @@ Functions
 
 .. autoapisummary::
 
-   pyhrp.marcos.build_cluster
-   pyhrp.marcos.dist
-   pyhrp.marcos.linkage
-   pyhrp.marcos.tree
    pyhrp.marcos.bisection
    pyhrp.marcos.marcos
 
 
 Module Contents
 ---------------
-
-.. py:function:: build_cluster(node, cov)
-
-   compute a cluster
-
-
-.. py:function:: dist(cor)
-
-   Compute the correlation based distance matrix d,
-   compare with page 239 of the first book by Marcos
-   :param cor: the n x n correlation matrix
-   :return: The matrix d indicating the distance between column i and i.
-            Note that all the diagonal entries are zero.
-
-
-
-.. py:function:: linkage(dist_vec, method='ward', **kwargs)
-
-   Based on distance matrix compute the underlying links
-   :param dist_vec: The distance vector based on the correlation matrix
-   :param method: "single", "ward", etc.
-   :return: links  The links describing the graph (useful to draw the dendrogram)
-                   and basis for constructing the tree object
-
-
-.. py:function:: tree(links)
-
-   Compute the root ClusterNode.
-   :param links: The Linkage matrix compiled by the linkage function above
-   :return: The root node. From there it's possible to reach the entire graph
-
 
 .. py:function:: bisection(ids)
 
