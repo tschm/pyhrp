@@ -24,12 +24,12 @@ repos:
 
   # enforcing the use of new python syntax with pyupgrade
   - repo: https://github.com/asottile/pyupgrade
-    rev: v3.17.0
+    rev: v3.18.0
     hooks:
       - id: pyupgrade
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.29.3
+    rev: 0.29.4
     hooks:
       - id: check-dependabot
         args: [ "--verbose" ]
