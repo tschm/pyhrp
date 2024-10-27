@@ -6,8 +6,8 @@ import numpy as np
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
-from pyhrp.cluster import Cluster
-from pyhrp.cluster import risk_parity
+from .cluster import Cluster
+from .cluster import risk_parity
 
 
 def dist(cor):
