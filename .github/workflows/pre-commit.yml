@@ -28,6 +28,10 @@ jobs:
         files: artifacts/tests/coverage/coverage.info
         format: lcov
 
+  deptry:
+    runs-on: ubuntu-latest
+
+    steps:
     - uses: cvxgrp/.github/actions/deptry@main
       with:
         source-folder: "pyhrp"
