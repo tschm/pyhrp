@@ -27,3 +27,7 @@ jobs:
       with:
         files: artifacts/tests/coverage/coverage.info
         format: lcov
+
+    - uses: cvxgrp/.github/actions/deptry@main
+      with:
+        source-folder: "pyhrp"
