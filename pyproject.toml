@@ -10,10 +10,11 @@ homepage = "https://tschm.github.io/pyhrp"
 
 [tool.poetry.dependencies]
 python = ">=3.9.0,<3.12"
+numpy = "*"
 pandas = ">=2.0.0"
 scipy = ">=1.10.0"
 matplotlib = ">=3.3.3"
-scikit-learn = ">=0.24.1"
+#scikit-learn = ">=0.24.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "*"

@@ -12,10 +12,10 @@ from __future__ import annotations
 import pandas as pd
 import scipy.cluster.hierarchy as sch
 
-from pyhrp.hrp import build_cluster
-from pyhrp.hrp import dist
-from pyhrp.hrp import linkage
-from pyhrp.hrp import tree
+from .hrp import build_cluster
+from .hrp import dist
+from .hrp import linkage
+from .hrp import tree
 
 
 def bisection(ids):
