@@ -9,10 +9,10 @@ packages = [{include = "pyhrp"}]
 homepage = "https://tschm.github.io/pyhrp"
 
 [tool.poetry.dependencies]
-python = ">=3.9.0,<3.14"
+python = ">=3.10,<3.14"
 numpy = "*"
 pandas = ">=2.0.0"
-scipy = ">=1.10.0"
+scipy = ">=1.14.0"
 matplotlib = ">=3.3.3"
 #scikit-learn = ">=0.24.1"
 
