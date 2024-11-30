@@ -4,8 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pyhrp.cluster import Cluster
-from pyhrp.cluster import risk_parity
+from pyhrp.cluster import Cluster, risk_parity
 
 
 def test_cluster_simple():
