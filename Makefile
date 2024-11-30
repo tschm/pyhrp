@@ -6,15 +6,22 @@ UNAME=$(shell uname -s)
 
 .PHONY: install
 install:  ## Install a virtual environment
-	@poetry install -vv
+	@curl -LsSf https://astral.sh/uv/install.sh | sh
+	@uv sync -vv
+	@echo 'Please perform'
+	@echo 'source .venv/bin/activate'
 
 .PHONY: fmt
 fmt:  ## Run autoformatting and linting
-	@poetry run pre-commit run --all-files
+	@uv pip install pre-commit
+	@uv run pre-commit install
+	@uv run pre-commit run --all-files
+
 
 .PHONY: test
 test: install ## Run tests
-	@poetry run pytest
+	@uv run pytest
+
 
 .PHONY: clean
 clean:  ## Clean up caches and build artifacts
@@ -23,9 +30,9 @@ clean:  ## Clean up caches and build artifacts
 
 .PHONY: coverage
 coverage: install ## test and coverage
-	@poetry run coverage run --source=cvx/. -m pytest
-	@poetry run coverage report -m
-	@poetry run coverage html
+	@uv run coverage run --source=cvx/. -m pytest
+	@uv run coverage report -m
+	@uv run coverage html
 
 	@if [ ${UNAME} == "Darwin" ]; then \
 		open htmlcov/index.html; \
@@ -39,13 +46,9 @@ help:  ## Display this help screen
 	@echo -e "\033[1mAvailable commands:\033[0m"
 	@grep -E '^[a-z.A-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-18s\033[0m %s\n", $$1, $$2}' | sort
 
-.PHONY: jupyter
-jupyter: install ## Start jupyter lab
-	@poetry run pip install jupyterlab
-	@poetry run jupyter lab
 
-
-.PHONY: boil
-boil: ## Update the boilerplate code
-	@poetry run pip install cvxcooker
-	@poetry run cook pyproject.toml
+.PHONY: marimo
+marimo: install ## Start marimo
+	@uv pip install marimo
+	@uv run marimo edit book/marimo
+	# $(argument)
