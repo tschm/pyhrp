@@ -1,30 +1,41 @@
-[tool.poetry]
+[project]
 name = "pyhrp"
 version = "0.0.0"
-description = "..."
-authors = ["Thomas Schmelzer"]
+description = "Hierarchial risk parity"
+authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 readme = "README.md"
 repository = "https://github.com/tschm/pyhrp"
-packages = [{include = "pyhrp"}]
 homepage = "https://tschm.github.io/pyhrp"
-
-[tool.poetry.dependencies]
-python = ">=3.10,<3.14"
-numpy = "*"
-pandas = ">=2.0.0"
-scipy = ">=1.14.0"
-matplotlib = ">=3.3.3"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "matplotlib"
+]
 #scikit-learn = ">=0.24.1"
 
-[tool.poetry.group.test.dependencies]
-pytest = "*"
-pytest-cov = "*"
-pre-commit = "*"
-mock = "*"
+[dependency-groups]
+dev = [
+    "pytest-cov>=6.0.0",
+    "pytest>=8.3.3",
+    "pre-commit>=4.0.1",
+    "mock",
+    "loguru",
+]
 
-[tool.poetry.group.dev.dependencies]
-loguru = "*"
+
+[tool.ruff]
+select = ["E", "F", "I"]
+line-length = 120
+target-version = "py310"
+exclude = [
+    "*__init__.py"
+]
 
 [build-system]
-requires = ["poetry>=1.6.0"]
-build-backend = "poetry.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["pyhrp"]
