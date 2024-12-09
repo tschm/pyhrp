@@ -1,6 +1,6 @@
 ---
 title: Demo
-marimo-version: 0.9.28
+marimo-version: 0.9.32
 ---
 
 # Demo pyhrp
