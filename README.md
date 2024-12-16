@@ -49,26 +49,28 @@ print(cluster.variance)
 # You can drill into the graph by going downstream
 print(cluster.left)
 print(cluster.right)
-
-## Poetry
-
-We assume you share already the love for [Poetry](https://python-poetry.org).
-Once you have installed poetry you can perform
-
-```bash
-make install
 ```
 
-to replicate the virtual environment we have defined in [pyproject.toml](pyproject.toml)
-and locked in [poetry.lock](poetry.lock).
+## uv
 
-## Jupyter
+You need to install [task](https://taskfile.dev).
+Starting with
 
-We install [JupyterLab](https://jupyter.org) on fly within the aforementioned
+```bash
+task pyhrp:install
+```
+
+will install [uv](https://github.com/astral-sh/uv) and create
+the virtual environment defined in
+pyproject.toml and locked in uv.lock.
+
+## marimo
+
+We install [marimo](https://marimo.io) on the fly within the aforementioned
 virtual environment. Executing
 
 ```bash
-make jupyter
+task pyhrp:marimo
 ```
 
-will install and start the jupyter lab.
+will install and start marimo.
