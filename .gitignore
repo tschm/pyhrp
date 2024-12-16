@@ -1,4 +1,6 @@
 .idea
+.task
+
 sandbox/*
 *.pyc
 */__pycache__/
