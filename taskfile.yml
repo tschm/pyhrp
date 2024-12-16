@@ -1,0 +1,9 @@
+version: '3'
+
+env:
+    PACKAGE_PATH: pyhrp
+    MARIMO_PATH: book/marimo
+
+includes:
+    pyhrp:
+        taskfile: https://github.com/cvxgrp/.github.git//tasks/setup.yml?ref=main
