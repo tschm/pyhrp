@@ -3,7 +3,7 @@
 
 sandbox/*
 *.pyc
-*/__pycache__/
+__pycache__/
 todo
 results
 .config
@@ -23,3 +23,5 @@ artifacts
 .venv
 
 .DS_Store
+
+htmlcov
