@@ -83,17 +83,18 @@ tests.
 
 ## Running unit tests
 
+You need to install [task](https://taskfile.dev).
 We use `pytest` to run our unit tests.
 To run all unit tests run the following command:
 
 ```bash
-make test
+task pyhrp:test
 ```
 
 We keep a close eye on our coverage via
 
 ```bash
-make coverage
+task pyhrp:coverage
 ```
 
 Please make sure that your change doesn't cause any of the unit tests to fail.
