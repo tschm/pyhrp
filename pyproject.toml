@@ -4,8 +4,6 @@ version = "0.0.0"
 description = "Hierarchial risk parity"
 authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 readme = "README.md"
-repository = "https://github.com/tschm/pyhrp"
-homepage = "https://tschm.github.io/pyhrp"
 requires-python = ">=3.10"
 dependencies = [
     "numpy",
@@ -13,6 +11,10 @@ dependencies = [
     "scipy",
     "matplotlib"
 ]
+
+[project.urls]
+repository = "https://github.com/tschm/pyhrp"
+homepage = "https://tschm.github.io/pyhrp"
 
 [dependency-groups]
 dev = [
