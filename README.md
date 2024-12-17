@@ -6,6 +6,8 @@
 [![Coverage Status](https://coveralls.io/repos/github/tschm/pyhrp/badge.png?branch=main)](https://coveralls.io/github/tschm/pyhrp?branch=main)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/tschm/pyhrp/main.svg)](https://results.pre-commit.ci/latest/github/tschm/pyhrp/main)
 
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/tschm/pyhrp)
+
 A recursive implementation of the Hierarchical Risk Parity (hrp) approach
 by Marcos Lopez de Prado.
 We take heavily advantage of the scipy.cluster.hierarchy package.
@@ -49,26 +51,28 @@ print(cluster.variance)
 # You can drill into the graph by going downstream
 print(cluster.left)
 print(cluster.right)
-
-## Poetry
-
-We assume you share already the love for [Poetry](https://python-poetry.org).
-Once you have installed poetry you can perform
-
-```bash
-make install
 ```
 
-to replicate the virtual environment we have defined in [pyproject.toml](pyproject.toml)
-and locked in [poetry.lock](poetry.lock).
+## uv
 
-## Jupyter
+You need to install [task](https://taskfile.dev).
+Starting with
 
-We install [JupyterLab](https://jupyter.org) on fly within the aforementioned
+```bash
+task simulator:install
+```
+
+will install [uv](https://github.com/astral-sh/uv) and create
+the virtual environment defined in
+pyproject.toml and locked in uv.lock.
+
+## marimo
+
+We install [marimo](https://marimo.io) on the fly within the aforementioned
 virtual environment. Executing
 
 ```bash
-make jupyter
+task simulator:marimo
 ```
 
-will install and start the jupyter lab.
+will install and start marimo.
