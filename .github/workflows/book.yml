@@ -7,25 +7,21 @@ jobs:
   marimo:
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v4
       - uses: cvxgrp/.github/actions/uv/marimo@main
 
   sphinx:
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v4
       - uses: cvxgrp/.github/actions/uv/sphinx@main
 
   test:
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v4
       - uses: cvxgrp/.github/actions/uv/coverage@main
 
   jupyter:
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v4
       - uses: cvxgrp/.github/actions/uv/jupyter@main
 
   book:
