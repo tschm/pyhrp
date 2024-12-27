@@ -13,6 +13,8 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - uses: cvxgrp/.github/actions/uv/pdoc@main
+        with:
+          source-folder: 'pyhrp'
 
   test:
     runs-on: "ubuntu-latest"
