@@ -84,9 +84,7 @@ class Cluster:
                 raise AssertionError
             if not isinstance(self.right, Cluster):
                 raise AssertionError
-            if not set(self.left.assets.keys()).isdisjoint(
-                set(self.right.assets.keys())
-            ):
+            if not set(self.left.assets.keys()).isdisjoint(set(self.right.assets.keys())):
                 raise AssertionError
 
     def is_leaf(self):

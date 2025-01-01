@@ -13,19 +13,15 @@ def test_dist():
 
 
 def test_quasi_diag(resource_dir):
-    prices = pd.read_csv(
-        resource_dir / "stock_prices.csv", parse_dates=True, index_col="date"
-    ).truncate(before="2017-01-01")
+    prices = pd.read_csv(resource_dir / "stock_prices.csv", parse_dates=True, index_col="date").truncate(
+        before="2017-01-01"
+    )
 
     # compute returns
     returns = prices.pct_change().dropna(axis=0, how="all").fillna(0.0)
 
-    np.testing.assert_allclose(
-        returns.cov().values, np.genfromtxt(resource_dir / "covariance2.csv")
-    )
-    np.testing.assert_allclose(
-        returns.corr().values, np.genfromtxt(resource_dir / "correlation2.csv")
-    )
+    np.testing.assert_allclose(returns.cov().values, np.genfromtxt(resource_dir / "covariance2.csv"))
+    np.testing.assert_allclose(returns.corr().values, np.genfromtxt(resource_dir / "correlation2.csv"))
 
     cor = returns.corr().values
     links = linkage(dist(cor), method="single")
@@ -33,9 +29,7 @@ def test_quasi_diag(resource_dir):
     # uncomment this line if you want to generate a new test resource
     # np.savetxt(resource("links.csv"), links, delimiter=",")
 
-    np.testing.assert_array_almost_equal(
-        links, np.loadtxt(resource_dir / "links.csv", delimiter=",")
-    )
+    np.testing.assert_array_almost_equal(links, np.loadtxt(resource_dir / "links.csv", delimiter=","))
 
     node = tree(links)
 
@@ -69,9 +63,9 @@ def test_quasi_diag(resource_dir):
 
 
 def test_hrp(resource_dir):
-    prices = pd.read_csv(
-        resource_dir / "stock_prices.csv", parse_dates=True, index_col="date"
-    ).truncate(before="2017-01-01")
+    prices = pd.read_csv(resource_dir / "stock_prices.csv", parse_dates=True, index_col="date").truncate(
+        before="2017-01-01"
+    )
 
     root = hrp(prices=prices, method="ward")
 

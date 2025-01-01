@@ -72,6 +72,4 @@ def test_riskparity():
         cluster.variance,
         (1.0 / 3.0) ** 2 * 4 + (2.0 / 3.0) ** 2 * 2.0 + 2.0 * (1.0 / 3.0) * (2.0 / 3.0),
     )
-    np.testing.assert_almost_equal(
-        cluster.variance, (4.0 / 9.0) + (8.0 / 9.0) + (4.0 / 9.0)
-    )
+    np.testing.assert_almost_equal(cluster.variance, (4.0 / 9.0) + (8.0 / 9.0) + (4.0 / 9.0))
