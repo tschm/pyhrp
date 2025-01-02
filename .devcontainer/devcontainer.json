@@ -1,7 +1,7 @@
 {
 	"name": "Python 3",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/python:3.11-bookworm",
+	"image": "mcr.microsoft.com/devcontainers/python:3.13-bookworm",
 	"onCreateCommand": ".devcontainer/startup.sh",
 	"customizations": {
 		"vscode": {
