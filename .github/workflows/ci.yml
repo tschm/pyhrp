@@ -1,7 +1,9 @@
 name: "ci"
 
 on:
-- push
+  push:
+  schedule:
+    - cron: "0 */2 * * *"  # Runs every 2 hours
 
 jobs:
   test:
