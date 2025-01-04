@@ -7,11 +7,17 @@ jobs:
   marimo:
     runs-on: "ubuntu-latest"
     steps:
+      - name: Checkout [${{ github.repository }}]
+        uses: actions/checkout@v4
+
       - uses: cvxgrp/.github/actions/uv/marimo@main
 
   pdoc:
     runs-on: "ubuntu-latest"
     steps:
+      - name: Checkout [${{ github.repository }}]
+        uses: actions/checkout@v4
+
       - uses: cvxgrp/.github/actions/uv/pdoc@main
         with:
           source-folder: 'pyhrp'
@@ -19,11 +25,16 @@ jobs:
   test:
     runs-on: "ubuntu-latest"
     steps:
+      - name: Checkout [${{ github.repository }}]
+        uses: actions/checkout@v4
+
       - uses: cvxgrp/.github/actions/uv/coverage@main
 
   jupyter:
     runs-on: "ubuntu-latest"
     steps:
+      - name: Checkout [${{ github.repository }}]
+        uses: actions/checkout@v4
       - uses: cvxgrp/.github/actions/uv/jupyter@main
 
   book:
@@ -34,4 +45,7 @@ jobs:
       contents: write
 
     steps:
+      - name: Checkout [${{ github.repository }}]
+        uses: actions/checkout@v4
+
       - uses: cvxgrp/.github/actions/book@main
