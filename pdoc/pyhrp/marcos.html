@@ -75,15 +75,15 @@ With that tree and the covariance matrix we go back to the hrp algorithm</p>
 </span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="sd">Based on that we build a tree reflecting the recursive bisection.</span>
 </span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="sd">With that tree and the covariance matrix we go back to the hrp algorithm&quot;&quot;&quot;</span>
 </span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 </span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="kn">import</span> <span class="nn">scipy.cluster.hierarchy</span> <span class="k">as</span> <span class="nn">sch</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.cluster.hierarchy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sch</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="kn">from</span> <span class="nn">.hrp</span> <span class="kn">import</span> <span class="n">build_cluster</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">linkage</span><span class="p">,</span> <span class="n">tree</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.hrp</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_cluster</span><span class="p">,</span> <span class="n">dist</span><span class="p">,</span> <span class="n">linkage</span><span class="p">,</span> <span class="n">tree</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>
 </span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="k">def</span> <span class="nf">bisection</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="k">def</span><span class="w"> </span><span class="nf">bisection</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
 </span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">    Compute the graph underlying the recursive bisection of Marcos Lopez de Prado</span>
 </span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>
@@ -91,7 +91,7 @@ With that tree and the covariance matrix we go back to the hrp algorithm</p>
 </span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a><span class="sd">    :return: The root ClusterNode of this tree</span>
 </span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">split</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
 </span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;split the vector ids in two parts, split in the middle&quot;&quot;&quot;</span>
 </span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
 </span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>            <span class="k">raise</span> <span class="ne">AssertionError</span>
@@ -110,7 +110,7 @@ With that tree and the covariance matrix we go back to the hrp algorithm</p>
 </span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">bisection</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">left</span><span class="p">),</span> <span class="n">right</span><span class="o">=</span><span class="n">bisection</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">right</span><span class="p">))</span>
 </span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>
 </span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="k">def</span> <span class="nf">marcos</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="k">def</span><span class="w"> </span><span class="nf">marcos</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 </span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;The algorithm as implemented in the book by Marcos Lopez de Prado&quot;&quot;&quot;</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>
 </span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="c1"># make sure the prices are a DataFrame</span>
@@ -150,7 +150,7 @@ With that tree and the covariance matrix we go back to the hrp algorithm</p>
 
     </div>
     <a class="headerlink" href="#bisection"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="bisection-19"><a href="#bisection-19"><span class="linenos">19</span></a><span class="k">def</span> <span class="nf">bisection</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="bisection-19"><a href="#bisection-19"><span class="linenos">19</span></a><span class="k">def</span><span class="w"> </span><span class="nf">bisection</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
 </span><span id="bisection-20"><a href="#bisection-20"><span class="linenos">20</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="bisection-21"><a href="#bisection-21"><span class="linenos">21</span></a><span class="sd">    Compute the graph underlying the recursive bisection of Marcos Lopez de Prado</span>
 </span><span id="bisection-22"><a href="#bisection-22"><span class="linenos">22</span></a>
@@ -158,7 +158,7 @@ With that tree and the covariance matrix we go back to the hrp algorithm</p>
 </span><span id="bisection-24"><a href="#bisection-24"><span class="linenos">24</span></a><span class="sd">    :return: The root ClusterNode of this tree</span>
 </span><span id="bisection-25"><a href="#bisection-25"><span class="linenos">25</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="bisection-26"><a href="#bisection-26"><span class="linenos">26</span></a>
-</span><span id="bisection-27"><a href="#bisection-27"><span class="linenos">27</span></a>    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+</span><span id="bisection-27"><a href="#bisection-27"><span class="linenos">27</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">split</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
 </span><span id="bisection-28"><a href="#bisection-28"><span class="linenos">28</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;split the vector ids in two parts, split in the middle&quot;&quot;&quot;</span>
 </span><span id="bisection-29"><a href="#bisection-29"><span class="linenos">29</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
 </span><span id="bisection-30"><a href="#bisection-30"><span class="linenos">30</span></a>            <span class="k">raise</span> <span class="ne">AssertionError</span>
@@ -206,7 +206,7 @@ With that tree and the covariance matrix we go back to the hrp algorithm</p>
 
     </div>
     <a class="headerlink" href="#marcos"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="marcos-46"><a href="#marcos-46"><span class="linenos">46</span></a><span class="k">def</span> <span class="nf">marcos</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="marcos-46"><a href="#marcos-46"><span class="linenos">46</span></a><span class="k">def</span><span class="w"> </span><span class="nf">marcos</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 </span><span id="marcos-47"><a href="#marcos-47"><span class="linenos">47</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;The algorithm as implemented in the book by Marcos Lopez de Prado&quot;&quot;&quot;</span>
 </span><span id="marcos-48"><a href="#marcos-48"><span class="linenos">48</span></a>
 </span><span id="marcos-49"><a href="#marcos-49"><span class="linenos">49</span></a>    <span class="c1"># make sure the prices are a DataFrame</span>

@@ -85,15 +85,15 @@
 
                         <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">&quot;&quot;&quot;risk parity for clusters&quot;&quot;&quot;</span>
 </span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 </span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">from</span> <span class="nn">dataclasses</span> <span class="kn">import</span> <span class="n">dataclass</span>
+</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 </span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 </span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a>
 </span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="k">def</span> <span class="nf">risk_parity</span><span class="p">(</span><span class="n">cluster_left</span><span class="p">,</span> <span class="n">cluster_right</span><span class="p">,</span> <span class="n">cov</span><span class="p">):</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a><span class="k">def</span><span class="w"> </span><span class="nf">risk_parity</span><span class="p">(</span><span class="n">cluster_left</span><span class="p">,</span> <span class="n">cluster_right</span><span class="p">,</span> <span class="n">cov</span><span class="p">):</span>
 </span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="sd">    Given two clusters compute in a bottom-up approach their parent.</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>
@@ -105,7 +105,7 @@
 </span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a>
 </span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>    <span class="c1"># combine two clusters</span>
 </span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="k">def</span> <span class="nf">parity</span><span class="p">(</span><span class="n">v_left</span><span class="p">,</span> <span class="n">v_right</span><span class="p">):</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">parity</span><span class="p">(</span><span class="n">v_left</span><span class="p">,</span> <span class="n">v_right</span><span class="p">):</span>
 </span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a><span class="sd">        Compute the weights for a risk parity portfolio of two assets</span>
 </span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a><span class="sd">        :param v_left: Variance of the &quot;left&quot; portfolio</span>
@@ -142,7 +142,7 @@
 </span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>
 </span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>
 </span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="k">class</span> <span class="nc">Cluster</span><span class="p">:</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Cluster</span><span class="p">:</span>
 </span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a><span class="sd">    Clusters are the nodes of the graphs we build.</span>
 </span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a><span class="sd">    Each cluster is aware of the left and the right cluster</span>
@@ -154,7 +154,7 @@
 </span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>    <span class="n">left</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>    <span class="n">right</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>
-</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;check input&quot;&quot;&quot;</span>
 </span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>
 </span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variance</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -172,12 +172,12 @@
 </span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">assets</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">isdisjoint</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">assets</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
 </span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a>                <span class="k">raise</span> <span class="ne">AssertionError</span>
 </span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a>
-</span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a>    <span class="k">def</span> <span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-91"><a href="#L-91"><span class="linenos">91</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;true if this cluster is a leaf, e.g. no clusters follow downstream&quot;&quot;&quot;</span>
 </span><span id="L-92"><a href="#L-92"><span class="linenos">92</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span>
 </span><span id="L-93"><a href="#L-93"><span class="linenos">93</span></a>
 </span><span id="L-94"><a href="#L-94"><span class="linenos">94</span></a>    <span class="nd">@property</span>
-</span><span id="L-95"><a href="#L-95"><span class="linenos">95</span></a>    <span class="k">def</span> <span class="nf">weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos">95</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="L-96"><a href="#L-96"><span class="linenos">96</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;weight series&quot;&quot;&quot;</span>
 </span><span id="L-97"><a href="#L-97"><span class="linenos">97</span></a>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assets</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Weights&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
 </span></pre></div>
@@ -195,7 +195,7 @@
 
     </div>
     <a class="headerlink" href="#risk_parity"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="risk_parity-12"><a href="#risk_parity-12"><span class="linenos">12</span></a><span class="k">def</span> <span class="nf">risk_parity</span><span class="p">(</span><span class="n">cluster_left</span><span class="p">,</span> <span class="n">cluster_right</span><span class="p">,</span> <span class="n">cov</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="risk_parity-12"><a href="#risk_parity-12"><span class="linenos">12</span></a><span class="k">def</span><span class="w"> </span><span class="nf">risk_parity</span><span class="p">(</span><span class="n">cluster_left</span><span class="p">,</span> <span class="n">cluster_right</span><span class="p">,</span> <span class="n">cov</span><span class="p">):</span>
 </span><span id="risk_parity-13"><a href="#risk_parity-13"><span class="linenos">13</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="risk_parity-14"><a href="#risk_parity-14"><span class="linenos">14</span></a><span class="sd">    Given two clusters compute in a bottom-up approach their parent.</span>
 </span><span id="risk_parity-15"><a href="#risk_parity-15"><span class="linenos">15</span></a>
@@ -207,7 +207,7 @@
 </span><span id="risk_parity-21"><a href="#risk_parity-21"><span class="linenos">21</span></a>
 </span><span id="risk_parity-22"><a href="#risk_parity-22"><span class="linenos">22</span></a>    <span class="c1"># combine two clusters</span>
 </span><span id="risk_parity-23"><a href="#risk_parity-23"><span class="linenos">23</span></a>
-</span><span id="risk_parity-24"><a href="#risk_parity-24"><span class="linenos">24</span></a>    <span class="k">def</span> <span class="nf">parity</span><span class="p">(</span><span class="n">v_left</span><span class="p">,</span> <span class="n">v_right</span><span class="p">):</span>
+</span><span id="risk_parity-24"><a href="#risk_parity-24"><span class="linenos">24</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">parity</span><span class="p">(</span><span class="n">v_left</span><span class="p">,</span> <span class="n">v_right</span><span class="p">):</span>
 </span><span id="risk_parity-25"><a href="#risk_parity-25"><span class="linenos">25</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="risk_parity-26"><a href="#risk_parity-26"><span class="linenos">26</span></a><span class="sd">        Compute the weights for a risk parity portfolio of two assets</span>
 </span><span id="risk_parity-27"><a href="#risk_parity-27"><span class="linenos">27</span></a><span class="sd">        :param v_left: Variance of the &quot;left&quot; portfolio</span>
@@ -270,7 +270,7 @@
     </div>
     <a class="headerlink" href="#Cluster"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster-60"><a href="#Cluster-60"><span class="linenos">60</span></a><span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="Cluster-61"><a href="#Cluster-61"><span class="linenos">61</span></a><span class="k">class</span> <span class="nc">Cluster</span><span class="p">:</span>
+</span><span id="Cluster-61"><a href="#Cluster-61"><span class="linenos">61</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Cluster</span><span class="p">:</span>
 </span><span id="Cluster-62"><a href="#Cluster-62"><span class="linenos">62</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="Cluster-63"><a href="#Cluster-63"><span class="linenos">63</span></a><span class="sd">    Clusters are the nodes of the graphs we build.</span>
 </span><span id="Cluster-64"><a href="#Cluster-64"><span class="linenos">64</span></a><span class="sd">    Each cluster is aware of the left and the right cluster</span>
@@ -282,7 +282,7 @@
 </span><span id="Cluster-70"><a href="#Cluster-70"><span class="linenos">70</span></a>    <span class="n">left</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="Cluster-71"><a href="#Cluster-71"><span class="linenos">71</span></a>    <span class="n">right</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="kc">None</span>
 </span><span id="Cluster-72"><a href="#Cluster-72"><span class="linenos">72</span></a>
-</span><span id="Cluster-73"><a href="#Cluster-73"><span class="linenos">73</span></a>    <span class="k">def</span> <span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Cluster-73"><a href="#Cluster-73"><span class="linenos">73</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="Cluster-74"><a href="#Cluster-74"><span class="linenos">74</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;check input&quot;&quot;&quot;</span>
 </span><span id="Cluster-75"><a href="#Cluster-75"><span class="linenos">75</span></a>
 </span><span id="Cluster-76"><a href="#Cluster-76"><span class="linenos">76</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">variance</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
@@ -300,12 +300,12 @@
 </span><span id="Cluster-88"><a href="#Cluster-88"><span class="linenos">88</span></a>            <span class="k">if</span> <span class="ow">not</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">assets</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">isdisjoint</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">assets</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
 </span><span id="Cluster-89"><a href="#Cluster-89"><span class="linenos">89</span></a>                <span class="k">raise</span> <span class="ne">AssertionError</span>
 </span><span id="Cluster-90"><a href="#Cluster-90"><span class="linenos">90</span></a>
-</span><span id="Cluster-91"><a href="#Cluster-91"><span class="linenos">91</span></a>    <span class="k">def</span> <span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Cluster-91"><a href="#Cluster-91"><span class="linenos">91</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="Cluster-92"><a href="#Cluster-92"><span class="linenos">92</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;true if this cluster is a leaf, e.g. no clusters follow downstream&quot;&quot;&quot;</span>
 </span><span id="Cluster-93"><a href="#Cluster-93"><span class="linenos">93</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span>
 </span><span id="Cluster-94"><a href="#Cluster-94"><span class="linenos">94</span></a>
 </span><span id="Cluster-95"><a href="#Cluster-95"><span class="linenos">95</span></a>    <span class="nd">@property</span>
-</span><span id="Cluster-96"><a href="#Cluster-96"><span class="linenos">96</span></a>    <span class="k">def</span> <span class="nf">weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Cluster-96"><a href="#Cluster-96"><span class="linenos">96</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="Cluster-97"><a href="#Cluster-97"><span class="linenos">97</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;weight series&quot;&quot;&quot;</span>
 </span><span id="Cluster-98"><a href="#Cluster-98"><span class="linenos">98</span></a>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assets</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Weights&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
 </span></pre></div>
@@ -386,7 +386,7 @@ it is connecting to.</p>
 
     </div>
     <a class="headerlink" href="#Cluster.is_leaf"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster.is_leaf-91"><a href="#Cluster.is_leaf-91"><span class="linenos">91</span></a>    <span class="k">def</span> <span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster.is_leaf-91"><a href="#Cluster.is_leaf-91"><span class="linenos">91</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="Cluster.is_leaf-92"><a href="#Cluster.is_leaf-92"><span class="linenos">92</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;true if this cluster is a leaf, e.g. no clusters follow downstream&quot;&quot;&quot;</span>
 </span><span id="Cluster.is_leaf-93"><a href="#Cluster.is_leaf-93"><span class="linenos">93</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span>
 </span></pre></div>
@@ -407,7 +407,7 @@ it is connecting to.</p>
     </div>
     <a class="headerlink" href="#Cluster.weights"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster.weights-95"><a href="#Cluster.weights-95"><span class="linenos">95</span></a>    <span class="nd">@property</span>
-</span><span id="Cluster.weights-96"><a href="#Cluster.weights-96"><span class="linenos">96</span></a>    <span class="k">def</span> <span class="nf">weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Cluster.weights-96"><a href="#Cluster.weights-96"><span class="linenos">96</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 </span><span id="Cluster.weights-97"><a href="#Cluster.weights-97"><span class="linenos">97</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;weight series&quot;&quot;&quot;</span>
 </span><span id="Cluster.weights-98"><a href="#Cluster.weights-98"><span class="linenos">98</span></a>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">assets</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Weights&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
 </span></pre></div>
