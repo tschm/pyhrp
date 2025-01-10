@@ -11,7 +11,7 @@ jobs:
       - name: Checkout [${{ github.repository }}]
         uses: actions/checkout@v4
 
-      - uses: cvxgrp/.github/actions/uv/build@v2.0.2
+      - uses: cvxgrp/.github/actions/uv/build@v2.0.3
 
   deploy:
     runs-on: ubuntu-latest
@@ -26,4 +26,4 @@ jobs:
       - name: Checkout [${{ github.repository }}]
         uses: actions/checkout@v4
 
-      - uses: cvxgrp/.github/actions/publish@v2.0.2
+      - uses: cvxgrp/.github/actions/publish@v2.0.3
