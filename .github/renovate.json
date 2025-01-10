@@ -3,16 +3,14 @@
   "extends": [
     "config:recommended"
   ],
+  "automerge": true,
   "ignorePaths": [
     "**/.python-version"
   ],
   "lockFileMaintenance": {
-    "enabled": true,
-    "automerge": true
-
+    "enabled": true
   },
   "pre-commit": {
-    "enabled": true,
-    "automerge": true
+    "enabled": true
   }
 }
