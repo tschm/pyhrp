@@ -25,13 +25,13 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-
   publish:
     needs: tag
     runs-on: ubuntu-latest
     environment: release
 
     permissions:
+      contents: read
       # This permission is required for trusted publishing.
       id-token: write
 
