@@ -1,21 +1,68 @@
-name: Upload Python Package
+name: Bump version and publish
 
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: [ "CI" ]
+    types: [ completed ]
 
 jobs:
+  tag:
+    permissions:
+      contents: write
+
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main'
+    runs-on: ubuntu-latest
+
+    outputs:
+      tag: ${{ steps.tag_version.outputs.new_tag }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump version and tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.tag_version.outputs.new_tag }}
+          generate_release_notes: true
+
   build:
+    needs: tag
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout [${{ github.repository }}]
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - uses: cvxgrp/.github/actions/uv/build@v2.0.7
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
 
-  deploy:
-    runs-on: ubuntu-latest
+      - name: Install hatch
+        run: |
+          pip install hatch
+
+      - name: Build package
+        run: |
+          sed -i "s/0.0.0/${{ needs.tag.outputs.tag }}/" pyproject.toml
+          # Constructs the dist folder
+          hatch build
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+
+  publish:
     needs: build
+    runs-on: ubuntu-latest
     environment: release
 
     permissions:
@@ -23,16 +70,10 @@ jobs:
       id-token: write
 
     steps:
-      - name: Checkout [${{ github.repository }}]
-        uses: actions/checkout@v4
-
-      # download dist from build
       - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
 
-      - name: Publish package distributions to PyPI
+      - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://upload.pypi.org/legacy/
