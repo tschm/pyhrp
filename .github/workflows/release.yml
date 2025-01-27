@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
 
     outputs:
-      tag: ${{ steps.tag_version.outputs.new_tag }}
+      tag: ${{ steps.tag_version.outputs.tag }}
 
     steps:
       - uses: actions/checkout@v4
@@ -24,6 +24,8 @@ jobs:
       - name: Generate Tag
         uses: cvxgrp/.github/actions/uv/tag@main
         id: tag_version
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       #- name: Bump version and tag
       #  id: tag_version
