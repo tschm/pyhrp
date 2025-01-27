@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Generate Tag
-        uses: cvxgrp/.github/actions/tag@main
+        uses: cvxgrp/.github/actions/uv/tag@main
         id: tag_version
 
       #- name: Bump version and tag
