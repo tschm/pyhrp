@@ -45,17 +45,18 @@ jobs:
   #  steps:
   #    - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+      #- name: Setup Python
+      #  uses: actions/setup-python@v5
+      #  with:
+      #    python-version: '3.12'
 
-      - name: Install hatch
-        run: |
-          pip install hatch
+      #- name: Install hatch
+      #  run: |
+      #    pip install hatch
 
       - name: Build package
         run: |
+          echo "Environment ${{ env.tag }}"
           sed -i "s/0.0.0/${{ steps.tag_version.outputs.tag }}/" pyproject.toml
           # Constructs the dist folder
           hatch build
