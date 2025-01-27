@@ -21,17 +21,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Bump version and tag
+      - name: Generate Tag
+        uses: cvxgrp/.github/actions/tag@main
         id: tag_version
-        uses: mathieudutour/github-tag-action@v6.2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.tag_version.outputs.new_tag }}
-          generate_release_notes: true
+      #- name: Bump version and tag
+      #  id: tag_version
+      #  uses: mathieudutour/github-tag-action@v6.2
+      #  with:
+      #    github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      #- name: Create GitHub release
+      #  uses: softprops/action-gh-release@v2
+      #  with:
+      #    tag_name: ${{ steps.tag_version.outputs.new_tag }}
+      #    generate_release_notes: true
 
   build:
     needs: tag
