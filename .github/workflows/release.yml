@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Generate Tag
-        uses: cvxgrp/.github/actions/uv/tag@v2.0.8
+        uses: cvxgrp/.github/actions/uv/tag@v2.0.9
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
