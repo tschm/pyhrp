@@ -4,23 +4,30 @@
     "config:recommended"
   ],
   "automerge": true,
-  "ignorePaths": [
-    "**/.python-version"
-  ],
   "lockFileMaintenance": {
-    "enabled": true
+    "enabled": true,
+    "schedule": [
+      "on friday before 3pm"
+    ]
   },
   "pre-commit": {
-    "enabled": true
+    "enabled": true,
+    "schedule": [
+      "on the first day of the month before 6am"
+    ],
+    "packageRules": [
+      {
+        "groupName": "pre-commit hooks",
+        "groupSlug": "pre-commit",
+        "labels": [
+          "pre-commit",
+          "dependencies"
+        ],
+        "matchDepTypes": ["repository"]
+      }
+    ]
   },
-  "schedule": ["every friday", "before 8am"],
-  "packageRules": [
-    {
-      "groupName": "pre-commit hooks",
-      "matchManagers": ["pre-commit"],
-      "matchDepTypes": ["repository"],
-      "groupSlug": "precommit",
-      "labels": ["pre-commit", "dependencies"]
-    }
+  "labels": [
+    "renovate"
   ]
 }
