@@ -12,5 +12,15 @@
   },
   "pre-commit": {
     "enabled": true
-  }
+  },
+  "schedule": ["every friday", "before 8am"],
+  "packageRules": [
+    {
+      "groupName": "pre-commit hooks",
+      "matchManagers": ["pre-commit"],
+      "matchDepTypes": ["repository"],
+      "groupSlug": "precommit",
+      "labels": ["pre-commit", "dependencies"]
+    }
+  ]
 }
