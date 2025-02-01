@@ -10,7 +10,7 @@ jobs:
       - name: Checkout [${{ github.repository }}]
         uses: actions/checkout@v4
 
-      - uses: cvxgrp/.github/actions/uv/coverage@v2.0.12
+      - uses: cvxgrp/.github/actions/uv/coverage@v2.0.13
         with:
           source-folder: 'pyhrp'
 
@@ -22,7 +22,7 @@ jobs:
       - name: Checkout [${{ github.repository }}]
         uses: actions/checkout@v4
 
-      - uses: cvxgrp/.github/actions/uv/deptry@v2.0.12
+      - uses: cvxgrp/.github/actions/uv/deptry@v2.0.13
         with:
           source-folder: 'pyhrp'
 
