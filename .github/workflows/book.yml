@@ -36,4 +36,4 @@ jobs:
       contents: write
 
     steps:
-      - uses: cvxgrp/.github/actions/book@v2.0.16
+      - uses: cvxgrp/.github/actions/book@v2.0.17
