@@ -7,7 +7,10 @@ jobs:
   deptry:
     runs-on: ubuntu-latest
     steps:
-      - uses: cvxgrp/.github/actions/uv/deptry@v2.0.17
+      - name: "Build the virtual environment for ${{ github.repository }}"
+        uses: cvxgrp/.github/actions/uv/environment@v2.1.0
+        
+      - uses: cvxgrp/.github/actions/deptry@v2.1.0
         with:
           source-folder: 'pyhrp'
 
