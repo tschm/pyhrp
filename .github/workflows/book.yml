@@ -9,15 +9,15 @@ jobs:
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
         uses: cvxgrp/.github/actions/uv/environment@v2.1.0
-        
+
       - uses: cvxgrp/.github/actions/marimo@v2.1.0
-      
+
   pdoc:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
         uses: cvxgrp/.github/actions/uv/environment@v2.1.0
-        
+
       - uses: cvxgrp/.github/actions/pdoc@v2.1.0
         with:
           source-folder: 'pyhrp'
@@ -27,7 +27,7 @@ jobs:
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
         uses: cvxgrp/.github/actions/uv/environment@v2.1.0
-        
+
       - uses: cvxgrp/.github/actions/coverage@v2.1.0
         with:
           source-folder: 'pyhrp'
@@ -37,7 +37,7 @@ jobs:
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
         uses: cvxgrp/.github/actions/uv/environment@v2.1.0
-        
+
       - uses: cvxgrp/.github/actions/jupyter@v2.1.0
 
   book:
