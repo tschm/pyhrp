@@ -7,18 +7,18 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: cvxgrp/.github/actions/uv/coverage@v2.0.16
+      - uses: cvxgrp/.github/actions/uv/coverage@v2.0.17
         with:
           source-folder: 'pyhrp'
 
   deptry:
     runs-on: ubuntu-latest
     steps:
-      - uses: cvxgrp/.github/actions/uv/deptry@v2.0.16
+      - uses: cvxgrp/.github/actions/uv/deptry@v2.0.17
         with:
           source-folder: 'pyhrp'
 
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: cvxgrp/.github/actions/uv/pre-commit@v2.0.16
+      - uses: cvxgrp/.github/actions/uv/pre-commit@v2.0.17
