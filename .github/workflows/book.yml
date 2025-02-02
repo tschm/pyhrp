@@ -7,35 +7,26 @@ jobs:
   marimo:
     runs-on: "ubuntu-latest"
     steps:
-      - name: Checkout [${{ github.repository }}]
-        uses: actions/checkout@v4
-
-      - uses: cvxgrp/.github/actions/uv/marimo@v2.0.13
+      - uses: cvxgrp/.github/actions/uv/marimo@v2.0.16
 
   pdoc:
     runs-on: "ubuntu-latest"
     steps:
-      - name: Checkout [${{ github.repository }}]
-        uses: actions/checkout@v4
-
-      - uses: cvxgrp/.github/actions/uv/pdoc@v2.0.13
+      - uses: cvxgrp/.github/actions/uv/pdoc@v2.0.16
         with:
           source-folder: 'pyhrp'
 
   test:
     runs-on: "ubuntu-latest"
     steps:
-      - name: Checkout [${{ github.repository }}]
-        uses: actions/checkout@v4
-
-      - uses: cvxgrp/.github/actions/uv/coverage@v2.0.13
+      - uses: cvxgrp/.github/actions/uv/coverage@v2.0.16
+        with:
+          source-folder: 'pyhrp'
 
   jupyter:
     runs-on: "ubuntu-latest"
     steps:
-      - name: Checkout [${{ github.repository }}]
-        uses: actions/checkout@v4
-      - uses: cvxgrp/.github/actions/uv/jupyter@v2.0.13
+      - uses: cvxgrp/.github/actions/uv/jupyter@v2.0.16
 
   book:
     runs-on: "ubuntu-latest"
@@ -45,7 +36,4 @@ jobs:
       contents: write
 
     steps:
-      - name: Checkout [${{ github.repository }}]
-        uses: actions/checkout@v4
-
-      - uses: cvxgrp/.github/actions/book@v2.0.13
+      - uses: cvxgrp/.github/actions/book@v2.0.17
