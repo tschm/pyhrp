@@ -55,11 +55,10 @@ print(cluster.right)
 
 ## uv
 
-You need to install [task](https://taskfile.dev).
 Starting with
 
 ```bash
-task pyhrp:install
+make install
 ```
 
 will install [uv](https://github.com/astral-sh/uv) and create
@@ -72,7 +71,7 @@ We install [marimo](https://marimo.io) on the fly within the aforementioned
 virtual environment. Executing
 
 ```bash
-task pyhrp:marimo
+make marimo
 ```
 
 will install and start marimo.
