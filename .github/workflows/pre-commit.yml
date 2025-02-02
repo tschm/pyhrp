@@ -4,13 +4,6 @@ on:
   push:
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: cvxgrp/.github/actions/uv/coverage@v2.0.17
-        with:
-          source-folder: 'pyhrp'
-
   deptry:
     runs-on: ubuntu-latest
     steps:
@@ -21,4 +14,4 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: cvxgrp/.github/actions/uv/pre-commit@v2.0.17
+      - uses: cvxgrp/.github/actions/pre-commit@v2.1.0
