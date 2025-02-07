@@ -1,6 +1,6 @@
-SF:pyhrp/__init__.py
+SF:src/pyhrp/__init__.py
 end_of_record
-SF:pyhrp/cluster.py
+SF:src/pyhrp/cluster.py
 DA:3,1
 DA:5,1
 DA:7,1
@@ -54,7 +54,7 @@ FNDA:1,Cluster.weights
 FNF:5
 FNH:5
 end_of_record
-SF:pyhrp/graph.py
+SF:src/pyhrp/graph.py
 DA:3,1
 DA:5,1
 DA:6,1
@@ -70,7 +70,7 @@ FNDA:1,dendrogram
 FNF:1
 FNH:1
 end_of_record
-SF:pyhrp/hrp.py
+SF:src/pyhrp/hrp.py
 DA:3,1
 DA:5,1
 DA:6,1
@@ -111,7 +111,7 @@ FNDA:1,hrp
 FNF:5
 FNH:5
 end_of_record
-SF:pyhrp/marcos.py
+SF:src/pyhrp/marcos.py
 DA:10,1
 DA:12,1
 DA:13,1
