@@ -8,13 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: cvxgrp/.github/actions/environment@v2.2.1
+        uses: cvxgrp/.github/actions/environment@main_help
 
-      - uses: cvxgrp/.github/actions/deptry@v2.2.1
+      - uses: cvxgrp/.github/actions/deptry@main_help
         with:
           source-folder: 'pyhrp'
 
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: cvxgrp/.github/actions/pre-commit@v2.2.1
+      - uses: cvxgrp/.github/actions/pre-commit@main_help
