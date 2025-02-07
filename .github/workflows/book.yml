@@ -8,17 +8,17 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: cvxgrp/.github/actions/environment@main_help
+        uses: cvxgrp/.github/actions/environment@main
 
-      - uses: cvxgrp/.github/actions/marimo@main_help
+      - uses: cvxgrp/.github/actions/marimo@main
 
   pdoc:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: cvxgrp/.github/actions/environment@main_help
+        uses: cvxgrp/.github/actions/environment@main
 
-      - uses: cvxgrp/.github/actions/pdoc@main_help
+      - uses: cvxgrp/.github/actions/pdoc@main
         with:
           source-folder: 'pyhrp'
 
@@ -26,9 +26,9 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: cvxgrp/.github/actions/environment@main_help
+        uses: cvxgrp/.github/actions/environment@main
 
-      - uses: cvxgrp/.github/actions/coverage@main_help
+      - uses: cvxgrp/.github/actions/coverage@main
         with:
           source-folder: 'pyhrp'
 
@@ -36,9 +36,9 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: cvxgrp/.github/actions/environment@main_help
+        uses: cvxgrp/.github/actions/environment@main
 
-      - uses: cvxgrp/.github/actions/jupyter@main_help
+      - uses: cvxgrp/.github/actions/jupyter@main
 
   book:
     runs-on: "ubuntu-latest"
@@ -48,4 +48,4 @@ jobs:
       contents: write
 
     steps:
-      - uses: cvxgrp/.github/actions/book@main_help
+      - uses: cvxgrp/.github/actions/book@main
