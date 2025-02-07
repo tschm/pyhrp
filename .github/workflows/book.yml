@@ -20,7 +20,7 @@ jobs:
 
       - uses: cvxgrp/.github/actions/pdoc@main
         with:
-          source-folder: 'pyhrp'
+          source-folder: 'src/pyhrp'
 
   test:
     runs-on: "ubuntu-latest"
@@ -30,7 +30,8 @@ jobs:
 
       - uses: cvxgrp/.github/actions/coverage@main
         with:
-          source-folder: 'pyhrp'
+          source-folder: 'src/pyhrp'
+          tests-folder: 'src/tests'
 
   jupyter:
     runs-on: "ubuntu-latest"

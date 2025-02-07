@@ -12,7 +12,7 @@ jobs:
 
       - uses: cvxgrp/.github/actions/deptry@main
         with:
-          source-folder: 'pyhrp'
+          source-folder: 'src/pyhrp'
 
   pre-commit:
     runs-on: ubuntu-latest
