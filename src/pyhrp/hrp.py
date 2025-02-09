@@ -29,7 +29,7 @@ class Dendrogram(NamedTuple):
     @staticmethod
     def build(cor, method="ward", bisection=False):
         distance = _dist(cor)
-        links = _linkage(distance, method=method)
+        links = sch.linkage(distance, method=method)
         root = _tree(links, bisection=bisection)
 
         if bisection:
@@ -62,6 +62,10 @@ class Node:
             return self.left.count + self.right.count
         else:
             return 1.0
+
+    def compute(self, f):
+        self.left.compute(f)
+        self.right.compute(f)
 
 
 def _bisection(ids, n: int) -> Node:
@@ -145,18 +149,6 @@ def _dist(cor):
     matrix = np.sqrt(np.clip((1.0 - cor) / 2.0, a_min=0.0, a_max=1.0))
     np.fill_diagonal(matrix, val=0.0)
     return ssd.squareform(matrix)
-
-
-def _linkage(dist_vec, method="ward", **kwargs) -> np.ndarray:
-    """
-    Based on distance matrix compute the underlying links
-    :param dist_vec: The distance vector based on the correlation matrix
-    :param method: "single", "ward", etc.
-    :return: links  The links describing the graph (useful to draw the dendrogram)
-                    and basis for constructing the tree object
-    """
-    # compute the root node of the dendrogram
-    return sch.linkage(dist_vec, method=method, **kwargs)
 
 
 def _tree(links, bisection: bool = False) -> Node:
