@@ -56,16 +56,11 @@ class Node:
     def is_leaf(self):
         return self.left is None and self.right is None
 
-    @property
-    def count(self):
+    def __len__(self) -> int:
         if self.left:
-            return self.left.count + self.right.count
+            return len(self.left) + len(self.right)
         else:
-            return 1.0
-
-    def compute(self, f):
-        self.left.compute(f)
-        self.right.compute(f)
+            return 1
 
 
 def _bisection(ids, n: int) -> Node:
@@ -122,7 +117,7 @@ def _node_to_linkage(root, n):
         right_id = _traverse(node.right)
 
         # Record the merge step
-        linkage_matrix.append([left_id, right_id, node.count, node.count])
+        linkage_matrix.append([left_id, right_id, float(len(node)), len(node)])
 
         # Assign a new ID to the merged cluster
         merged_id = current_id
