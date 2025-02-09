@@ -6,6 +6,7 @@ from pyhrp.cluster import hrp
 
 
 def test_allocation(prices):
+    # reproduce the results of the implementation in PyPortfolioOpt
     returns = prices.pct_change().dropna(axis=0, how="all")
 
     optimizer = HRPOpt(returns)
