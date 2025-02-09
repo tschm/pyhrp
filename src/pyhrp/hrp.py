@@ -28,6 +28,17 @@ class Dendrogram(NamedTuple):
 
         return ax
 
+    @staticmethod
+    def build(cor, method="ward", bisection=False):
+        distance = _dist(cor)
+        links = _linkage(distance, method=method)
+        root = _tree(links, bisection=bisection)
+
+        if bisection:
+            links = _node_to_linkage(root, n=cor.shape[0])
+
+        return Dendrogram(root=root, linkage=links, distance=distance, bisection=bisection, method=method)
+
 
 def _node_to_linkage(root, n):
     """
@@ -113,14 +124,3 @@ def _tree(links, bisection: bool = False) -> node.Node:
         root = node.bisection(ids=leaf_ids, n=len(leaf_ids))
 
     return node.Node(id=root.id, left=root.left, right=root.right)
-
-
-def root(cor, method="ward", bisection=False) -> Dendrogram:
-    distance = _dist(cor)
-    links = _linkage(distance, method=method)
-    root = _tree(links, bisection=bisection)
-
-    if bisection:
-        links = _node_to_linkage(root, n=cor.shape[0])
-
-    return Dendrogram(root=root, linkage=links, distance=distance, bisection=bisection, method=method)

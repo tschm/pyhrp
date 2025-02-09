@@ -27,50 +27,17 @@ def _(__file__):
 @app.cell
 def _(returns):
     # compute the dendrogram
-    from pyhrp.graph import dendrogram
-    from pyhrp.hrp import _dist, _linkage
+    from pyhrp.hrp import root
 
     cor = returns.corr().values
-    links = _linkage(_dist(cor), method="ward")
-    dendrogram(links=links, labels=returns.columns)
-    return cor, dendrogram, _dist, _linkage, links
+    dendrogram = root(cor, method="ward")
+    dendrogram.plot(labels=returns.columns)
+    return cor, dendrogram, root
 
 
 @app.cell
-def _(links):
-    from pyhrp.hrp import _tree
-
-    rootnode = _tree(links)
-    # moving from the rootnode to the left we end up on a node
-    print(rootnode.get_left())
-    # moving from the rootnode to the right we end up on a node
-    print(rootnode.get_right())
-    print(rootnode.get_count())
-    print(rootnode.get_left().get_count())
-    print(rootnode.get_right().get_count())
-    return rootnode, _tree
-
-
-@app.cell
-def _(rootnode):
-    rootnode.pre_order()
-    return
-
-
-app._unparsable_cell(
-    r"""
-    rootnode.get_id()
-    rootnode.get_left().get_id()
-    rootnode.get_right().get_id()
-    rootnode.
-    """,
-    name="_",
-)
-
-
-@app.cell
-def _(links):
-    links
+def _(dendrogram):
+    dendrogram.root.pre_order()
     return
 
 

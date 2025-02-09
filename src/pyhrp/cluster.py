@@ -7,7 +7,7 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from .hrp import root
+from .hrp import Dendrogram
 
 
 def hrp(prices, node=None, method="ward", bisection=False) -> Cluster:
@@ -19,7 +19,7 @@ def hrp(prices, node=None, method="ward", bisection=False) -> Cluster:
     """
     returns = prices.pct_change().dropna(axis=0, how="all")
     cov, cor = returns.cov(), returns.corr()
-    node = node or root(cor.values, method=method, bisection=bisection).root
+    node = node or Dendrogram.build(cor.values, method=method, bisection=bisection).root
 
     return build_cluster(node, cov)
 
