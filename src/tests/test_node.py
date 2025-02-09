@@ -1,4 +1,4 @@
-from pyhrp.node import Node, bisection
+from pyhrp.hrp import Node, _bisection
 
 
 def test_node():
@@ -28,7 +28,7 @@ def test_node():
 
     assert not node.is_leaf()
 
-    root = bisection(ids=[0, 1], n=2)
+    root = _bisection(ids=[0, 1], n=2)
     assert isinstance(root, Node)
     assert root.id == 2
     assert root.left.id == 0
@@ -37,7 +37,7 @@ def test_node():
 
 
 def test_bisection():
-    root = bisection(ids=[2, 3, 1, 0, 4, 6, 5, 7], n=8)
+    root = _bisection(ids=[2, 3, 1, 0, 4, 6, 5, 7], n=8)
     assert root.pre_order() == [2, 3, 1, 0, 4, 6, 5, 7]
 
 
