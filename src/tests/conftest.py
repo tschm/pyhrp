@@ -1,7 +1,6 @@
-from __future__ import annotations
-
 from pathlib import Path
 
+import pandas as pd
 import pytest
 
 
@@ -9,3 +8,10 @@ import pytest
 def resource_fixture():
     """resource fixture"""
     return Path(__file__).parent / "resources"
+
+
+@pytest.fixture(scope="session")
+def prices(resource_dir):
+    return pd.read_csv(resource_dir / "stock_prices.csv", parse_dates=True, index_col="date").truncate(
+        before="2017-01-01"
+    )

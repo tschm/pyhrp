@@ -667,8 +667,8 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "loguru" },
-    { name = "mock" },
+    { name = "loguru", specifier = ">=0.7.2" },
+    { name = "mock", specifier = ">=5.1.0" },
     { name = "pre-commit", specifier = ">=4.0.1" },
     { name = "pytest", specifier = ">=8.3.3" },
     { name = "pytest-cov", specifier = ">=6.0.0" },

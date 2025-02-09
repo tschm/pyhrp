@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pyhrp.cluster import Cluster, risk_parity
+from pyhrp.cluster import Cluster, hrp, risk_parity
 
 
 def test_cluster_simple():
@@ -15,20 +15,6 @@ def test_cluster_simple():
 def test_negative_variance():
     with pytest.raises(AssertionError):
         Cluster(assets={"A": -0.2, "B": 0.8}, variance=-1)
-
-
-def test_only_left():
-    with pytest.raises(AssertionError):
-        Cluster(
-            assets={"A": 0.5, "B": 0.5},
-            variance=1,
-            left=Cluster(assets={"C": 1.0}, variance=1),
-        )
-
-
-def test_wrong_type():
-    with pytest.raises(AssertionError):
-        Cluster(assets={"A": 0.5, "B": 0.5}, variance=1, left=5, right=5)
 
 
 def test_left_right():
@@ -73,3 +59,26 @@ def test_riskparity():
         (1.0 / 3.0) ** 2 * 4 + (2.0 / 3.0) ** 2 * 2.0 + 2.0 * (1.0 / 3.0) * (2.0 / 3.0),
     )
     np.testing.assert_almost_equal(cluster.variance, (4.0 / 9.0) + (8.0 / 9.0) + (4.0 / 9.0))
+
+
+def test_hrp(prices, resource_dir):
+    cluster = hrp(prices=prices, method="ward")
+
+    x = pd.read_csv(resource_dir / "weights_hrp.csv", index_col=0, header=0).squeeze()
+
+    x.index.name = None
+
+    pd.testing.assert_series_equal(x, cluster.weights, check_exact=False)
+
+
+def test_marcos(resource_dir, prices):
+    cluster = hrp(prices=prices, method="ward", bisection=True)
+
+    # uncomment this line if you want generating a new file
+    # root.weights.to_csv(resource("weights_marcos.csv"), header=False)
+
+    x = pd.read_csv(resource_dir / "weights_marcos.csv", index_col=0, header=0).squeeze()
+
+    x.index.name = None
+
+    pd.testing.assert_series_equal(x, cluster.weights, check_exact=False)

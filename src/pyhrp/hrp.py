@@ -2,14 +2,137 @@
 
 from __future__ import annotations
 
+from typing import NamedTuple
+
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
-from .cluster import Cluster, risk_parity
+
+# Define a NamedTuple
+class Dendrogram(NamedTuple):
+    root: sch.ClusterNode
+    linkage: np.ndarray
+    distance: np.ndarray
+    bisection: bool
+    method: str
+
+    def plot(self, ax=None, **kwargs):
+        """Plot a dendrogram using matplotlib"""
+        if ax is None:
+            _, ax = plt.subplots(figsize=(25, 20))
+        sch.dendrogram(self.linkage, ax=ax, **kwargs)
+
+        return ax
+
+    @staticmethod
+    def build(cor, method="ward", bisection=False):
+        distance = _dist(cor)
+        links = _linkage(distance, method=method)
+        root = _tree(links, bisection=bisection)
+
+        if bisection:
+            links = _node_to_linkage(root, n=cor.shape[0])
+
+        return Dendrogram(root=root, linkage=links, distance=distance, bisection=bisection, method=method)
 
 
-def dist(cor):
+class Node:
+    def __init__(self, id=None, left=None, right=None):
+        self.id = id
+        self.left = left
+        self.right = right
+
+    def pre_order(self):
+        if self.left:
+            return self.left.pre_order() + self.right.pre_order()
+        else:
+            return [self.id]
+
+    def __repr__(self):
+        return f"Node(id={self.id}, left={self.left}, right={self.right})"
+
+    def is_leaf(self):
+        return self.left is None and self.right is None
+
+    @property
+    def count(self):
+        if self.left:
+            return self.left.count + self.right.count
+        else:
+            return 1.0
+
+
+def _bisection(ids, n: int) -> Node:
+    """
+    Compute the graph underlying the recursive bisection of Marcos Lopez de Prado.
+    Ensures that the pre-order traversal of the tree remains unchanged.
+
+    :param ids: A (ranked) set of indices (leaf nodes).
+    :param n: The current ID to assign to the newly created cluster node.
+    :return: The root ClusterNode of this tree.
+    """
+
+    def split(ids):
+        """Split the vector ids into two parts, split in the middle."""
+        num = len(ids)
+        return ids[: num // 2], ids[num // 2 :]
+
+    # Base case: if there's only one ID, return a leaf node
+    if len(ids) == 1:
+        return Node(id=ids[0])
+
+    # Split the IDs into left and right halves
+    left, right = split(ids)
+
+    # Recursively construct the left and right subtrees
+    left_node = _bisection(ids=left, n=n + 1)
+    right_node = _bisection(ids=right, n=n + 1 + len(left))
+
+    # Create a new cluster node with the current ID and the left/right subtrees
+    return Node(id=n, left=left_node, right=right_node)
+
+
+def _node_to_linkage(root, n):
+    """
+    Convert a hierarchical clustering tree (root node) back into a linkage matrix.
+
+    Parameters:
+    root: The root node of the hierarchical clustering tree.
+    n: The number of original data points.
+
+    Returns:
+    linkage_matrix: A (n-1) x 4 numpy array representing the linkage matrix.
+    """
+    linkage_matrix = []
+    current_id = n  # Start assigning IDs for merged clusters from n
+
+    def _traverse(node):
+        nonlocal current_id
+        if node.is_leaf():
+            return node.id  # Return the leaf node's ID
+
+        # Recursively traverse the left and right children
+        left_id = _traverse(node.left)
+        right_id = _traverse(node.right)
+
+        # Record the merge step
+        linkage_matrix.append([left_id, right_id, node.count, node.count])
+
+        # Assign a new ID to the merged cluster
+        merged_id = current_id
+        current_id += 1
+        return merged_id
+
+    # Start the traversal
+    _traverse(root)
+    M = np.array(linkage_matrix)
+
+    return M
+
+
+def _dist(cor):
     """
     Compute the correlation based distance matrix d,
     compare with page 239 of the first book by Marcos
@@ -24,7 +147,7 @@ def dist(cor):
     return ssd.squareform(matrix)
 
 
-def linkage(dist_vec, method="ward", **kwargs):
+def _linkage(dist_vec, method="ward", **kwargs) -> np.ndarray:
     """
     Based on distance matrix compute the underlying links
     :param dist_vec: The distance vector based on the correlation matrix
@@ -36,40 +159,22 @@ def linkage(dist_vec, method="ward", **kwargs):
     return sch.linkage(dist_vec, method=method, **kwargs)
 
 
-def tree(links):
+def _tree(links, bisection: bool = False) -> Node:
     """
     Compute the root ClusterNode.
-    :param links: The Linkage matrix compiled by the linkage function above
-    :return: The root node. From there it's possible to reach the entire graph
+
+    :param links: The linkage matrix compiled by the linkage function.
+    :param bisection: If True, apply the bisection method to sort the leaves.
+    :return: The root node. From there, it's possible to reach the entire graph.
     """
-    return sch.to_tree(links, rd=False)
+    # Convert the linkage matrix to a tree
+    root = sch.to_tree(links, rd=False)
 
+    # Apply the bisection method if requested
+    if bisection:
+        # Get the leaf IDs in pre-order traversal order
+        leaf_ids = root.pre_order()
+        # Reconstruct the tree using the bisection method
+        root = _bisection(ids=leaf_ids, n=len(leaf_ids))
 
-def build_cluster(node, cov):
-    """compute a cluster"""
-    if node.is_leaf():
-        # a node is a leaf if has no further relatives downstream.
-        # no leaves, no branches, ...
-        asset = cov.keys().to_list()[node.id]
-        return Cluster(assets={asset: 1.0}, variance=cov[asset][asset])
-
-    # drill down on the left
-    cluster_left = build_cluster(node.left, cov)
-    # drill down on the right
-    cluster_right = build_cluster(node.right, cov)
-    # combine left and right into a new cluster
-    return risk_parity(cluster_left, cluster_right, cov=cov)
-
-
-def hrp(prices, node=None, method="single"):
-    """
-    Computes the root node for the hierarchical risk parity portfolio
-    :param cov: This is the covariance matrix that shall be used
-    :param node: Optional. This is the rootnode of the graph describing the dendrogram
-    :return: the root cluster of the risk parity portfolio
-    """
-    returns = prices.pct_change().dropna(axis=0, how="all")
-    cov, cor = returns.cov(), returns.corr()
-    node = node or tree(linkage(dist(cor.values), method=method))
-
-    return build_cluster(node, cov)
+    return Node(id=root.id, left=root.left, right=root.right)
