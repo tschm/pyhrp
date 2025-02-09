@@ -7,8 +7,40 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
+from .hrp import root
 
-def risk_parity(cluster_left, cluster_right, cov):
+
+def hrp(prices, node=None, method="ward", bisection=False) -> Cluster:
+    """
+    Computes the root node for the hierarchical risk parity portfolio
+    :param cov: This is the covariance matrix that shall be used
+    :param node: Optional. This is the rootnode of the graph describing the dendrogram
+    :return: the root cluster of the risk parity portfolio
+    """
+    returns = prices.pct_change().dropna(axis=0, how="all")
+    cov, cor = returns.cov(), returns.corr()
+    node = node or root(cor.values, method=method, bisection=bisection).root
+
+    return build_cluster(node, cov)
+
+
+def build_cluster(node, cov) -> Cluster:
+    """compute a cluster"""
+    if node.is_leaf():
+        # a node is a leaf if has no further relatives downstream.
+        # no leaves, no branches, ...
+        asset = cov.keys().to_list()[node.id]
+        return Cluster(assets={asset: 1.0}, variance=cov[asset][asset])
+
+    # drill down on the left
+    cluster_left = build_cluster(node.left, cov)
+    # drill down on the right
+    cluster_right = build_cluster(node.right, cov)
+    # combine left and right into a new cluster
+    return risk_parity(cluster_left, cluster_right, cov=cov)
+
+
+def risk_parity(cluster_left, cluster_right, cov) -> Cluster:
     """
     Given two clusters compute in a bottom-up approach their parent.
 
@@ -30,9 +62,6 @@ def risk_parity(cluster_left, cluster_right, cov):
         """
         return v_right / (v_left + v_right), v_left / (v_left + v_right)
 
-    if not set(cluster_left.assets).isdisjoint(set(cluster_right.assets)):
-        raise AssertionError
-
     # split is s.t. v_left * alpha_left == v_right * alpha_right and alpha + beta = 1
     alpha_left, alpha_right = parity(cluster_left.variance, cluster_right.variance)
 
@@ -52,7 +81,7 @@ def risk_parity(cluster_left, cluster_right, cov):
         assets=assets,
         variance=var,
         left=cluster_left,
-        right=cluster_right,  # , node=node
+        right=cluster_right,
     )
 
 
@@ -66,26 +95,14 @@ class Cluster:
 
     assets: dict[str, float]
     variance: float
-    left: object = None
-    right: object = None
+    left: Cluster = None
+    right: Cluster = None
 
     def __post_init__(self):
         """check input"""
 
         if self.variance <= 0:
             raise AssertionError
-        if self.left is None:
-            # if there is no left, there can't be a right
-            if self.right is not None:
-                raise AssertionError
-        else:
-            # left is not None, hence both left and right have to be clusters
-            if not isinstance(self.left, Cluster):
-                raise AssertionError
-            if not isinstance(self.right, Cluster):
-                raise AssertionError
-            if not set(self.left.assets.keys()).isdisjoint(set(self.right.assets.keys())):
-                raise AssertionError
 
     def is_leaf(self):
         """true if this cluster is a leaf, e.g. no clusters follow downstream"""

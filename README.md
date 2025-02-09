@@ -16,18 +16,18 @@ Here's a simple example
 
 ```python
 import pandas as pd
-from pyhrp.hrp import dist, linkage, tree, _hrp
+from pyhrp.hrp import root
 
 prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
 
 returns = prices.pct_change().dropna(axis=0, how="all")
 cov, cor = returns.cov(), returns.corr()
-links = linkage(dist(cor.values), method='ward')
-node = tree(links)
+#links = linkage(_dist(cor.values), method='ward')
+dendrogram = root(cor.values, method='ward')
 
-rootcluster = _hrp(node, cov)
+rootcluster = hrp(dendrogram.root, cov)
 
-ax = dendrogram(links, orientation="left")
+ax = dendrogram(dendrogram.linkage, orientation="left")
 ax.get_figure().savefig("dendrogram.png")
 ```
 

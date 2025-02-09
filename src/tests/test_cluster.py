@@ -17,18 +17,18 @@ def test_negative_variance():
         Cluster(assets={"A": -0.2, "B": 0.8}, variance=-1)
 
 
-def test_only_left():
-    with pytest.raises(AssertionError):
-        Cluster(
-            assets={"A": 0.5, "B": 0.5},
-            variance=1,
-            left=Cluster(assets={"C": 1.0}, variance=1),
-        )
+# def test_only_left():
+#     with pytest.raises(AssertionError):
+#         Cluster(
+#             assets={"A": 0.5, "B": 0.5},
+#             variance=1,
+#             left=Cluster(assets={"C": 1.0}, variance=1),
+#         )
 
 
-def test_wrong_type():
-    with pytest.raises(AssertionError):
-        Cluster(assets={"A": 0.5, "B": 0.5}, variance=1, left=5, right=5)
+# def test_wrong_type():
+#     with pytest.raises(AssertionError):
+#         Cluster(assets={"A": 0.5, "B": 0.5}, variance=1, left=5, right=5)
 
 
 def test_left_right():

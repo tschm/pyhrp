@@ -28,19 +28,19 @@ def _(__file__):
 def _(returns):
     # compute the dendrogram
     from pyhrp.graph import dendrogram
-    from pyhrp.hrp import _dist, linkage
+    from pyhrp.hrp import _dist, _linkage
 
     cor = returns.corr().values
-    links = linkage(_dist(cor), method="ward")
+    links = _linkage(_dist(cor), method="ward")
     dendrogram(links=links, labels=returns.columns)
-    return cor, dendrogram, _dist, linkage, links
+    return cor, dendrogram, _dist, _linkage, links
 
 
 @app.cell
 def _(links):
-    from pyhrp.hrp import tree
+    from pyhrp.hrp import _tree
 
-    rootnode = tree(links)
+    rootnode = _tree(links)
     # moving from the rootnode to the left we end up on a node
     print(rootnode.get_left())
     # moving from the rootnode to the right we end up on a node
@@ -48,7 +48,7 @@ def _(links):
     print(rootnode.get_count())
     print(rootnode.get_left().get_count())
     print(rootnode.get_right().get_count())
-    return rootnode, tree
+    return rootnode, _tree
 
 
 @app.cell
