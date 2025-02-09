@@ -1,3 +1,3 @@
 # Demo
 
-- [Demo](https://www.cvxgrp.org/pyhrp/marimo/demo.html)
+- [Demo](https://tschm.github.io/pyhrp/marimo/demo.html)
