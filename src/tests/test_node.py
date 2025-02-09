@@ -39,3 +39,8 @@ def test_node():
 def test_bisection():
     root = bisection(ids=[2, 3, 1, 0, 4, 6, 5, 7], n=8)
     assert root.pre_order() == [2, 3, 1, 0, 4, 6, 5, 7]
+
+
+def test_repr():
+    left = Node(id=0)
+    assert repr(left) == "Node(id=0, left=None, right=None)"
