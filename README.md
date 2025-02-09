@@ -16,7 +16,7 @@ Here's a simple example
 
 ```python
 import pandas as pd
-from pyhrp.hrp import root
+from pyhrp.hrp import Dendrogram
 from pyhrp.cluster import build_cluster
 
 prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
@@ -25,7 +25,7 @@ returns = prices.pct_change().dropna(axis=0, how="all")
 cov, cor = returns.cov(), returns.corr()
 
 # Compute the dendrogram based on the correlation matrix and Ward's metric
-dendrogram = root(cor.values, method='ward')
+dendrogram = Dendrogram.build(cor.values, method='ward')
 
 cluster = build_cluster(dendrogram.root, cov)
 
@@ -38,10 +38,10 @@ correlation matrix, the links and the node, e.g. the root of the tree (dendrogra
 
 ```python
 import pandas as pd
-from pyhrp.hrp import hrp
+from pyhrp.cluster import hrp
 
 prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
-root = hrp(prices=prices)
+cluster = hrp(prices=prices, method="ward", bisection=False)
 ```
 
 You may expect a weight series here but instead the `hrp` function returns a
