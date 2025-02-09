@@ -10,7 +10,6 @@ dependencies = [
     "pandas",
     "scipy",
     "matplotlib",
-    "binarytree>=6.5.1",
 ]
 
 [project.urls]
