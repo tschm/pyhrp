@@ -63,24 +63,6 @@
             <li>
                     <a class="class" href="#Node">Node</a>
                             <ul class="memberlist">
-                        <li>
-                                <a class="function" href="#Node.__init__">Node</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Node.id">id</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Node.left">left</a>
-                        </li>
-                        <li>
-                                <a class="variable" href="#Node.right">right</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Node.pre_order">pre_order</a>
-                        </li>
-                        <li>
-                                <a class="function" href="#Node.is_leaf">is_leaf</a>
-                        </li>
                 </ul>
 
             </li>
@@ -147,133 +129,116 @@
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>        <span class="k">return</span> <span class="n">Dendrogram</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="n">links</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span> <span class="n">bisection</span><span class="o">=</span><span class="n">bisection</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>
 </span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>
-</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Node</span><span class="p">:</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">left</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">right</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
-</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">pre_order</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">:</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">pre_order</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">pre_order</span><span class="p">()</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a>            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a>
-</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Node(id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, left=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="si">}</span><span class="s2">, right=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="si">}</span><span class="s2">)&quot;</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>
-</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Node</span><span class="p">(</span><span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">):</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">:</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>            <span class="k">return</span> <span class="mi">1</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="sd">    Compute the graph underlying the recursive bisection of Marcos Lopez de Prado.</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">    Ensures that the pre-order traversal of the tree remains unchanged.</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">    :param ids: A (ranked) set of indices (leaf nodes).</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="sd">    :param n: The current ID to assign to the newly created cluster node.</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">    :return: The root ClusterNode of this tree.</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>
-</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">:</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>            <span class="k">return</span> <span class="mi">1</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>
-</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">    Compute the graph underlying the recursive bisection of Marcos Lopez de Prado.</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">    Ensures that the pre-order traversal of the tree remains unchanged.</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">split</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Split the vector ids into two parts, split in the middle.&quot;&quot;&quot;</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>        <span class="n">num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>        <span class="k">return</span> <span class="n">ids</span><span class="p">[:</span> <span class="n">num</span> <span class="o">//</span> <span class="mi">2</span><span class="p">],</span> <span class="n">ids</span><span class="p">[</span><span class="n">num</span> <span class="o">//</span> <span class="mi">2</span> <span class="p">:]</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>    <span class="c1"># Base case: if there&#39;s only one ID, return a leaf node</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>        <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>    <span class="c1"># Split the IDs into left and right halves</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>    <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
 </span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>
-</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">    :param ids: A (ranked) set of indices (leaf nodes).</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a><span class="sd">    :param n: The current ID to assign to the newly created cluster node.</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a><span class="sd">    :return: The root ClusterNode of this tree.</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>
-</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">split</span><span class="p">(</span><span class="n">ids</span><span class="p">):</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Split the vector ids into two parts, split in the middle.&quot;&quot;&quot;</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>        <span class="n">num</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>        <span class="k">return</span> <span class="n">ids</span><span class="p">[:</span> <span class="n">num</span> <span class="o">//</span> <span class="mi">2</span><span class="p">],</span> <span class="n">ids</span><span class="p">[</span><span class="n">num</span> <span class="o">//</span> <span class="mi">2</span> <span class="p">:]</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>
-</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>    <span class="c1"># Base case: if there&#39;s only one ID, return a leaf node</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>        <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>
-</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>    <span class="c1"># Split the IDs into left and right halves</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>    <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>
-</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>    <span class="c1"># Recursively construct the left and right subtrees</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>    <span class="n">left_node</span> <span class="o">=</span> <span class="n">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">left</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="n">right_node</span> <span class="o">=</span> <span class="n">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">right</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">left</span><span class="p">))</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>    <span class="c1"># Create a new cluster node with the current ID and the left/right subtrees</span>
-</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">left_node</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right_node</span><span class="p">)</span>
-</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>
-</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>
-</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_node_to_linkage</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
-</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">    Convert a hierarchical clustering tree (root node) back into a linkage matrix.</span>
-</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>
-</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">    Parameters:</span>
-</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">    root: The root node of the hierarchical clustering tree.</span>
-</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">    n: The number of original data points.</span>
-</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>
-</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a><span class="sd">    Returns:</span>
-</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">    linkage_matrix: A (n-1) x 4 numpy array representing the linkage matrix.</span>
-</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>    <span class="n">linkage_matrix</span> <span class="o">=</span> <span class="p">[]</span>
-</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>    <span class="n">current_id</span> <span class="o">=</span> <span class="n">n</span>  <span class="c1"># Start assigning IDs for merged clusters from n</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>    <span class="c1"># Recursively construct the left and right subtrees</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>    <span class="n">left_node</span> <span class="o">=</span> <span class="n">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">left</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>    <span class="n">right_node</span> <span class="o">=</span> <span class="n">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">right</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">3</span> <span class="o">*</span> <span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>    <span class="c1"># Create a new cluster node with the current ID and the left/right subtrees</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>    <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">left_node</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right_node</span><span class="p">)</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_node_to_linkage</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="sd">    Convert a hierarchical clustering tree (root node) back into a linkage matrix.</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">    Parameters:</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">    root: The root node of the hierarchical clustering tree.</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">    n: The number of original data points.</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">    Returns:</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a><span class="sd">    linkage_matrix: A (n-1) x 4 numpy array representing the linkage matrix.</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="n">linkage_matrix</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="n">current_id</span> <span class="o">=</span> <span class="n">n</span>  <span class="c1"># Start assigning IDs for merged clusters from n</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_traverse</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>        <span class="k">nonlocal</span> <span class="n">current_id</span>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>            <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">id</span>  <span class="c1"># Return the leaf node&#39;s ID</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>        <span class="c1"># Recursively traverse the left and right children</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a>        <span class="n">left_id</span> <span class="o">=</span> <span class="n">_traverse</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="p">)</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a>        <span class="n">right_id</span> <span class="o">=</span> <span class="n">_traverse</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>        <span class="c1"># Record the merge step</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a>        <span class="n">linkage_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_id</span><span class="p">,</span> <span class="n">right_id</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">)),</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">)])</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>        <span class="c1"># Assign a new ID to the merged cluster</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>        <span class="n">merged_id</span> <span class="o">=</span> <span class="n">current_id</span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>        <span class="n">current_id</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>        <span class="k">return</span> <span class="n">merged_id</span>
 </span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>
-</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_traverse</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
-</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>        <span class="k">nonlocal</span> <span class="n">current_id</span>
-</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
-</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>            <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">id</span>  <span class="c1"># Return the leaf node&#39;s ID</span>
-</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>
-</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>        <span class="c1"># Recursively traverse the left and right children</span>
-</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>        <span class="n">left_id</span> <span class="o">=</span> <span class="n">_traverse</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="p">)</span>
-</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>        <span class="n">right_id</span> <span class="o">=</span> <span class="n">_traverse</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>
-</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>        <span class="c1"># Record the merge step</span>
-</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>        <span class="n">linkage_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_id</span><span class="p">,</span> <span class="n">right_id</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">)),</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">)])</span>
-</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>
-</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="c1"># Assign a new ID to the merged cluster</span>
-</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>        <span class="n">merged_id</span> <span class="o">=</span> <span class="n">current_id</span>
-</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>        <span class="n">current_id</span> <span class="o">+=</span> <span class="mi">1</span>
-</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>        <span class="k">return</span> <span class="n">merged_id</span>
-</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>
-</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>    <span class="c1"># Start the traversal</span>
-</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>    <span class="n">_traverse</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
-</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">linkage_matrix</span><span class="p">)</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>    <span class="c1"># Start the traversal</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>    <span class="n">_traverse</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">linkage_matrix</span><span class="p">)</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>    <span class="k">return</span> <span class="n">M</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_dist</span><span class="p">(</span><span class="n">cor</span><span class="p">):</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a><span class="sd">    Compute the correlation based distance matrix d,</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a><span class="sd">    compare with page 239 of the first book by Marcos</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a><span class="sd">    :param cor: the n x n correlation matrix</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a><span class="sd">    :return: The matrix d indicating the distance between column i and i.</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="sd">             Note that all the diagonal entries are zero.</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>    <span class="c1"># https://stackoverflow.com/questions/18952587/</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a>    <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cor</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">))</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>    <span class="k">return</span> <span class="n">ssd</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
 </span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>
-</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>    <span class="k">return</span> <span class="n">M</span>
-</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>
-</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>
-</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_dist</span><span class="p">(</span><span class="n">cor</span><span class="p">):</span>
-</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a><span class="sd">    Compute the correlation based distance matrix d,</span>
-</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a><span class="sd">    compare with page 239 of the first book by Marcos</span>
-</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="sd">    :param cor: the n x n correlation matrix</span>
-</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a><span class="sd">    :return: The matrix d indicating the distance between column i and i.</span>
-</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a><span class="sd">             Note that all the diagonal entries are zero.</span>
-</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>
-</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>    <span class="c1"># https://stackoverflow.com/questions/18952587/</span>
-</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>    <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cor</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">))</span>
-</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>    <span class="k">return</span> <span class="n">ssd</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
-</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>
-</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>
-</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_tree</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">bisection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
-</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a><span class="sd">    Compute the root ClusterNode.</span>
-</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>
-</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a><span class="sd">    :param links: The linkage matrix compiled by the linkage function.</span>
-</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a><span class="sd">    :param bisection: If True, apply the bisection method to sort the leaves.</span>
-</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a><span class="sd">    :return: The root node. From there, it&#39;s possible to reach the entire graph.</span>
-</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a>    <span class="c1"># Convert the linkage matrix to a tree</span>
-</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a>    <span class="n">root</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">to_tree</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">rd</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a>
-</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>    <span class="c1"># Apply the bisection method if requested</span>
-</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>    <span class="k">if</span> <span class="n">bisection</span><span class="p">:</span>
-</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>        <span class="c1"># Get the leaf IDs in pre-order traversal order</span>
-</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>        <span class="n">leaf_ids</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">pre_order</span><span class="p">()</span>
-</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>        <span class="c1"># Reconstruct the tree using the bisection method</span>
-</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>        <span class="n">root</span> <span class="o">=</span> <span class="n">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">leaf_ids</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">leaf_ids</span><span class="p">))</span>
-</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>
-</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>    <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_tree</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">bisection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a><span class="sd">    Compute the root ClusterNode.</span>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a><span class="sd">    :param links: The linkage matrix compiled by the linkage function.</span>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a><span class="sd">    :param bisection: If True, apply the bisection method to sort the leaves.</span>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a><span class="sd">    :return: The root node. From there, it&#39;s possible to reach the entire graph.</span>
+</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>    <span class="c1"># Convert the linkage matrix to a tree</span>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>    <span class="n">root</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">to_tree</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">rd</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>    <span class="c1"># Apply the bisection method if requested</span>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>    <span class="k">if</span> <span class="n">bisection</span><span class="p">:</span>
+</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>        <span class="c1"># Get the leaf IDs in pre-order traversal order</span>
+</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>        <span class="n">leaf_ids</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">pre_order</span><span class="p">()</span>
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>        <span class="c1"># Reconstruct the tree using the bisection method</span>
+</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>        <span class="n">root</span> <span class="o">=</span> <span class="n">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">leaf_ids</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">leaf_ids</span><span class="p">))</span>
+</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>    <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -460,134 +425,50 @@
 <div class="attr class">
             
     <span class="def">class</span>
-    <span class="name">Node</span>:
+    <span class="name">Node</span><wbr>(<span class="base">scipy.cluster.hierarchy.ClusterNode</span>):
 
                 <label class="view-source-button" for="Node-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#Node"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Node-42"><a href="#Node-42"><span class="linenos">42</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Node</span><span class="p">:</span>
-</span><span id="Node-43"><a href="#Node-43"><span class="linenos">43</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="Node-44"><a href="#Node-44"><span class="linenos">44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
-</span><span id="Node-45"><a href="#Node-45"><span class="linenos">45</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">left</span>
-</span><span id="Node-46"><a href="#Node-46"><span class="linenos">46</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">right</span>
-</span><span id="Node-47"><a href="#Node-47"><span class="linenos">47</span></a>
-</span><span id="Node-48"><a href="#Node-48"><span class="linenos">48</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">pre_order</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Node-49"><a href="#Node-49"><span class="linenos">49</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">:</span>
-</span><span id="Node-50"><a href="#Node-50"><span class="linenos">50</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">pre_order</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">pre_order</span><span class="p">()</span>
-</span><span id="Node-51"><a href="#Node-51"><span class="linenos">51</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="Node-52"><a href="#Node-52"><span class="linenos">52</span></a>            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
-</span><span id="Node-53"><a href="#Node-53"><span class="linenos">53</span></a>
-</span><span id="Node-54"><a href="#Node-54"><span class="linenos">54</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Node-55"><a href="#Node-55"><span class="linenos">55</span></a>        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Node(id=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, left=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="si">}</span><span class="s2">, right=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="si">}</span><span class="s2">)&quot;</span>
-</span><span id="Node-56"><a href="#Node-56"><span class="linenos">56</span></a>
-</span><span id="Node-57"><a href="#Node-57"><span class="linenos">57</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Node-58"><a href="#Node-58"><span class="linenos">58</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span>
-</span><span id="Node-59"><a href="#Node-59"><span class="linenos">59</span></a>
-</span><span id="Node-60"><a href="#Node-60"><span class="linenos">60</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="Node-61"><a href="#Node-61"><span class="linenos">61</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">:</span>
-</span><span id="Node-62"><a href="#Node-62"><span class="linenos">62</span></a>            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
-</span><span id="Node-63"><a href="#Node-63"><span class="linenos">63</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="Node-64"><a href="#Node-64"><span class="linenos">64</span></a>            <span class="k">return</span> <span class="mi">1</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Node-42"><a href="#Node-42"><span class="linenos">42</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Node</span><span class="p">(</span><span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">):</span>
+</span><span id="Node-43"><a href="#Node-43"><span class="linenos">43</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+</span><span id="Node-44"><a href="#Node-44"><span class="linenos">44</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">:</span>
+</span><span id="Node-45"><a href="#Node-45"><span class="linenos">45</span></a>            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+</span><span id="Node-46"><a href="#Node-46"><span class="linenos">46</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="Node-47"><a href="#Node-47"><span class="linenos">47</span></a>            <span class="k">return</span> <span class="mi">1</span>
 </span></pre></div>
 
 
-    
+            <div class="docstring"><p>A tree node class for representing a cluster.</p>
 
-                            <div id="Node.__init__" class="classattr">
-                                        <input id="Node.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="name">Node</span><span class="signature pdoc-code condensed">(<span class="param"><span class="nb">id</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">left</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">right</span><span class="o">=</span><span class="kc">None</span></span>)</span>
+<p>Leaf nodes correspond to original observations, while non-leaf nodes
+correspond to non-singleton clusters.</p>
 
-                <label class="view-source-button" for="Node.__init__-view-source"><span>View Source</span></label>
+<p>The <code>to_tree</code> function converts a matrix returned by the linkage
+function into an easy-to-use tree representation.</p>
 
-    </div>
-    <a class="headerlink" href="#Node.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Node.__init__-43"><a href="#Node.__init__-43"><span class="linenos">43</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-</span><span id="Node.__init__-44"><a href="#Node.__init__-44"><span class="linenos">44</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
-</span><span id="Node.__init__-45"><a href="#Node.__init__-45"><span class="linenos">45</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="o">=</span> <span class="n">left</span>
-</span><span id="Node.__init__-46"><a href="#Node.__init__-46"><span class="linenos">46</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="o">=</span> <span class="n">right</span>
-</span></pre></div>
+<p>All parameter names are also attributes.</p>
 
+<h2 id="parameters">Parameters</h2>
 
-    
+<p>id : int
+    The node id.
+left : ClusterNode instance, optional
+    The left child tree node.
+right : ClusterNode instance, optional
+    The right child tree node.
+dist : float, optional
+    Distance for this cluster in the linkage matrix.
+count : int, optional
+    The number of samples in this cluster.</p>
 
-                            </div>
-                            <div id="Node.id" class="classattr">
-                                <div class="attr variable">
-            <span class="name">id</span>
+<h2 id="see-also">See Also</h2>
 
-        
-    </div>
-    <a class="headerlink" href="#Node.id"></a>
-    
-    
-
-                            </div>
-                            <div id="Node.left" class="classattr">
-                                <div class="attr variable">
-            <span class="name">left</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Node.left"></a>
-    
-    
-
-                            </div>
-                            <div id="Node.right" class="classattr">
-                                <div class="attr variable">
-            <span class="name">right</span>
-
-        
-    </div>
-    <a class="headerlink" href="#Node.right"></a>
-    
-    
-
-                            </div>
-                            <div id="Node.pre_order" class="classattr">
-                                        <input id="Node.pre_order-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">pre_order</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
-
-                <label class="view-source-button" for="Node.pre_order-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#Node.pre_order"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Node.pre_order-48"><a href="#Node.pre_order-48"><span class="linenos">48</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">pre_order</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Node.pre_order-49"><a href="#Node.pre_order-49"><span class="linenos">49</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">:</span>
-</span><span id="Node.pre_order-50"><a href="#Node.pre_order-50"><span class="linenos">50</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">pre_order</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">pre_order</span><span class="p">()</span>
-</span><span id="Node.pre_order-51"><a href="#Node.pre_order-51"><span class="linenos">51</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="Node.pre_order-52"><a href="#Node.pre_order-52"><span class="linenos">52</span></a>            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
-</span></pre></div>
+<p>to_tree : for converting a linkage matrix <code>Z</code> into a tree object.</p>
+</div>
 
 
-    
-
-                            </div>
-                            <div id="Node.is_leaf" class="classattr">
-                                        <input id="Node.is_leaf-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">is_leaf</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
-
-                <label class="view-source-button" for="Node.is_leaf-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#Node.is_leaf"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Node.is_leaf-57"><a href="#Node.is_leaf-57"><span class="linenos">57</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Node.is_leaf-58"><a href="#Node.is_leaf-58"><span class="linenos">58</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span>
-</span></pre></div>
-
-
-    
-
-                            </div>
                 </section>
     </main>
 <script>
