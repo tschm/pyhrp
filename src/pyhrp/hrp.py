@@ -38,24 +38,7 @@ class Dendrogram(NamedTuple):
         return Dendrogram(root=root, linkage=links, distance=distance, bisection=bisection, method=method)
 
 
-class Node:
-    def __init__(self, id=None, left=None, right=None):
-        self.id = id
-        self.left = left
-        self.right = right
-
-    def pre_order(self):
-        if self.left:
-            return self.left.pre_order() + self.right.pre_order()
-        else:
-            return [self.id]
-
-    def __repr__(self):
-        return f"Node(id={self.id}, left={self.left}, right={self.right})"
-
-    def is_leaf(self):
-        return self.left is None and self.right is None
-
+class Node(sch.ClusterNode):
     def __len__(self) -> int:
         if self.left:
             return len(self.left) + len(self.right)
@@ -87,7 +70,7 @@ def _bisection(ids, n: int) -> Node:
 
     # Recursively construct the left and right subtrees
     left_node = _bisection(ids=left, n=n + 1)
-    right_node = _bisection(ids=right, n=n + 1 + len(left))
+    right_node = _bisection(ids=right, n=3 * n + 1)
 
     # Create a new cluster node with the current ID and the left/right subtrees
     return Node(id=n, left=left_node, right=right_node)
