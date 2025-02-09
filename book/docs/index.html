@@ -337,7 +337,9 @@
 <button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
     <i class="fa-solid fa-magnifying-glass fa-lg"></i>
 </button>
-
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
 </div></div>
       
     </div>
@@ -353,6 +355,15 @@
     <div id="print-main-content">
         <div id="jb-print-toc">
             
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#uv">uv</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#marimo">marimo</a></li>
+</ul>
+            </nav>
         </div>
     </div>
 </div>
@@ -363,8 +374,72 @@
                 <article class="bd-article">
                   
   <section class="tex2jax_ignore mathjax_ignore" id="pyhrp">
-<h1>pyhrp<a class="headerlink" href="#pyhrp" title="Link to this heading">#</a></h1>
-<p>ja</p>
+<h1><a class="reference external" href="https://tschm.github.io/pyhrp/book">pyhrp</a><a class="headerlink" href="#pyhrp" title="Link to this heading">#</a></h1>
+<p><a class="reference external" href="https://badge.fury.io/py/pyhrp"><img alt="PyPI version" src="https://badge.fury.io/py/pyhrp.svg" /></a>
+<a class="reference internal" href="#LICENSE"><span class="xref myst"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg" /></span></a>
+<a class="reference external" href="https://pepy.tech/project/pyhrp"><img alt="Downloads" src="https://static.pepy.tech/personalized-badge/pyhrp?period=month&amp;units=international_system&amp;left_color=black&amp;right_color=orange&amp;left_text=PyPI%20downloads%20per%20month" /></a>
+<a class="reference external" href="https://coveralls.io/github/tschm/pyhrp?branch=main"><img alt="Coverage Status" src="https://coveralls.io/repos/github/tschm/pyhrp/badge.png?branch=main" /></a>
+<a class="reference external" href="https://results.pre-commit.ci/latest/github/tschm/pyhrp/main"><img alt="pre-commit.ci status" src="https://results.pre-commit.ci/badge/github/tschm/pyhrp/main.svg" /></a></p>
+<p><a class="reference external" href="https://codespaces.new/tschm/pyhrp"><img alt="Open in GitHub Codespaces" src="https://github.com/codespaces/badge.svg" /></a></p>
+<p>A recursive implementation of the Hierarchical Risk Parity (hrp) approach
+by Marcos Lopez de Prado.
+We take heavily advantage of the scipy.cluster.hierarchy package.</p>
+<p>Here’s a simple example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyhrp.hrp</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dendrogram</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyhrp.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_cluster</span>
+
+<span class="n">prices</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;test/resources/stock_prices.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">returns</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">pct_change</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<span class="n">cov</span><span class="p">,</span> <span class="n">cor</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">cov</span><span class="p">(),</span> <span class="n">returns</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
+
+<span class="c1"># Compute the dendrogram based on the correlation matrix and Ward&#39;s metric</span>
+<span class="n">dendrogram</span> <span class="o">=</span> <span class="n">Dendrogram</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">cor</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
+
+<span class="n">cluster</span> <span class="o">=</span> <span class="n">build_cluster</span><span class="p">(</span><span class="n">dendrogram</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">dendrogram</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">orientation</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="s2">&quot;dendrogram.png&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For your convenience you can bypass the construction of the covariance and
+correlation matrix, the links and the node, e.g. the root of the tree (dendrogram).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyhrp.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">hrp</span>
+
+<span class="n">prices</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;test/resources/stock_prices.csv&quot;</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cluster</span> <span class="o">=</span> <span class="n">hrp</span><span class="p">(</span><span class="n">prices</span><span class="o">=</span><span class="n">prices</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ward&quot;</span><span class="p">,</span> <span class="n">bisection</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You may expect a weight series here but instead the <code class="docutils literal notranslate"><span class="pre">hrp</span></code> function returns a
+<code class="docutils literal notranslate"><span class="pre">Cluster</span></code> object. The <code class="docutils literal notranslate"><span class="pre">Cluster</span></code> simplifies all further post-analysis.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">variance</span><span class="p">)</span>
+<span class="c1"># You can drill into the graph by going downstream</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">left</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="uv">
+<h2>uv<a class="headerlink" href="#uv" title="Link to this heading">#</a></h2>
+<p>Starting with</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>install
+</pre></div>
+</div>
+<p>will install <a class="reference external" href="https://github.com/astral-sh/uv">uv</a> and create
+the virtual environment defined in
+pyproject.toml and locked in uv.lock.</p>
+</section>
+<section id="marimo">
+<h2>marimo<a class="headerlink" href="#marimo" title="Link to this heading">#</a></h2>
+<p>We install <a class="reference external" href="https://marimo.io">marimo</a> on the fly within the aforementioned
+virtual environment. Executing</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>marimo
+</pre></div>
+</div>
+<p>will install and start marimo.</p>
+</section>
 <div class="toctree-wrapper compound">
 </div>
 </section>
@@ -414,6 +489,23 @@
             </div>
             
             
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#uv">uv</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#marimo">marimo</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
               
             
           </div>
