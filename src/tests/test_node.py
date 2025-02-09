@@ -34,3 +34,8 @@ def test_node():
     assert root.left.id == 0
     assert root.right.id == 1
     assert root.pre_order() == [0, 1]
+
+
+def test_bisection():
+    root = bisection(ids=[2, 3, 1, 0, 4, 6, 5, 7], n=8)
+    assert root.pre_order() == [2, 3, 1, 0, 4, 6, 5, 7]
