@@ -1,3 +1,1 @@
-# pyhrp
-
-ja
+../../README.md
