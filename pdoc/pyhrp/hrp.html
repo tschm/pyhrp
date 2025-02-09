@@ -31,19 +31,34 @@
             <h2>API Documentation</h2>
                 <ul class="memberlist">
             <li>
-                    <a class="function" href="#dist">dist</a>
-            </li>
-            <li>
-                    <a class="function" href="#linkage">linkage</a>
-            </li>
-            <li>
-                    <a class="function" href="#tree">tree</a>
-            </li>
-            <li>
-                    <a class="function" href="#build_cluster">build_cluster</a>
-            </li>
-            <li>
-                    <a class="function" href="#hrp">hrp</a>
+                    <a class="class" href="#Dendrogram">Dendrogram</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#Dendrogram.__init__">Dendrogram</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Dendrogram.root">root</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Dendrogram.linkage">linkage</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Dendrogram.distance">distance</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Dendrogram.bisection">bisection</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Dendrogram.method">method</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Dendrogram.plot">plot</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Dendrogram.build">build</a>
+                        </li>
+                </ul>
+
             </li>
     </ul>
 
@@ -68,288 +83,312 @@
 
                         <label class="view-source-button" for="mod-hrp-view-source"><span>View Source</span></label>
 
-                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos"> 1</span></a><span class="sd">&quot;&quot;&quot;the hrp algorithm&quot;&quot;&quot;</span>
-</span><span id="L-2"><a href="#L-2"><span class="linenos"> 2</span></a>
-</span><span id="L-3"><a href="#L-3"><span class="linenos"> 3</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
-</span><span id="L-4"><a href="#L-4"><span class="linenos"> 4</span></a>
-</span><span id="L-5"><a href="#L-5"><span class="linenos"> 5</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-</span><span id="L-6"><a href="#L-6"><span class="linenos"> 6</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.cluster.hierarchy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sch</span>
-</span><span id="L-7"><a href="#L-7"><span class="linenos"> 7</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.spatial.distance</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ssd</span>
-</span><span id="L-8"><a href="#L-8"><span class="linenos"> 8</span></a>
-</span><span id="L-9"><a href="#L-9"><span class="linenos"> 9</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cluster</span><span class="p">,</span> <span class="n">risk_parity</span>
-</span><span id="L-10"><a href="#L-10"><span class="linenos">10</span></a>
-</span><span id="L-11"><a href="#L-11"><span class="linenos">11</span></a>
-</span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a><span class="k">def</span><span class="w"> </span><span class="nf">dist</span><span class="p">(</span><span class="n">cor</span><span class="p">):</span>
-</span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a><span class="sd">    Compute the correlation based distance matrix d,</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a><span class="sd">    compare with page 239 of the first book by Marcos</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a><span class="sd">    :param cor: the n x n correlation matrix</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a><span class="sd">    :return: The matrix d indicating the distance between column i and i.</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a><span class="sd">             Note that all the diagonal entries are zero.</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>    <span class="c1"># https://stackoverflow.com/questions/18952587/</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cor</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">))</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="k">return</span> <span class="n">ssd</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a><span class="k">def</span><span class="w"> </span><span class="nf">linkage</span><span class="p">(</span><span class="n">dist_vec</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ward&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a><span class="sd">    Based on distance matrix compute the underlying links</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a><span class="sd">    :param dist_vec: The distance vector based on the correlation matrix</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a><span class="sd">    :param method: &quot;single&quot;, &quot;ward&quot;, etc.</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a><span class="sd">    :return: links  The links describing the graph (useful to draw the dendrogram)</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a><span class="sd">                    and basis for constructing the tree object</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="c1"># compute the root node of the dendrogram</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">linkage</span><span class="p">(</span><span class="n">dist_vec</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a><span class="k">def</span><span class="w"> </span><span class="nf">tree</span><span class="p">(</span><span class="n">links</span><span class="p">):</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="sd">    Compute the root ClusterNode.</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="sd">    :param links: The Linkage matrix compiled by the linkage function above</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a><span class="sd">    :return: The root node. From there it&#39;s possible to reach the entire graph</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>    <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">to_tree</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">rd</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a><span class="k">def</span><span class="w"> </span><span class="nf">build_cluster</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">cov</span><span class="p">):</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;compute a cluster&quot;&quot;&quot;</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>        <span class="c1"># a node is a leaf if has no further relatives downstream.</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>        <span class="c1"># no leaves, no branches, ...</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>        <span class="n">asset</span> <span class="o">=</span> <span class="n">cov</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>        <span class="k">return</span> <span class="n">Cluster</span><span class="p">(</span><span class="n">assets</span><span class="o">=</span><span class="p">{</span><span class="n">asset</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span> <span class="n">variance</span><span class="o">=</span><span class="n">cov</span><span class="p">[</span><span class="n">asset</span><span class="p">][</span><span class="n">asset</span><span class="p">])</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="c1"># drill down on the left</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    <span class="n">cluster_left</span> <span class="o">=</span> <span class="n">build_cluster</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>    <span class="c1"># drill down on the right</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>    <span class="n">cluster_right</span> <span class="o">=</span> <span class="n">build_cluster</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>    <span class="c1"># combine left and right into a new cluster</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>    <span class="k">return</span> <span class="n">risk_parity</span><span class="p">(</span><span class="n">cluster_left</span><span class="p">,</span> <span class="n">cluster_right</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">)</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a><span class="k">def</span><span class="w"> </span><span class="nf">hrp</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">):</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a><span class="sd">    Computes the root node for the hierarchical risk parity portfolio</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a><span class="sd">    :param cov: This is the covariance matrix that shall be used</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a><span class="sd">    :param node: Optional. This is the rootnode of the graph describing the dendrogram</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a><span class="sd">    :return: the root cluster of the risk parity portfolio</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>    <span class="n">returns</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">pct_change</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>    <span class="n">cov</span><span class="p">,</span> <span class="n">cor</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">cov</span><span class="p">(),</span> <span class="n">returns</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>    <span class="n">node</span> <span class="o">=</span> <span class="n">node</span> <span class="ow">or</span> <span class="n">tree</span><span class="p">(</span><span class="n">linkage</span><span class="p">(</span><span class="n">dist</span><span class="p">(</span><span class="n">cor</span><span class="o">.</span><span class="n">values</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">))</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>
-</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>    <span class="k">return</span> <span class="n">build_cluster</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="sd">&quot;&quot;&quot;the hrp algorithm&quot;&quot;&quot;</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">NamedTuple</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.cluster.hierarchy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sch</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">scipy.spatial.distance</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ssd</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a><span class="kn">import</span><span class="w"> </span><span class="nn">pyhrp.node</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">node</span>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="c1"># Define a NamedTuple</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Dendrogram</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a>    <span class="n">root</span><span class="p">:</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a>    <span class="n">linkage</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>    <span class="n">distance</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a>    <span class="n">bisection</span><span class="p">:</span> <span class="nb">bool</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a>    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a>
+</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot a dendrogram using matplotlib&quot;&quot;&quot;</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a>        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a>            <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a>        <span class="n">sch</span><span class="o">.</span><span class="n">dendrogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>        <span class="k">return</span> <span class="n">ax</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="n">cor</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ward&quot;</span><span class="p">,</span> <span class="n">bisection</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>        <span class="n">distance</span> <span class="o">=</span> <span class="n">_dist</span><span class="p">(</span><span class="n">cor</span><span class="p">)</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>        <span class="n">links</span> <span class="o">=</span> <span class="n">_linkage</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>        <span class="n">root</span> <span class="o">=</span> <span class="n">_tree</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">bisection</span><span class="o">=</span><span class="n">bisection</span><span class="p">)</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>        <span class="k">if</span> <span class="n">bisection</span><span class="p">:</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>            <span class="n">links</span> <span class="o">=</span> <span class="n">_node_to_linkage</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">cor</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>        <span class="k">return</span> <span class="n">Dendrogram</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="n">links</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span> <span class="n">bisection</span><span class="o">=</span><span class="n">bisection</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_node_to_linkage</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a><span class="sd">    Convert a hierarchical clustering tree (root node) back into a linkage matrix.</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="sd">    Parameters:</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a><span class="sd">    root: The root node of the hierarchical clustering tree.</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a><span class="sd">    n: The number of original data points.</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="sd">    Returns:</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">    linkage_matrix: A (n-1) x 4 numpy array representing the linkage matrix.</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a>    <span class="n">linkage_matrix</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a>    <span class="n">current_id</span> <span class="o">=</span> <span class="n">n</span>  <span class="c1"># Start assigning IDs for merged clusters from n</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_traverse</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a>        <span class="k">nonlocal</span> <span class="n">current_id</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a>        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a>            <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">id</span>  <span class="c1"># Return the leaf node&#39;s ID</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a>        <span class="c1"># Recursively traverse the left and right children</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>        <span class="n">left_id</span> <span class="o">=</span> <span class="n">_traverse</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="p">)</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>        <span class="n">right_id</span> <span class="o">=</span> <span class="n">_traverse</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>        <span class="c1"># Record the merge step</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>        <span class="n">linkage_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_id</span><span class="p">,</span> <span class="n">right_id</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">count</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">count</span><span class="p">])</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>        <span class="c1"># Assign a new ID to the merged cluster</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a>        <span class="n">merged_id</span> <span class="o">=</span> <span class="n">current_id</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a>        <span class="n">current_id</span> <span class="o">+=</span> <span class="mi">1</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>        <span class="k">return</span> <span class="n">merged_id</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>    <span class="c1"># Start the traversal</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>    <span class="n">_traverse</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>    <span class="n">M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">linkage_matrix</span><span class="p">)</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>    <span class="k">return</span> <span class="n">M</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_dist</span><span class="p">(</span><span class="n">cor</span><span class="p">):</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a><span class="sd">    Compute the correlation based distance matrix d,</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a><span class="sd">    compare with page 239 of the first book by Marcos</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a><span class="sd">    :param cor: the n x n correlation matrix</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a><span class="sd">    :return: The matrix d indicating the distance between column i and i.</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a><span class="sd">             Note that all the diagonal entries are zero.</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>    <span class="c1"># https://stackoverflow.com/questions/18952587/</span>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cor</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">))</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>    <span class="k">return</span> <span class="n">ssd</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_linkage</span><span class="p">(</span><span class="n">dist_vec</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ward&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a><span class="sd">    Based on distance matrix compute the underlying links</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="sd">    :param dist_vec: The distance vector based on the correlation matrix</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">    :param method: &quot;single&quot;, &quot;ward&quot;, etc.</span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">    :return: links  The links describing the graph (useful to draw the dendrogram)</span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a><span class="sd">                    and basis for constructing the tree object</span>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>    <span class="c1"># compute the root node of the dendrogram</span>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a>    <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">linkage</span><span class="p">(</span><span class="n">dist_vec</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_tree</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">bisection</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">node</span><span class="o">.</span><span class="n">Node</span><span class="p">:</span>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a><span class="sd">    Compute the root ClusterNode.</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a><span class="sd">    :param links: The linkage matrix compiled by the linkage function.</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a><span class="sd">    :param bisection: If True, apply the bisection method to sort the leaves.</span>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a><span class="sd">    :return: The root node. From there, it&#39;s possible to reach the entire graph.</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>    <span class="c1"># Convert the linkage matrix to a tree</span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>    <span class="n">root</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">to_tree</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">rd</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>    <span class="c1"># Apply the bisection method if requested</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>    <span class="k">if</span> <span class="n">bisection</span><span class="p">:</span>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>        <span class="c1"># Get the leaf IDs in pre-order traversal order</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>        <span class="n">leaf_ids</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">pre_order</span><span class="p">()</span>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a>        <span class="c1"># Reconstruct the tree using the bisection method</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a>        <span class="n">root</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">bisection</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">leaf_ids</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">leaf_ids</span><span class="p">))</span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a>    <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 </span></pre></div>
 
 
             </section>
-                <section id="dist">
-                            <input id="dist-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
+                <section id="Dendrogram">
+                            <input id="Dendrogram-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
             
-        <span class="def">def</span>
-        <span class="name">dist</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">cor</span></span><span class="return-annotation">):</span></span>
+    <span class="def">class</span>
+    <span class="name">Dendrogram</span><wbr>(<span class="base">typing.NamedTuple</span>):
 
-                <label class="view-source-button" for="dist-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="Dendrogram-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#dist"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="dist-13"><a href="#dist-13"><span class="linenos">13</span></a><span class="k">def</span><span class="w"> </span><span class="nf">dist</span><span class="p">(</span><span class="n">cor</span><span class="p">):</span>
-</span><span id="dist-14"><a href="#dist-14"><span class="linenos">14</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="dist-15"><a href="#dist-15"><span class="linenos">15</span></a><span class="sd">    Compute the correlation based distance matrix d,</span>
-</span><span id="dist-16"><a href="#dist-16"><span class="linenos">16</span></a><span class="sd">    compare with page 239 of the first book by Marcos</span>
-</span><span id="dist-17"><a href="#dist-17"><span class="linenos">17</span></a><span class="sd">    :param cor: the n x n correlation matrix</span>
-</span><span id="dist-18"><a href="#dist-18"><span class="linenos">18</span></a><span class="sd">    :return: The matrix d indicating the distance between column i and i.</span>
-</span><span id="dist-19"><a href="#dist-19"><span class="linenos">19</span></a><span class="sd">             Note that all the diagonal entries are zero.</span>
-</span><span id="dist-20"><a href="#dist-20"><span class="linenos">20</span></a>
-</span><span id="dist-21"><a href="#dist-21"><span class="linenos">21</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="dist-22"><a href="#dist-22"><span class="linenos">22</span></a>    <span class="c1"># https://stackoverflow.com/questions/18952587/</span>
-</span><span id="dist-23"><a href="#dist-23"><span class="linenos">23</span></a>    <span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">((</span><span class="mf">1.0</span> <span class="o">-</span> <span class="n">cor</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span><span class="p">,</span> <span class="n">a_min</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">a_max</span><span class="o">=</span><span class="mf">1.0</span><span class="p">))</span>
-</span><span id="dist-24"><a href="#dist-24"><span class="linenos">24</span></a>    <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-</span><span id="dist-25"><a href="#dist-25"><span class="linenos">25</span></a>    <span class="k">return</span> <span class="n">ssd</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
+    <a class="headerlink" href="#Dendrogram"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Dendrogram-17"><a href="#Dendrogram-17"><span class="linenos">17</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Dendrogram</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
+</span><span id="Dendrogram-18"><a href="#Dendrogram-18"><span class="linenos">18</span></a>    <span class="n">root</span><span class="p">:</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span>
+</span><span id="Dendrogram-19"><a href="#Dendrogram-19"><span class="linenos">19</span></a>    <span class="n">linkage</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+</span><span id="Dendrogram-20"><a href="#Dendrogram-20"><span class="linenos">20</span></a>    <span class="n">distance</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
+</span><span id="Dendrogram-21"><a href="#Dendrogram-21"><span class="linenos">21</span></a>    <span class="n">bisection</span><span class="p">:</span> <span class="nb">bool</span>
+</span><span id="Dendrogram-22"><a href="#Dendrogram-22"><span class="linenos">22</span></a>    <span class="n">method</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="Dendrogram-23"><a href="#Dendrogram-23"><span class="linenos">23</span></a>
+</span><span id="Dendrogram-24"><a href="#Dendrogram-24"><span class="linenos">24</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="Dendrogram-25"><a href="#Dendrogram-25"><span class="linenos">25</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot a dendrogram using matplotlib&quot;&quot;&quot;</span>
+</span><span id="Dendrogram-26"><a href="#Dendrogram-26"><span class="linenos">26</span></a>        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Dendrogram-27"><a href="#Dendrogram-27"><span class="linenos">27</span></a>            <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+</span><span id="Dendrogram-28"><a href="#Dendrogram-28"><span class="linenos">28</span></a>        <span class="n">sch</span><span class="o">.</span><span class="n">dendrogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="Dendrogram-29"><a href="#Dendrogram-29"><span class="linenos">29</span></a>
+</span><span id="Dendrogram-30"><a href="#Dendrogram-30"><span class="linenos">30</span></a>        <span class="k">return</span> <span class="n">ax</span>
+</span><span id="Dendrogram-31"><a href="#Dendrogram-31"><span class="linenos">31</span></a>
+</span><span id="Dendrogram-32"><a href="#Dendrogram-32"><span class="linenos">32</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="Dendrogram-33"><a href="#Dendrogram-33"><span class="linenos">33</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="n">cor</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ward&quot;</span><span class="p">,</span> <span class="n">bisection</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</span><span id="Dendrogram-34"><a href="#Dendrogram-34"><span class="linenos">34</span></a>        <span class="n">distance</span> <span class="o">=</span> <span class="n">_dist</span><span class="p">(</span><span class="n">cor</span><span class="p">)</span>
+</span><span id="Dendrogram-35"><a href="#Dendrogram-35"><span class="linenos">35</span></a>        <span class="n">links</span> <span class="o">=</span> <span class="n">_linkage</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+</span><span id="Dendrogram-36"><a href="#Dendrogram-36"><span class="linenos">36</span></a>        <span class="n">root</span> <span class="o">=</span> <span class="n">_tree</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">bisection</span><span class="o">=</span><span class="n">bisection</span><span class="p">)</span>
+</span><span id="Dendrogram-37"><a href="#Dendrogram-37"><span class="linenos">37</span></a>
+</span><span id="Dendrogram-38"><a href="#Dendrogram-38"><span class="linenos">38</span></a>        <span class="k">if</span> <span class="n">bisection</span><span class="p">:</span>
+</span><span id="Dendrogram-39"><a href="#Dendrogram-39"><span class="linenos">39</span></a>            <span class="n">links</span> <span class="o">=</span> <span class="n">_node_to_linkage</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">cor</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span id="Dendrogram-40"><a href="#Dendrogram-40"><span class="linenos">40</span></a>
+</span><span id="Dendrogram-41"><a href="#Dendrogram-41"><span class="linenos">41</span></a>        <span class="k">return</span> <span class="n">Dendrogram</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="n">links</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span> <span class="n">bisection</span><span class="o">=</span><span class="n">bisection</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Compute the correlation based distance matrix d,
-compare with page 239 of the first book by Marcos</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>cor</strong>:  the n x n correlation matrix</li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<blockquote>
-  <p>The matrix d indicating the distance between column i and i.
-           Note that all the diagonal entries are zero.</p>
-</blockquote>
+            <div class="docstring"><p>Dendrogram(root, linkage, distance, bisection, method)</p>
 </div>
 
 
-                </section>
-                <section id="linkage">
-                            <input id="linkage-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                            <div id="Dendrogram.__init__" class="classattr">
+                                <div class="attr function">
+            
+        <span class="name">Dendrogram</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">root</span><span class="p">:</span> <span class="n">ForwardRef</span><span class="p">(</span><span class="s1">&#39;sch.ClusterNode&#39;</span><span class="p">)</span>,</span><span class="param">	<span class="n">linkage</span><span class="p">:</span> <span class="n">ForwardRef</span><span class="p">(</span><span class="s1">&#39;np.ndarray&#39;</span><span class="p">)</span>,</span><span class="param">	<span class="n">distance</span><span class="p">:</span> <span class="n">ForwardRef</span><span class="p">(</span><span class="s1">&#39;np.ndarray&#39;</span><span class="p">)</span>,</span><span class="param">	<span class="n">bisection</span><span class="p">:</span> <span class="nb">bool</span>,</span><span class="param">	<span class="n">method</span><span class="p">:</span> <span class="nb">str</span></span>)</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Dendrogram.__init__"></a>
+    
+            <div class="docstring"><p>Create new instance of Dendrogram(root, linkage, distance, bisection, method)</p>
+</div>
+
+
+                            </div>
+                            <div id="Dendrogram.root" class="classattr">
+                                <div class="attr variable">
+            <span class="name">root</span><span class="annotation">: scipy.cluster.hierarchy.ClusterNode</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Dendrogram.root"></a>
+    
+            <div class="docstring"><p>Alias for field number 0</p>
+</div>
+
+
+                            </div>
+                            <div id="Dendrogram.linkage" class="classattr">
+                                <div class="attr variable">
+            <span class="name">linkage</span><span class="annotation">: numpy.ndarray</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Dendrogram.linkage"></a>
+    
+            <div class="docstring"><p>Alias for field number 1</p>
+</div>
+
+
+                            </div>
+                            <div id="Dendrogram.distance" class="classattr">
+                                <div class="attr variable">
+            <span class="name">distance</span><span class="annotation">: numpy.ndarray</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Dendrogram.distance"></a>
+    
+            <div class="docstring"><p>Alias for field number 2</p>
+</div>
+
+
+                            </div>
+                            <div id="Dendrogram.bisection" class="classattr">
+                                <div class="attr variable">
+            <span class="name">bisection</span><span class="annotation">: bool</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Dendrogram.bisection"></a>
+    
+            <div class="docstring"><p>Alias for field number 3</p>
+</div>
+
+
+                            </div>
+                            <div id="Dendrogram.method" class="classattr">
+                                <div class="attr variable">
+            <span class="name">method</span><span class="annotation">: str</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Dendrogram.method"></a>
+    
+            <div class="docstring"><p>Alias for field number 4</p>
+</div>
+
+
+                            </div>
+                            <div id="Dendrogram.plot" class="classattr">
+                                        <input id="Dendrogram.plot-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
         <span class="def">def</span>
-        <span class="name">linkage</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">dist_vec</span>, </span><span class="param"><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span><span class="return-annotation">):</span></span>
+        <span class="name">plot</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">ax</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span></span><span class="return-annotation">):</span></span>
 
-                <label class="view-source-button" for="linkage-view-source"><span>View Source</span></label>
+                <label class="view-source-button" for="Dendrogram.plot-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#linkage"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="linkage-28"><a href="#linkage-28"><span class="linenos">28</span></a><span class="k">def</span><span class="w"> </span><span class="nf">linkage</span><span class="p">(</span><span class="n">dist_vec</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ward&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="linkage-29"><a href="#linkage-29"><span class="linenos">29</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="linkage-30"><a href="#linkage-30"><span class="linenos">30</span></a><span class="sd">    Based on distance matrix compute the underlying links</span>
-</span><span id="linkage-31"><a href="#linkage-31"><span class="linenos">31</span></a><span class="sd">    :param dist_vec: The distance vector based on the correlation matrix</span>
-</span><span id="linkage-32"><a href="#linkage-32"><span class="linenos">32</span></a><span class="sd">    :param method: &quot;single&quot;, &quot;ward&quot;, etc.</span>
-</span><span id="linkage-33"><a href="#linkage-33"><span class="linenos">33</span></a><span class="sd">    :return: links  The links describing the graph (useful to draw the dendrogram)</span>
-</span><span id="linkage-34"><a href="#linkage-34"><span class="linenos">34</span></a><span class="sd">                    and basis for constructing the tree object</span>
-</span><span id="linkage-35"><a href="#linkage-35"><span class="linenos">35</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="linkage-36"><a href="#linkage-36"><span class="linenos">36</span></a>    <span class="c1"># compute the root node of the dendrogram</span>
-</span><span id="linkage-37"><a href="#linkage-37"><span class="linenos">37</span></a>    <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">linkage</span><span class="p">(</span><span class="n">dist_vec</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <a class="headerlink" href="#Dendrogram.plot"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Dendrogram.plot-24"><a href="#Dendrogram.plot-24"><span class="linenos">24</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="Dendrogram.plot-25"><a href="#Dendrogram.plot-25"><span class="linenos">25</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot a dendrogram using matplotlib&quot;&quot;&quot;</span>
+</span><span id="Dendrogram.plot-26"><a href="#Dendrogram.plot-26"><span class="linenos">26</span></a>        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="Dendrogram.plot-27"><a href="#Dendrogram.plot-27"><span class="linenos">27</span></a>            <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">25</span><span class="p">,</span> <span class="mi">20</span><span class="p">))</span>
+</span><span id="Dendrogram.plot-28"><a href="#Dendrogram.plot-28"><span class="linenos">28</span></a>        <span class="n">sch</span><span class="o">.</span><span class="n">dendrogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="Dendrogram.plot-29"><a href="#Dendrogram.plot-29"><span class="linenos">29</span></a>
+</span><span id="Dendrogram.plot-30"><a href="#Dendrogram.plot-30"><span class="linenos">30</span></a>        <span class="k">return</span> <span class="n">ax</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Based on distance matrix compute the underlying links</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>dist_vec</strong>:  The distance vector based on the correlation matrix</li>
-<li><strong>method</strong>:  "single", "ward", etc.</li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<blockquote>
-  <p>links  The links describing the graph (useful to draw the dendrogram)
-                  and basis for constructing the tree object</p>
-</blockquote>
+            <div class="docstring"><p>Plot a dendrogram using matplotlib</p>
 </div>
 
 
-                </section>
-                <section id="tree">
-                            <input id="tree-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+                            </div>
+                            <div id="Dendrogram.build" class="classattr">
+                                        <input id="Dendrogram.build-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">tree</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">links</span></span><span class="return-annotation">):</span></span>
+                    <div class="decorator decorator-staticmethod">@staticmethod</div>
 
-                <label class="view-source-button" for="tree-view-source"><span>View Source</span></label>
+        <span class="def">def</span>
+        <span class="name">build</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">cor</span>, </span><span class="param"><span class="n">method</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span>, </span><span class="param"><span class="n">bisection</span><span class="o">=</span><span class="kc">False</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="Dendrogram.build-view-source"><span>View Source</span></label>
 
     </div>
-    <a class="headerlink" href="#tree"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="tree-40"><a href="#tree-40"><span class="linenos">40</span></a><span class="k">def</span><span class="w"> </span><span class="nf">tree</span><span class="p">(</span><span class="n">links</span><span class="p">):</span>
-</span><span id="tree-41"><a href="#tree-41"><span class="linenos">41</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="tree-42"><a href="#tree-42"><span class="linenos">42</span></a><span class="sd">    Compute the root ClusterNode.</span>
-</span><span id="tree-43"><a href="#tree-43"><span class="linenos">43</span></a><span class="sd">    :param links: The Linkage matrix compiled by the linkage function above</span>
-</span><span id="tree-44"><a href="#tree-44"><span class="linenos">44</span></a><span class="sd">    :return: The root node. From there it&#39;s possible to reach the entire graph</span>
-</span><span id="tree-45"><a href="#tree-45"><span class="linenos">45</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="tree-46"><a href="#tree-46"><span class="linenos">46</span></a>    <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">to_tree</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">rd</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <a class="headerlink" href="#Dendrogram.build"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Dendrogram.build-32"><a href="#Dendrogram.build-32"><span class="linenos">32</span></a>    <span class="nd">@staticmethod</span>
+</span><span id="Dendrogram.build-33"><a href="#Dendrogram.build-33"><span class="linenos">33</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="n">cor</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ward&quot;</span><span class="p">,</span> <span class="n">bisection</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</span><span id="Dendrogram.build-34"><a href="#Dendrogram.build-34"><span class="linenos">34</span></a>        <span class="n">distance</span> <span class="o">=</span> <span class="n">_dist</span><span class="p">(</span><span class="n">cor</span><span class="p">)</span>
+</span><span id="Dendrogram.build-35"><a href="#Dendrogram.build-35"><span class="linenos">35</span></a>        <span class="n">links</span> <span class="o">=</span> <span class="n">_linkage</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+</span><span id="Dendrogram.build-36"><a href="#Dendrogram.build-36"><span class="linenos">36</span></a>        <span class="n">root</span> <span class="o">=</span> <span class="n">_tree</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">bisection</span><span class="o">=</span><span class="n">bisection</span><span class="p">)</span>
+</span><span id="Dendrogram.build-37"><a href="#Dendrogram.build-37"><span class="linenos">37</span></a>
+</span><span id="Dendrogram.build-38"><a href="#Dendrogram.build-38"><span class="linenos">38</span></a>        <span class="k">if</span> <span class="n">bisection</span><span class="p">:</span>
+</span><span id="Dendrogram.build-39"><a href="#Dendrogram.build-39"><span class="linenos">39</span></a>            <span class="n">links</span> <span class="o">=</span> <span class="n">_node_to_linkage</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">cor</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span id="Dendrogram.build-40"><a href="#Dendrogram.build-40"><span class="linenos">40</span></a>
+</span><span id="Dendrogram.build-41"><a href="#Dendrogram.build-41"><span class="linenos">41</span></a>        <span class="k">return</span> <span class="n">Dendrogram</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">root</span><span class="p">,</span> <span class="n">linkage</span><span class="o">=</span><span class="n">links</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span> <span class="n">bisection</span><span class="o">=</span><span class="n">bisection</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
 </span></pre></div>
 
 
-            <div class="docstring"><p>Compute the root ClusterNode.</p>
+    
 
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>links</strong>:  The Linkage matrix compiled by the linkage function above</li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<blockquote>
-  <p>The root node. From there it's possible to reach the entire graph</p>
-</blockquote>
-</div>
-
-
-                </section>
-                <section id="build_cluster">
-                            <input id="build_cluster-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">build_cluster</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">node</span>, </span><span class="param"><span class="n">cov</span></span><span class="return-annotation">):</span></span>
-
-                <label class="view-source-button" for="build_cluster-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#build_cluster"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="build_cluster-49"><a href="#build_cluster-49"><span class="linenos">49</span></a><span class="k">def</span><span class="w"> </span><span class="nf">build_cluster</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">cov</span><span class="p">):</span>
-</span><span id="build_cluster-50"><a href="#build_cluster-50"><span class="linenos">50</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;compute a cluster&quot;&quot;&quot;</span>
-</span><span id="build_cluster-51"><a href="#build_cluster-51"><span class="linenos">51</span></a>    <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
-</span><span id="build_cluster-52"><a href="#build_cluster-52"><span class="linenos">52</span></a>        <span class="c1"># a node is a leaf if has no further relatives downstream.</span>
-</span><span id="build_cluster-53"><a href="#build_cluster-53"><span class="linenos">53</span></a>        <span class="c1"># no leaves, no branches, ...</span>
-</span><span id="build_cluster-54"><a href="#build_cluster-54"><span class="linenos">54</span></a>        <span class="n">asset</span> <span class="o">=</span> <span class="n">cov</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="o">.</span><span class="n">to_list</span><span class="p">()[</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
-</span><span id="build_cluster-55"><a href="#build_cluster-55"><span class="linenos">55</span></a>        <span class="k">return</span> <span class="n">Cluster</span><span class="p">(</span><span class="n">assets</span><span class="o">=</span><span class="p">{</span><span class="n">asset</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">},</span> <span class="n">variance</span><span class="o">=</span><span class="n">cov</span><span class="p">[</span><span class="n">asset</span><span class="p">][</span><span class="n">asset</span><span class="p">])</span>
-</span><span id="build_cluster-56"><a href="#build_cluster-56"><span class="linenos">56</span></a>
-</span><span id="build_cluster-57"><a href="#build_cluster-57"><span class="linenos">57</span></a>    <span class="c1"># drill down on the left</span>
-</span><span id="build_cluster-58"><a href="#build_cluster-58"><span class="linenos">58</span></a>    <span class="n">cluster_left</span> <span class="o">=</span> <span class="n">build_cluster</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
-</span><span id="build_cluster-59"><a href="#build_cluster-59"><span class="linenos">59</span></a>    <span class="c1"># drill down on the right</span>
-</span><span id="build_cluster-60"><a href="#build_cluster-60"><span class="linenos">60</span></a>    <span class="n">cluster_right</span> <span class="o">=</span> <span class="n">build_cluster</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
-</span><span id="build_cluster-61"><a href="#build_cluster-61"><span class="linenos">61</span></a>    <span class="c1"># combine left and right into a new cluster</span>
-</span><span id="build_cluster-62"><a href="#build_cluster-62"><span class="linenos">62</span></a>    <span class="k">return</span> <span class="n">risk_parity</span><span class="p">(</span><span class="n">cluster_left</span><span class="p">,</span> <span class="n">cluster_right</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">)</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>compute a cluster</p>
-</div>
-
-
-                </section>
-                <section id="hrp">
-                            <input id="hrp-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">hrp</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">prices</span>, </span><span class="param"><span class="n">node</span><span class="o">=</span><span class="kc">None</span>, </span><span class="param"><span class="n">method</span><span class="o">=</span><span class="s1">&#39;single&#39;</span></span><span class="return-annotation">):</span></span>
-
-                <label class="view-source-button" for="hrp-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#hrp"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="hrp-65"><a href="#hrp-65"><span class="linenos">65</span></a><span class="k">def</span><span class="w"> </span><span class="nf">hrp</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;single&quot;</span><span class="p">):</span>
-</span><span id="hrp-66"><a href="#hrp-66"><span class="linenos">66</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="hrp-67"><a href="#hrp-67"><span class="linenos">67</span></a><span class="sd">    Computes the root node for the hierarchical risk parity portfolio</span>
-</span><span id="hrp-68"><a href="#hrp-68"><span class="linenos">68</span></a><span class="sd">    :param cov: This is the covariance matrix that shall be used</span>
-</span><span id="hrp-69"><a href="#hrp-69"><span class="linenos">69</span></a><span class="sd">    :param node: Optional. This is the rootnode of the graph describing the dendrogram</span>
-</span><span id="hrp-70"><a href="#hrp-70"><span class="linenos">70</span></a><span class="sd">    :return: the root cluster of the risk parity portfolio</span>
-</span><span id="hrp-71"><a href="#hrp-71"><span class="linenos">71</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="hrp-72"><a href="#hrp-72"><span class="linenos">72</span></a>    <span class="n">returns</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">pct_change</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
-</span><span id="hrp-73"><a href="#hrp-73"><span class="linenos">73</span></a>    <span class="n">cov</span><span class="p">,</span> <span class="n">cor</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">cov</span><span class="p">(),</span> <span class="n">returns</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
-</span><span id="hrp-74"><a href="#hrp-74"><span class="linenos">74</span></a>    <span class="n">node</span> <span class="o">=</span> <span class="n">node</span> <span class="ow">or</span> <span class="n">tree</span><span class="p">(</span><span class="n">linkage</span><span class="p">(</span><span class="n">dist</span><span class="p">(</span><span class="n">cor</span><span class="o">.</span><span class="n">values</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">))</span>
-</span><span id="hrp-75"><a href="#hrp-75"><span class="linenos">75</span></a>
-</span><span id="hrp-76"><a href="#hrp-76"><span class="linenos">76</span></a>    <span class="k">return</span> <span class="n">build_cluster</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">cov</span><span class="p">)</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>Computes the root node for the hierarchical risk parity portfolio</p>
-
-<h6 id="parameters">Parameters</h6>
-
-<ul>
-<li><strong>cov</strong>:  This is the covariance matrix that shall be used</li>
-<li><strong>node</strong>:  Optional. This is the rootnode of the graph describing the dendrogram</li>
-</ul>
-
-<h6 id="returns">Returns</h6>
-
-<blockquote>
-  <p>the root cluster of the risk parity portfolio</p>
-</blockquote>
-</div>
-
-
+                            </div>
                 </section>
     </main>
 <script>
