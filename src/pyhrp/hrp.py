@@ -10,24 +10,19 @@ import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
 
-# Define a NamedTuple
 class Dendrogram(NamedTuple):
-    root: sch.ClusterNode
+    root: Node
     linkage: np.ndarray
     distance: np.ndarray
     bisection: bool
     method: str
 
-    def plot(self, ax=None, **kwargs):
-        """Plot a dendrogram using matplotlib"""
-        if ax is None:
-            _, ax = plt.subplots(figsize=(25, 20))
-        sch.dendrogram(self.linkage, ax=ax, **kwargs)
-
-        return ax
-
     @staticmethod
-    def build(cor, method="ward", bisection=False):
+    def build(cor, method="ward", bisection=False) -> Dendrogram:
+        """
+        Build a dendrogram from a correlation matrix
+        """
+
         def _dist():
             """
             Compute the correlation based distance matrix d,
@@ -50,15 +45,49 @@ class Dendrogram(NamedTuple):
             :param bisection: If True, apply the bisection method to sort the leaves.
             :return: The root node. From there, it's possible to reach the entire graph.
             """
+
+            def _bisection(ids) -> Node:
+                """
+                Compute the graph underlying the recursive bisection of Marcos Lopez de Prado.
+                Ensures that the pre-order traversal of the tree remains unchanged.
+
+                :param ids: A (ranked) set of indices (leaf nodes).
+                :return: The root ClusterNode of this tree.
+                """
+                nonlocal nnn
+
+                def split(ids):
+                    """Split the vector ids into two parts, split in the middle."""
+                    num = len(ids)
+                    return ids[: num // 2], ids[num // 2 :]
+
+                # Base case: if there's only one ID, return a leaf node
+                if len(ids) == 1:
+                    return Node(id=ids[0])
+
+                # Split the IDs into left and right halves
+                left, right = split(ids)
+
+                a = nnn
+
+                nnn += 1
+                # Recursively construct the left and right subtrees
+                left_node = _bisection(ids=left)
+                nnn += 1
+                right_node = _bisection(ids=right)
+                # Create a new cluster node with the current ID and the left/right subtrees
+                return Node(id=a, left=left_node, right=right_node)
+
             # Convert the linkage matrix to a tree
             root = sch.to_tree(links, rd=False)
 
             # Apply the bisection method if requested
             if bisection:
+                nnn = len(root.pre_order())
                 # Get the leaf IDs in pre-order traversal order
                 leaf_ids = root.pre_order()
                 # Reconstruct the tree using the bisection method
-                root = _bisection(ids=leaf_ids, n=len(leaf_ids))
+                root = _bisection(ids=leaf_ids)
 
             return Node(id=root.id, left=root.left, right=root.right)
 
@@ -99,35 +128,6 @@ class Dendrogram(NamedTuple):
 
             return M
 
-        def _bisection(ids, n: int) -> Node:
-            """
-            Compute the graph underlying the recursive bisection of Marcos Lopez de Prado.
-            Ensures that the pre-order traversal of the tree remains unchanged.
-
-            :param ids: A (ranked) set of indices (leaf nodes).
-            :param n: The current ID to assign to the newly created cluster node.
-            :return: The root ClusterNode of this tree.
-            """
-
-            def split(ids):
-                """Split the vector ids into two parts, split in the middle."""
-                num = len(ids)
-                return ids[: num // 2], ids[num // 2 :]
-
-            # Base case: if there's only one ID, return a leaf node
-            if len(ids) == 1:
-                return Node(id=ids[0])
-
-            # Split the IDs into left and right halves
-            left, right = split(ids)
-
-            # Recursively construct the left and right subtrees
-            left_node = _bisection(ids=left, n=n + 1)
-            right_node = _bisection(ids=right, n=3 * n + 1)
-
-            # Create a new cluster node with the current ID and the left/right subtrees
-            return Node(id=n, left=left_node, right=right_node)
-
         distance = _dist()
         links = sch.linkage(distance, method=method)
         root = _tree()
@@ -136,6 +136,14 @@ class Dendrogram(NamedTuple):
             links = _node_to_linkage(n=cor.shape[0])
 
         return Dendrogram(root=root, linkage=links, distance=distance, bisection=bisection, method=method)
+
+    def plot(self, ax=None, **kwargs):
+        """Plot a dendrogram using matplotlib"""
+        if ax is None:
+            _, ax = plt.subplots(figsize=(25, 20))
+        sch.dendrogram(self.linkage, ax=ax, **kwargs)
+
+        return ax
 
 
 class Node(sch.ClusterNode):
