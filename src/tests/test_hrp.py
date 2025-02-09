@@ -1,7 +1,5 @@
 import numpy as np
-import pandas as pd
 
-from pyhrp.cluster import hrp
 from pyhrp.hrp import root
 
 
@@ -31,11 +29,12 @@ def test_bisection(prices, resource_dir):
     assert ids == [11, 7, 19, 6, 14, 5, 10, 13, 3, 1, 4, 16, 0, 2, 17, 9, 8, 18, 12, 15]
 
 
-def test_hrp(prices, resource_dir):
-    cluster = hrp(prices=prices, method="ward")
+def test_graph(prices):
+    returns = prices.pct_change().dropna(axis=0, how="all")
 
-    x = pd.read_csv(resource_dir / "weights_hrp.csv", index_col=0, header=0).squeeze()
+    # compute covariance matrix and correlation matrices (both as DataFrames)
+    cor = returns.corr()
 
-    x.index.name = None
-
-    pd.testing.assert_series_equal(x, cluster.weights, check_exact=False)
+    # you can either use a pre-computed node or you can construct a new dendrogram
+    dendrogram = root(cor.values, method="single", bisection=True)
+    dendrogram.plot()

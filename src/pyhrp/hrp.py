@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import NamedTuple
 
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
@@ -18,6 +19,14 @@ class Dendrogram(NamedTuple):
     distance: np.ndarray
     bisection: bool
     method: str
+
+    def plot(self, ax=None, **kwargs):
+        """Plot a dendrogram using matplotlib"""
+        if ax is None:
+            _, ax = plt.subplots(figsize=(25, 20))
+        sch.dendrogram(self.linkage, ax=ax, **kwargs)
+
+        return ax
 
 
 def _node_to_linkage(root, n):
@@ -54,9 +63,6 @@ def _node_to_linkage(root, n):
     # Start the traversal
     _traverse(root)
     M = np.array(linkage_matrix)
-
-    # if np.linalg.norm(M[:,2]) == 0.0:
-    #    M[:,2] = M[:,3]
 
     return M
 

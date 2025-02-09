@@ -17,17 +17,19 @@ Here's a simple example
 ```python
 import pandas as pd
 from pyhrp.hrp import root
+from pyhrp.cluster import build_cluster
 
 prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
 
 returns = prices.pct_change().dropna(axis=0, how="all")
 cov, cor = returns.cov(), returns.corr()
-#links = linkage(_dist(cor.values), method='ward')
+
+# Compute the dendrogram based on the correlation matrix and Ward's metric
 dendrogram = root(cor.values, method='ward')
 
-rootcluster = hrp(dendrogram.root, cov)
+cluster = build_cluster(dendrogram.root, cov)
 
-ax = dendrogram(dendrogram.linkage, orientation="left")
+ax = dendrogram.plot(orientation="left")
 ax.get_figure().savefig("dendrogram.png")
 ```
 
