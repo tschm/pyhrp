@@ -9,7 +9,7 @@ dependencies = [
     "numpy",
     "pandas",
     "scipy",
-    "matplotlib"
+    "matplotlib",
 ]
 
 [project.urls]
