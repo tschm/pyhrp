@@ -11,7 +11,7 @@ import scipy.spatial.distance as ssd
 
 
 class Dendrogram(NamedTuple):
-    root: Node
+    root: sch.ClusterNode
     linkage: np.ndarray
     distance: np.ndarray
     bisection: bool
@@ -37,7 +37,7 @@ class Dendrogram(NamedTuple):
             np.fill_diagonal(matrix, val=0.0)
             return ssd.squareform(matrix)
 
-        def _tree() -> Node:
+        def _tree() -> sch.ClusterNode:
             """
             Compute the root ClusterNode.
 
@@ -46,7 +46,7 @@ class Dendrogram(NamedTuple):
             :return: The root node. From there, it's possible to reach the entire graph.
             """
 
-            def _bisection(ids) -> Node:
+            def _bisection(ids) -> sch.ClusterNode:
                 """
                 Compute the graph underlying the recursive bisection of Marcos Lopez de Prado.
                 Ensures that the pre-order traversal of the tree remains unchanged.
@@ -63,7 +63,7 @@ class Dendrogram(NamedTuple):
 
                 # Base case: if there's only one ID, return a leaf node
                 if len(ids) == 1:
-                    return Node(id=ids[0])
+                    return sch.ClusterNode(id=ids[0])
 
                 # Split the IDs into left and right halves
                 left, right = split(ids)
@@ -76,7 +76,7 @@ class Dendrogram(NamedTuple):
 
                 nnn += 1
                 # Create a new cluster node with the current ID and the left/right subtrees
-                return Node(id=nnn, left=left_node, right=right_node)
+                return sch.ClusterNode(id=nnn, left=left_node, right=right_node)
 
             # Convert the linkage matrix to a tree
             root = sch.to_tree(links, rd=False)
@@ -89,7 +89,7 @@ class Dendrogram(NamedTuple):
                 # Reconstruct the tree using the bisection method
                 root = _bisection(ids=leaf_ids)
 
-            return Node(id=root.id, left=root.left, right=root.right)
+            return sch.ClusterNode(id=root.id, left=root.left, right=root.right)
 
         def _node_to_linkage(n):
             """
@@ -115,7 +115,7 @@ class Dendrogram(NamedTuple):
                 right_id = _traverse(node.right)
 
                 # Record the merge step
-                linkage_matrix.append([left_id, right_id, float(len(node)), len(node)])
+                linkage_matrix.append([left_id, right_id, float(node.count), node.count])
 
                 # Assign a new ID to the merged cluster
                 merged_id = current_id
@@ -144,11 +144,3 @@ class Dendrogram(NamedTuple):
         sch.dendrogram(self.linkage, ax=ax, **kwargs)
 
         return ax
-
-
-class Node(sch.ClusterNode):
-    def __len__(self) -> int:
-        if self.left:
-            return len(self.left) + len(self.right)
-        else:
-            return 1

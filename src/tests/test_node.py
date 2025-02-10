@@ -1,4 +1,4 @@
-from pyhrp.hrp import Node
+from scipy.cluster.hierarchy import ClusterNode as Node
 
 
 def test_node():
@@ -7,8 +7,8 @@ def test_node():
 
     assert left.id == 0
     assert right.id == 1
-    assert len(left) == 1
-    assert len(right) == 1
+    assert left.count == 1
+    assert right.count == 1
 
     assert left.pre_order() == [0]
     assert right.pre_order() == [1]
@@ -21,9 +21,7 @@ def test_node():
     assert node.id == 5
     assert node.left.id == 0
     assert node.right.id == 1
-    assert len(node.left) == 1
-    assert len(node.right) == 1
-    assert len(node) == 2
+    assert node.count == 2
     assert node.pre_order() == [0, 1]
 
     assert not node.is_leaf()
