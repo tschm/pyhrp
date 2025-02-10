@@ -17,7 +17,6 @@ Here's a simple example
 ```python
 import pandas as pd
 from pyhrp.hrp import Dendrogram
-from pyhrp.cluster import build_cluster
 
 prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
 
@@ -27,7 +26,7 @@ cov, cor = returns.cov(), returns.corr()
 # Compute the dendrogram based on the correlation matrix and Ward's metric
 dendrogram = Dendrogram.build(cor.values, method='ward')
 
-cluster = build_cluster(dendrogram.root, cov)
+root = dendrogram.root.risk_parity(cov)
 
 ax = dendrogram.plot(orientation="left")
 ax.get_figure().savefig("dendrogram.png")
@@ -38,7 +37,7 @@ correlation matrix, the links and the node, e.g. the root of the tree (dendrogra
 
 ```python
 import pandas as pd
-from pyhrp.cluster import hrp
+from pyhrp.hrp import hrp
 
 prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
 cluster = hrp(prices=prices, method="ward", bisection=False)
