@@ -60,12 +60,6 @@
                 </ul>
 
             </li>
-            <li>
-                    <a class="class" href="#Node">Node</a>
-                            <ul class="memberlist">
-                </ul>
-
-            </li>
     </ul>
 
 
@@ -102,7 +96,7 @@
 </span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a>
 </span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>
 </span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Dendrogram</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
-</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a>    <span class="n">root</span><span class="p">:</span> <span class="n">Node</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a>    <span class="n">root</span><span class="p">:</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span>
 </span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a>    <span class="n">linkage</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 </span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a>    <span class="n">distance</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 </span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a>    <span class="n">bisection</span><span class="p">:</span> <span class="nb">bool</span>
@@ -128,7 +122,7 @@
 </span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>            <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
 </span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>            <span class="k">return</span> <span class="n">ssd</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
 </span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>
-</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>        <span class="k">def</span><span class="w"> </span><span class="nf">_tree</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>        <span class="k">def</span><span class="w"> </span><span class="nf">_tree</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">:</span>
 </span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a><span class="sd">            Compute the root ClusterNode.</span>
 </span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a>
@@ -137,7 +131,7 @@
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a><span class="sd">            :return: The root node. From there, it&#39;s possible to reach the entire graph.</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="sd">            &quot;&quot;&quot;</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>
-</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>            <span class="k">def</span><span class="w"> </span><span class="nf">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>            <span class="k">def</span><span class="w"> </span><span class="nf">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">:</span>
 </span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a><span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="sd">                Compute the graph underlying the recursive bisection of Marcos Lopez de Prado.</span>
 </span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="sd">                Ensures that the pre-order traversal of the tree remains unchanged.</span>
@@ -154,7 +148,7 @@
 </span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a>
 </span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a>                <span class="c1"># Base case: if there&#39;s only one ID, return a leaf node</span>
 </span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a>                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>                    <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a>                    <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a>
 </span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a>                <span class="c1"># Split the IDs into left and right halves</span>
 </span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a>                <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
@@ -167,7 +161,7 @@
 </span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>
 </span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>                <span class="n">nnn</span> <span class="o">+=</span> <span class="mi">1</span>
 </span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>                <span class="c1"># Create a new cluster node with the current ID and the left/right subtrees</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>                <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">nnn</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">left_node</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right_node</span><span class="p">)</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>                <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">nnn</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">left_node</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right_node</span><span class="p">)</span>
 </span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>
 </span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>            <span class="c1"># Convert the linkage matrix to a tree</span>
 </span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>            <span class="n">root</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">to_tree</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">rd</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -180,7 +174,7 @@
 </span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>                <span class="c1"># Reconstruct the tree using the bisection method</span>
 </span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>                <span class="n">root</span> <span class="o">=</span> <span class="n">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">leaf_ids</span><span class="p">)</span>
 </span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>
-</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>            <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a>            <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 </span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a>
 </span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>        <span class="k">def</span><span class="w"> </span><span class="nf">_node_to_linkage</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
 </span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
@@ -206,7 +200,7 @@
 </span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a>                <span class="n">right_id</span> <span class="o">=</span> <span class="n">_traverse</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 </span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a>
 </span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a>                <span class="c1"># Record the merge step</span>
-</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>                <span class="n">linkage_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_id</span><span class="p">,</span> <span class="n">right_id</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">)),</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">)])</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>                <span class="n">linkage_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_id</span><span class="p">,</span> <span class="n">right_id</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">count</span><span class="p">),</span> <span class="n">node</span><span class="o">.</span><span class="n">count</span><span class="p">])</span>
 </span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a>
 </span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>                <span class="c1"># Assign a new ID to the merged cluster</span>
 </span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a>                <span class="n">merged_id</span> <span class="o">=</span> <span class="n">current_id</span>
@@ -235,14 +229,6 @@
 </span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>        <span class="n">sch</span><span class="o">.</span><span class="n">dendrogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>
 </span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>        <span class="k">return</span> <span class="n">ax</span>
-</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>
-</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>
-</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Node</span><span class="p">(</span><span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">):</span>
-</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">:</span>
-</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
-</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>            <span class="k">return</span> <span class="mi">1</span>
 </span></pre></div>
 
 
@@ -259,7 +245,7 @@
     </div>
     <a class="headerlink" href="#Dendrogram"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Dendrogram-14"><a href="#Dendrogram-14"><span class="linenos"> 14</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Dendrogram</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
-</span><span id="Dendrogram-15"><a href="#Dendrogram-15"><span class="linenos"> 15</span></a>    <span class="n">root</span><span class="p">:</span> <span class="n">Node</span>
+</span><span id="Dendrogram-15"><a href="#Dendrogram-15"><span class="linenos"> 15</span></a>    <span class="n">root</span><span class="p">:</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span>
 </span><span id="Dendrogram-16"><a href="#Dendrogram-16"><span class="linenos"> 16</span></a>    <span class="n">linkage</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 </span><span id="Dendrogram-17"><a href="#Dendrogram-17"><span class="linenos"> 17</span></a>    <span class="n">distance</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span>
 </span><span id="Dendrogram-18"><a href="#Dendrogram-18"><span class="linenos"> 18</span></a>    <span class="n">bisection</span><span class="p">:</span> <span class="nb">bool</span>
@@ -285,7 +271,7 @@
 </span><span id="Dendrogram-38"><a href="#Dendrogram-38"><span class="linenos"> 38</span></a>            <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
 </span><span id="Dendrogram-39"><a href="#Dendrogram-39"><span class="linenos"> 39</span></a>            <span class="k">return</span> <span class="n">ssd</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
 </span><span id="Dendrogram-40"><a href="#Dendrogram-40"><span class="linenos"> 40</span></a>
-</span><span id="Dendrogram-41"><a href="#Dendrogram-41"><span class="linenos"> 41</span></a>        <span class="k">def</span><span class="w"> </span><span class="nf">_tree</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
+</span><span id="Dendrogram-41"><a href="#Dendrogram-41"><span class="linenos"> 41</span></a>        <span class="k">def</span><span class="w"> </span><span class="nf">_tree</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">:</span>
 </span><span id="Dendrogram-42"><a href="#Dendrogram-42"><span class="linenos"> 42</span></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="Dendrogram-43"><a href="#Dendrogram-43"><span class="linenos"> 43</span></a><span class="sd">            Compute the root ClusterNode.</span>
 </span><span id="Dendrogram-44"><a href="#Dendrogram-44"><span class="linenos"> 44</span></a>
@@ -294,7 +280,7 @@
 </span><span id="Dendrogram-47"><a href="#Dendrogram-47"><span class="linenos"> 47</span></a><span class="sd">            :return: The root node. From there, it&#39;s possible to reach the entire graph.</span>
 </span><span id="Dendrogram-48"><a href="#Dendrogram-48"><span class="linenos"> 48</span></a><span class="sd">            &quot;&quot;&quot;</span>
 </span><span id="Dendrogram-49"><a href="#Dendrogram-49"><span class="linenos"> 49</span></a>
-</span><span id="Dendrogram-50"><a href="#Dendrogram-50"><span class="linenos"> 50</span></a>            <span class="k">def</span><span class="w"> </span><span class="nf">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
+</span><span id="Dendrogram-50"><a href="#Dendrogram-50"><span class="linenos"> 50</span></a>            <span class="k">def</span><span class="w"> </span><span class="nf">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">:</span>
 </span><span id="Dendrogram-51"><a href="#Dendrogram-51"><span class="linenos"> 51</span></a><span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="Dendrogram-52"><a href="#Dendrogram-52"><span class="linenos"> 52</span></a><span class="sd">                Compute the graph underlying the recursive bisection of Marcos Lopez de Prado.</span>
 </span><span id="Dendrogram-53"><a href="#Dendrogram-53"><span class="linenos"> 53</span></a><span class="sd">                Ensures that the pre-order traversal of the tree remains unchanged.</span>
@@ -311,7 +297,7 @@
 </span><span id="Dendrogram-64"><a href="#Dendrogram-64"><span class="linenos"> 64</span></a>
 </span><span id="Dendrogram-65"><a href="#Dendrogram-65"><span class="linenos"> 65</span></a>                <span class="c1"># Base case: if there&#39;s only one ID, return a leaf node</span>
 </span><span id="Dendrogram-66"><a href="#Dendrogram-66"><span class="linenos"> 66</span></a>                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="Dendrogram-67"><a href="#Dendrogram-67"><span class="linenos"> 67</span></a>                    <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span id="Dendrogram-67"><a href="#Dendrogram-67"><span class="linenos"> 67</span></a>                    <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </span><span id="Dendrogram-68"><a href="#Dendrogram-68"><span class="linenos"> 68</span></a>
 </span><span id="Dendrogram-69"><a href="#Dendrogram-69"><span class="linenos"> 69</span></a>                <span class="c1"># Split the IDs into left and right halves</span>
 </span><span id="Dendrogram-70"><a href="#Dendrogram-70"><span class="linenos"> 70</span></a>                <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
@@ -324,7 +310,7 @@
 </span><span id="Dendrogram-77"><a href="#Dendrogram-77"><span class="linenos"> 77</span></a>
 </span><span id="Dendrogram-78"><a href="#Dendrogram-78"><span class="linenos"> 78</span></a>                <span class="n">nnn</span> <span class="o">+=</span> <span class="mi">1</span>
 </span><span id="Dendrogram-79"><a href="#Dendrogram-79"><span class="linenos"> 79</span></a>                <span class="c1"># Create a new cluster node with the current ID and the left/right subtrees</span>
-</span><span id="Dendrogram-80"><a href="#Dendrogram-80"><span class="linenos"> 80</span></a>                <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">nnn</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">left_node</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right_node</span><span class="p">)</span>
+</span><span id="Dendrogram-80"><a href="#Dendrogram-80"><span class="linenos"> 80</span></a>                <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">nnn</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">left_node</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right_node</span><span class="p">)</span>
 </span><span id="Dendrogram-81"><a href="#Dendrogram-81"><span class="linenos"> 81</span></a>
 </span><span id="Dendrogram-82"><a href="#Dendrogram-82"><span class="linenos"> 82</span></a>            <span class="c1"># Convert the linkage matrix to a tree</span>
 </span><span id="Dendrogram-83"><a href="#Dendrogram-83"><span class="linenos"> 83</span></a>            <span class="n">root</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">to_tree</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">rd</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -337,7 +323,7 @@
 </span><span id="Dendrogram-90"><a href="#Dendrogram-90"><span class="linenos"> 90</span></a>                <span class="c1"># Reconstruct the tree using the bisection method</span>
 </span><span id="Dendrogram-91"><a href="#Dendrogram-91"><span class="linenos"> 91</span></a>                <span class="n">root</span> <span class="o">=</span> <span class="n">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">leaf_ids</span><span class="p">)</span>
 </span><span id="Dendrogram-92"><a href="#Dendrogram-92"><span class="linenos"> 92</span></a>
-</span><span id="Dendrogram-93"><a href="#Dendrogram-93"><span class="linenos"> 93</span></a>            <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+</span><span id="Dendrogram-93"><a href="#Dendrogram-93"><span class="linenos"> 93</span></a>            <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 </span><span id="Dendrogram-94"><a href="#Dendrogram-94"><span class="linenos"> 94</span></a>
 </span><span id="Dendrogram-95"><a href="#Dendrogram-95"><span class="linenos"> 95</span></a>        <span class="k">def</span><span class="w"> </span><span class="nf">_node_to_linkage</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
 </span><span id="Dendrogram-96"><a href="#Dendrogram-96"><span class="linenos"> 96</span></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
@@ -363,7 +349,7 @@
 </span><span id="Dendrogram-116"><a href="#Dendrogram-116"><span class="linenos">116</span></a>                <span class="n">right_id</span> <span class="o">=</span> <span class="n">_traverse</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 </span><span id="Dendrogram-117"><a href="#Dendrogram-117"><span class="linenos">117</span></a>
 </span><span id="Dendrogram-118"><a href="#Dendrogram-118"><span class="linenos">118</span></a>                <span class="c1"># Record the merge step</span>
-</span><span id="Dendrogram-119"><a href="#Dendrogram-119"><span class="linenos">119</span></a>                <span class="n">linkage_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_id</span><span class="p">,</span> <span class="n">right_id</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">)),</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">)])</span>
+</span><span id="Dendrogram-119"><a href="#Dendrogram-119"><span class="linenos">119</span></a>                <span class="n">linkage_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_id</span><span class="p">,</span> <span class="n">right_id</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">count</span><span class="p">),</span> <span class="n">node</span><span class="o">.</span><span class="n">count</span><span class="p">])</span>
 </span><span id="Dendrogram-120"><a href="#Dendrogram-120"><span class="linenos">120</span></a>
 </span><span id="Dendrogram-121"><a href="#Dendrogram-121"><span class="linenos">121</span></a>                <span class="c1"># Assign a new ID to the merged cluster</span>
 </span><span id="Dendrogram-122"><a href="#Dendrogram-122"><span class="linenos">122</span></a>                <span class="n">merged_id</span> <span class="o">=</span> <span class="n">current_id</span>
@@ -402,7 +388,7 @@
                             <div id="Dendrogram.__init__" class="classattr">
                                 <div class="attr function">
             
-        <span class="name">Dendrogram</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">root</span><span class="p">:</span> <span class="n">ForwardRef</span><span class="p">(</span><span class="s1">&#39;Node&#39;</span><span class="p">)</span>,</span><span class="param">	<span class="n">linkage</span><span class="p">:</span> <span class="n">ForwardRef</span><span class="p">(</span><span class="s1">&#39;np.ndarray&#39;</span><span class="p">)</span>,</span><span class="param">	<span class="n">distance</span><span class="p">:</span> <span class="n">ForwardRef</span><span class="p">(</span><span class="s1">&#39;np.ndarray&#39;</span><span class="p">)</span>,</span><span class="param">	<span class="n">bisection</span><span class="p">:</span> <span class="nb">bool</span>,</span><span class="param">	<span class="n">method</span><span class="p">:</span> <span class="nb">str</span></span>)</span>
+        <span class="name">Dendrogram</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">root</span><span class="p">:</span> <span class="n">ForwardRef</span><span class="p">(</span><span class="s1">&#39;sch.ClusterNode&#39;</span><span class="p">)</span>,</span><span class="param">	<span class="n">linkage</span><span class="p">:</span> <span class="n">ForwardRef</span><span class="p">(</span><span class="s1">&#39;np.ndarray&#39;</span><span class="p">)</span>,</span><span class="param">	<span class="n">distance</span><span class="p">:</span> <span class="n">ForwardRef</span><span class="p">(</span><span class="s1">&#39;np.ndarray&#39;</span><span class="p">)</span>,</span><span class="param">	<span class="n">bisection</span><span class="p">:</span> <span class="nb">bool</span>,</span><span class="param">	<span class="n">method</span><span class="p">:</span> <span class="nb">str</span></span>)</span>
 
         
     </div>
@@ -415,7 +401,7 @@
                             </div>
                             <div id="Dendrogram.root" class="classattr">
                                 <div class="attr variable">
-            <span class="name">root</span><span class="annotation">: <a href="#Node">Node</a></span>
+            <span class="name">root</span><span class="annotation">: scipy.cluster.hierarchy.ClusterNode</span>
 
         
     </div>
@@ -510,7 +496,7 @@
 </span><span id="Dendrogram.build-38"><a href="#Dendrogram.build-38"><span class="linenos"> 38</span></a>            <span class="n">np</span><span class="o">.</span><span class="n">fill_diagonal</span><span class="p">(</span><span class="n">matrix</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
 </span><span id="Dendrogram.build-39"><a href="#Dendrogram.build-39"><span class="linenos"> 39</span></a>            <span class="k">return</span> <span class="n">ssd</span><span class="o">.</span><span class="n">squareform</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span>
 </span><span id="Dendrogram.build-40"><a href="#Dendrogram.build-40"><span class="linenos"> 40</span></a>
-</span><span id="Dendrogram.build-41"><a href="#Dendrogram.build-41"><span class="linenos"> 41</span></a>        <span class="k">def</span><span class="w"> </span><span class="nf">_tree</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
+</span><span id="Dendrogram.build-41"><a href="#Dendrogram.build-41"><span class="linenos"> 41</span></a>        <span class="k">def</span><span class="w"> </span><span class="nf">_tree</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">:</span>
 </span><span id="Dendrogram.build-42"><a href="#Dendrogram.build-42"><span class="linenos"> 42</span></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="Dendrogram.build-43"><a href="#Dendrogram.build-43"><span class="linenos"> 43</span></a><span class="sd">            Compute the root ClusterNode.</span>
 </span><span id="Dendrogram.build-44"><a href="#Dendrogram.build-44"><span class="linenos"> 44</span></a>
@@ -519,7 +505,7 @@
 </span><span id="Dendrogram.build-47"><a href="#Dendrogram.build-47"><span class="linenos"> 47</span></a><span class="sd">            :return: The root node. From there, it&#39;s possible to reach the entire graph.</span>
 </span><span id="Dendrogram.build-48"><a href="#Dendrogram.build-48"><span class="linenos"> 48</span></a><span class="sd">            &quot;&quot;&quot;</span>
 </span><span id="Dendrogram.build-49"><a href="#Dendrogram.build-49"><span class="linenos"> 49</span></a>
-</span><span id="Dendrogram.build-50"><a href="#Dendrogram.build-50"><span class="linenos"> 50</span></a>            <span class="k">def</span><span class="w"> </span><span class="nf">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Node</span><span class="p">:</span>
+</span><span id="Dendrogram.build-50"><a href="#Dendrogram.build-50"><span class="linenos"> 50</span></a>            <span class="k">def</span><span class="w"> </span><span class="nf">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">:</span>
 </span><span id="Dendrogram.build-51"><a href="#Dendrogram.build-51"><span class="linenos"> 51</span></a><span class="w">                </span><span class="sd">&quot;&quot;&quot;</span>
 </span><span id="Dendrogram.build-52"><a href="#Dendrogram.build-52"><span class="linenos"> 52</span></a><span class="sd">                Compute the graph underlying the recursive bisection of Marcos Lopez de Prado.</span>
 </span><span id="Dendrogram.build-53"><a href="#Dendrogram.build-53"><span class="linenos"> 53</span></a><span class="sd">                Ensures that the pre-order traversal of the tree remains unchanged.</span>
@@ -536,7 +522,7 @@
 </span><span id="Dendrogram.build-64"><a href="#Dendrogram.build-64"><span class="linenos"> 64</span></a>
 </span><span id="Dendrogram.build-65"><a href="#Dendrogram.build-65"><span class="linenos"> 65</span></a>                <span class="c1"># Base case: if there&#39;s only one ID, return a leaf node</span>
 </span><span id="Dendrogram.build-66"><a href="#Dendrogram.build-66"><span class="linenos"> 66</span></a>                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-</span><span id="Dendrogram.build-67"><a href="#Dendrogram.build-67"><span class="linenos"> 67</span></a>                    <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</span><span id="Dendrogram.build-67"><a href="#Dendrogram.build-67"><span class="linenos"> 67</span></a>                    <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </span><span id="Dendrogram.build-68"><a href="#Dendrogram.build-68"><span class="linenos"> 68</span></a>
 </span><span id="Dendrogram.build-69"><a href="#Dendrogram.build-69"><span class="linenos"> 69</span></a>                <span class="c1"># Split the IDs into left and right halves</span>
 </span><span id="Dendrogram.build-70"><a href="#Dendrogram.build-70"><span class="linenos"> 70</span></a>                <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="n">split</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
@@ -549,7 +535,7 @@
 </span><span id="Dendrogram.build-77"><a href="#Dendrogram.build-77"><span class="linenos"> 77</span></a>
 </span><span id="Dendrogram.build-78"><a href="#Dendrogram.build-78"><span class="linenos"> 78</span></a>                <span class="n">nnn</span> <span class="o">+=</span> <span class="mi">1</span>
 </span><span id="Dendrogram.build-79"><a href="#Dendrogram.build-79"><span class="linenos"> 79</span></a>                <span class="c1"># Create a new cluster node with the current ID and the left/right subtrees</span>
-</span><span id="Dendrogram.build-80"><a href="#Dendrogram.build-80"><span class="linenos"> 80</span></a>                <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">nnn</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">left_node</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right_node</span><span class="p">)</span>
+</span><span id="Dendrogram.build-80"><a href="#Dendrogram.build-80"><span class="linenos"> 80</span></a>                <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">nnn</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">left_node</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right_node</span><span class="p">)</span>
 </span><span id="Dendrogram.build-81"><a href="#Dendrogram.build-81"><span class="linenos"> 81</span></a>
 </span><span id="Dendrogram.build-82"><a href="#Dendrogram.build-82"><span class="linenos"> 82</span></a>            <span class="c1"># Convert the linkage matrix to a tree</span>
 </span><span id="Dendrogram.build-83"><a href="#Dendrogram.build-83"><span class="linenos"> 83</span></a>            <span class="n">root</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">to_tree</span><span class="p">(</span><span class="n">links</span><span class="p">,</span> <span class="n">rd</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -562,7 +548,7 @@
 </span><span id="Dendrogram.build-90"><a href="#Dendrogram.build-90"><span class="linenos"> 90</span></a>                <span class="c1"># Reconstruct the tree using the bisection method</span>
 </span><span id="Dendrogram.build-91"><a href="#Dendrogram.build-91"><span class="linenos"> 91</span></a>                <span class="n">root</span> <span class="o">=</span> <span class="n">_bisection</span><span class="p">(</span><span class="n">ids</span><span class="o">=</span><span class="n">leaf_ids</span><span class="p">)</span>
 </span><span id="Dendrogram.build-92"><a href="#Dendrogram.build-92"><span class="linenos"> 92</span></a>
-</span><span id="Dendrogram.build-93"><a href="#Dendrogram.build-93"><span class="linenos"> 93</span></a>            <span class="k">return</span> <span class="n">Node</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+</span><span id="Dendrogram.build-93"><a href="#Dendrogram.build-93"><span class="linenos"> 93</span></a>            <span class="k">return</span> <span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">root</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 </span><span id="Dendrogram.build-94"><a href="#Dendrogram.build-94"><span class="linenos"> 94</span></a>
 </span><span id="Dendrogram.build-95"><a href="#Dendrogram.build-95"><span class="linenos"> 95</span></a>        <span class="k">def</span><span class="w"> </span><span class="nf">_node_to_linkage</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
 </span><span id="Dendrogram.build-96"><a href="#Dendrogram.build-96"><span class="linenos"> 96</span></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
@@ -588,7 +574,7 @@
 </span><span id="Dendrogram.build-116"><a href="#Dendrogram.build-116"><span class="linenos">116</span></a>                <span class="n">right_id</span> <span class="o">=</span> <span class="n">_traverse</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
 </span><span id="Dendrogram.build-117"><a href="#Dendrogram.build-117"><span class="linenos">117</span></a>
 </span><span id="Dendrogram.build-118"><a href="#Dendrogram.build-118"><span class="linenos">118</span></a>                <span class="c1"># Record the merge step</span>
-</span><span id="Dendrogram.build-119"><a href="#Dendrogram.build-119"><span class="linenos">119</span></a>                <span class="n">linkage_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_id</span><span class="p">,</span> <span class="n">right_id</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">)),</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="p">)])</span>
+</span><span id="Dendrogram.build-119"><a href="#Dendrogram.build-119"><span class="linenos">119</span></a>                <span class="n">linkage_matrix</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">left_id</span><span class="p">,</span> <span class="n">right_id</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">count</span><span class="p">),</span> <span class="n">node</span><span class="o">.</span><span class="n">count</span><span class="p">])</span>
 </span><span id="Dendrogram.build-120"><a href="#Dendrogram.build-120"><span class="linenos">120</span></a>
 </span><span id="Dendrogram.build-121"><a href="#Dendrogram.build-121"><span class="linenos">121</span></a>                <span class="c1"># Assign a new ID to the merged cluster</span>
 </span><span id="Dendrogram.build-122"><a href="#Dendrogram.build-122"><span class="linenos">122</span></a>                <span class="n">merged_id</span> <span class="o">=</span> <span class="n">current_id</span>
@@ -643,56 +629,6 @@
 
 
                             </div>
-                </section>
-                <section id="Node">
-                            <input id="Node-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr class">
-            
-    <span class="def">class</span>
-    <span class="name">Node</span><wbr>(<span class="base">scipy.cluster.hierarchy.ClusterNode</span>):
-
-                <label class="view-source-button" for="Node-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#Node"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Node-150"><a href="#Node-150"><span class="linenos">150</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Node</span><span class="p">(</span><span class="n">sch</span><span class="o">.</span><span class="n">ClusterNode</span><span class="p">):</span>
-</span><span id="Node-151"><a href="#Node-151"><span class="linenos">151</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-</span><span id="Node-152"><a href="#Node-152"><span class="linenos">152</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">:</span>
-</span><span id="Node-153"><a href="#Node-153"><span class="linenos">153</span></a>            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
-</span><span id="Node-154"><a href="#Node-154"><span class="linenos">154</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="Node-155"><a href="#Node-155"><span class="linenos">155</span></a>            <span class="k">return</span> <span class="mi">1</span>
-</span></pre></div>
-
-
-            <div class="docstring"><p>A tree node class for representing a cluster.</p>
-
-<p>Leaf nodes correspond to original observations, while non-leaf nodes
-correspond to non-singleton clusters.</p>
-
-<p>The <code>to_tree</code> function converts a matrix returned by the linkage
-function into an easy-to-use tree representation.</p>
-
-<p>All parameter names are also attributes.</p>
-
-<h2 id="parameters">Parameters</h2>
-
-<p>id : int
-    The node id.
-left : ClusterNode instance, optional
-    The left child tree node.
-right : ClusterNode instance, optional
-    The right child tree node.
-dist : float, optional
-    Distance for this cluster in the linkage matrix.
-count : int, optional
-    The number of samples in this cluster.</p>
-
-<h2 id="see-also">See Also</h2>
-
-<p>to_tree : for converting a linkage matrix <code>Z</code> into a tree object.</p>
-</div>
-
-
                 </section>
     </main>
 <script>

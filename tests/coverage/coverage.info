@@ -125,13 +125,8 @@ DA:142,1
 DA:143,1
 DA:144,1
 DA:146,1
-DA:149,1
-DA:150,1
-DA:151,1
-DA:152,1
-DA:154,1
-LF:69
-LH:69
+LF:64
+LH:64
 FN:21,138,Dendrogram.build
 FNDA:1,Dendrogram.build
 FN:26,38,Dendrogram.build._dist
@@ -148,8 +143,6 @@ FN:108,123,Dendrogram.build._node_to_linkage._traverse
 FNDA:1,Dendrogram.build._node_to_linkage._traverse
 FN:140,146,Dendrogram.plot
 FNDA:1,Dendrogram.plot
-FN:150,154,Node.__len__
-FNDA:1,Node.__len__
-FNF:9
-FNH:9
+FNF:8
+FNH:8
 end_of_record
