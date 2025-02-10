@@ -68,15 +68,15 @@ class Dendrogram(NamedTuple):
                 # Split the IDs into left and right halves
                 left, right = split(ids)
 
-                a = nnn
-
                 nnn += 1
                 # Recursively construct the left and right subtrees
                 left_node = _bisection(ids=left)
                 nnn += 1
                 right_node = _bisection(ids=right)
+
+                nnn += 1
                 # Create a new cluster node with the current ID and the left/right subtrees
-                return Node(id=a, left=left_node, right=right_node)
+                return Node(id=nnn, left=left_node, right=right_node)
 
             # Convert the linkage matrix to a tree
             root = sch.to_tree(links, rd=False)
