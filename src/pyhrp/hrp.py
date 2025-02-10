@@ -6,12 +6,13 @@ from typing import NamedTuple
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
 
 class Dendrogram(NamedTuple):
-    root: sch.ClusterNode
+    root: Cluster
     linkage: np.ndarray
     distance: np.ndarray
     bisection: bool
@@ -37,7 +38,7 @@ class Dendrogram(NamedTuple):
             np.fill_diagonal(matrix, val=0.0)
             return ssd.squareform(matrix)
 
-        def _tree() -> sch.ClusterNode:
+        def _tree() -> Cluster:
             """
             Compute the root ClusterNode.
 
@@ -46,7 +47,7 @@ class Dendrogram(NamedTuple):
             :return: The root node. From there, it's possible to reach the entire graph.
             """
 
-            def _bisection(ids) -> sch.ClusterNode:
+            def _bisection(ids) -> Cluster:
                 """
                 Compute the graph underlying the recursive bisection of Marcos Lopez de Prado.
                 Ensures that the pre-order traversal of the tree remains unchanged.
@@ -63,7 +64,7 @@ class Dendrogram(NamedTuple):
 
                 # Base case: if there's only one ID, return a leaf node
                 if len(ids) == 1:
-                    return sch.ClusterNode(id=ids[0])
+                    return Cluster(id=ids[0])
 
                 # Split the IDs into left and right halves
                 left, right = split(ids)
@@ -76,7 +77,7 @@ class Dendrogram(NamedTuple):
 
                 nnn += 1
                 # Create a new cluster node with the current ID and the left/right subtrees
-                return sch.ClusterNode(id=nnn, left=left_node, right=right_node)
+                return Cluster(id=nnn, left=left_node, right=right_node)
 
             # Convert the linkage matrix to a tree
             root = sch.to_tree(links, rd=False)
@@ -89,7 +90,7 @@ class Dendrogram(NamedTuple):
                 # Reconstruct the tree using the bisection method
                 root = _bisection(ids=leaf_ids)
 
-            return sch.ClusterNode(id=root.id, left=root.left, right=root.right)
+            return Cluster(id=root.id, left=root.left, right=root.right)
 
         def _node_to_linkage(n):
             """
@@ -144,3 +145,47 @@ class Dendrogram(NamedTuple):
         sch.dendrogram(self.linkage, ax=ax, **kwargs)
 
         return ax
+
+
+class Cluster(sch.ClusterNode):
+    """
+    Clusters are the nodes of the graphs we build.
+    Each cluster is aware of the left and the right cluster
+    it is connecting to.
+    """
+
+    # assets: dict[str, float]
+    # variance: float
+    # left: Cluster = None
+    # right: Cluster = None
+
+    def __init__(self, id, left: Cluster = None, right: Cluster = None):
+        super().__init__(id, left, right)
+        self.__assets = {}
+        self.__variance = None
+
+    # Property for 'variance'
+    @property
+    def variance(self):
+        """Getter for variance."""
+        return self.__variance
+
+    # Setter for 'variance'
+    @variance.setter
+    def variance(self, value):
+        """Setter for variance. It allows setting the value."""
+        # You can add validation or logic here
+        if value < 0:
+            raise ValueError("Variance must be non-negative!")
+        self.__variance = value
+
+    def __getitem__(self, item):
+        return self.__assets[item]
+
+    def __setitem__(self, key, value):
+        self.__assets[key] = value
+
+    @property
+    def weights(self):
+        """weight series"""
+        return pd.Series(self.__assets, name="Weights").sort_index()
