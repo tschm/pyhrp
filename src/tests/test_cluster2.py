@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import numpy as np
+import pandas as pd
 import pytest
 
 from pyhrp.hrp import Cluster
@@ -40,9 +42,32 @@ def test_left_right():
     assert c.left
     assert c.right
 
-    # assert c.assets == {"A": 0.1, "B": 0.4, "C": 0.1, "D": 0.25, "F": 0.15}
-    # assert c.variance == 2.5
     assert c.right.variance == 3.0
     assert c.left.variance == 2.0
 
-    # pd.testing.assert_series_equal(c.weights, pd.Series(c.assets), check_names=False)
+
+def test_riskparity():
+    left = Cluster(id=1)
+    left["A"] = 1.0
+    left.variance = 4.0
+
+    right = Cluster(id=0)
+    # assets={"A": 1.0}, variance=4)
+    right["B"] = 1.0
+    right.variance = 2.0
+
+    # right = Cluster(assets={"B": 1.0}, variance=2)
+    cov = np.array([[2.0, 1.0], [1.0, 4.0]])
+    cov = pd.DataFrame(data=cov, index=["B", "A"], columns=["B", "A"])
+
+    cl = Cluster(id=3, left=left, right=right)
+
+    cluster = cl.risk_parity(cov=cov)
+
+    np.testing.assert_allclose(cluster.weights, np.array([1.0, 2.0]) / 3.0)
+    np.testing.assert_almost_equal(cluster.variance, 1.7777777777777777)
+    np.testing.assert_almost_equal(
+        cluster.variance,
+        (1.0 / 3.0) ** 2 * 4 + (2.0 / 3.0) ** 2 * 2.0 + 2.0 * (1.0 / 3.0) * (2.0 / 3.0),
+    )
+    np.testing.assert_almost_equal(cluster.variance, (4.0 / 9.0) + (8.0 / 9.0) + (4.0 / 9.0))

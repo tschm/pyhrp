@@ -11,6 +11,21 @@ import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
 
+def hrp(prices, node=None, method="ward", bisection=False) -> Cluster:
+    """
+    Computes the root node for the hierarchical risk parity portfolio
+    :param node: Optional. This is the rootnode of the graph describing the dendrogram
+    :param method: Optional. Which method to use for the dendrogram
+    :param bisection: Optional. Whether to use bisection method
+    :return: the root cluster of the risk parity portfolio
+    """
+    returns = prices.pct_change().dropna(axis=0, how="all")
+    cov, cor = returns.cov(), returns.corr()
+    node = node or Dendrogram.build(cor.values, method=method, bisection=bisection).root
+
+    return node.risk_parity(cov)
+
+
 class Dendrogram(NamedTuple):
     root: Cluster
     linkage: np.ndarray
@@ -90,7 +105,8 @@ class Dendrogram(NamedTuple):
                 # Reconstruct the tree using the bisection method
                 root = _bisection(ids=leaf_ids)
 
-            return Cluster(id=root.id, left=root.left, right=root.right)
+            return root
+            # return Cluster(id=root.id, left=root.left, right=root.right)
 
         def _node_to_linkage(n):
             """
@@ -129,9 +145,40 @@ class Dendrogram(NamedTuple):
 
             return M
 
+        def convert_to_nodes(cluster_node):
+            """
+            Recursively converts a ClusterNode tree to a tree of Nodes.
+
+            Args:
+            - cluster_node: The root of the ClusterNode tree.
+
+            Returns:
+            - Node: A tree of Node instances with the same structure as the input ClusterNode tree.
+            """
+            # Base case: if the cluster_node is a leaf node (id is not None)
+            # if cluster_node is not None:
+            #    return Cluster(id=cluster_node.id, distance=cluster_node.distance, count=cluster_node.count)
+
+            # Recursive case: convert the left and right branches (subtrees)
+            if cluster_node.left is not None:
+                left_node = convert_to_nodes(cluster_node.left)
+
+                # if cluster_node.right is not None:
+                right_node = convert_to_nodes(cluster_node.right)
+
+                # Create a new Node instance for the current cluster_node and assign the converted left and right nodes
+                return Cluster(left=left_node, right=right_node, id=cluster_node.id, count=cluster_node.count)
+
+            return Cluster(id=cluster_node.id, count=cluster_node.count)
+
         distance = _dist()
         links = sch.linkage(distance, method=method)
         root = _tree()
+
+        # convert all nodes into Cluster
+        root = convert_to_nodes(root)
+
+        assert isinstance(root, Cluster), f"Root {type(root)}"
 
         if bisection:
             links = _node_to_linkage(n=cor.shape[0])
@@ -154,13 +201,9 @@ class Cluster(sch.ClusterNode):
     it is connecting to.
     """
 
-    # assets: dict[str, float]
-    # variance: float
-    # left: Cluster = None
-    # right: Cluster = None
+    def __init__(self, id, left: Cluster = None, right: Cluster = None, **kwargs):
+        super().__init__(id, left, right, **kwargs)
 
-    def __init__(self, id, left: Cluster = None, right: Cluster = None):
-        super().__init__(id, left, right)
         self.__assets = {}
         self.__variance = None
 
@@ -189,3 +232,64 @@ class Cluster(sch.ClusterNode):
     def weights(self):
         """weight series"""
         return pd.Series(self.__assets, name="Weights").sort_index()
+
+    def risk_parity(self, cov) -> Cluster:
+        """compute a cluster"""
+        if self.is_leaf():
+            # a node is a leaf if has no further relatives downstream.
+            # no leaves, no branches, ...
+            asset = cov.keys().to_list()[self.id]
+            self[asset] = 1.0
+            self.variance = cov[asset][asset]
+            return self
+
+        # drill down on the left
+        self.left = self.left.risk_parity(cov)
+        # drill down on the right
+        self.right = self.right.risk_parity(cov)
+
+        # combine left and right into a new cluster
+        return self._parity(cov=cov)
+
+    def _parity(self, cov) -> Cluster:
+        """
+        Given two clusters compute in a bottom-up approach their parent.
+
+        :param cluster: left cluster
+        :param cov: covariance matrix. Will pick the correct sub-matrix
+
+        """
+
+        # combine two clusters
+
+        def parity(v_left, v_right):
+            """
+            Compute the weights for a risk parity portfolio of two assets
+            :param v_left: Variance of the "left" portfolio
+            :param v_right: Variance of the "right" portfolio
+            :return: w, 1-w the weights for the left and the right portfolio.
+                     It is w*v_left == (1-w)*v_right hence w = v_right / (v_right + v_left)
+            """
+            return v_right / (v_left + v_right), v_left / (v_left + v_right)
+
+        # split is s.t. v_left * alpha_left == v_right * alpha_right and alpha + beta = 1
+        alpha_left, alpha_right = parity(self.left.variance, self.right.variance)
+
+        # assets in the cluster are the assets of the left and right cluster
+        # further downstream
+        assets = {
+            **(alpha_left * self.left.weights).to_dict(),
+            **(alpha_right * self.right.weights).to_dict(),
+        }
+
+        weights = np.array(list(assets.values()))
+
+        covariance = cov[assets.keys()].loc[assets.keys()]
+
+        var = np.linalg.multi_dot((weights, covariance, weights))
+
+        self.variance = var
+        for asset, weight in assets.items():
+            self[asset] = weight
+
+        return self
