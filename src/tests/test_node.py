@@ -1,9 +1,9 @@
-from scipy.cluster.hierarchy import ClusterNode as Node
+from pyhrp.cluster import Cluster
 
 
 def test_node():
-    left = Node(id=0)
-    right = Node(id=1)
+    left = Cluster(id=0)
+    right = Cluster(id=1)
 
     assert left.id == 0
     assert right.id == 1
@@ -16,7 +16,7 @@ def test_node():
     assert left.is_leaf()
     assert right.is_leaf()
 
-    node = Node(id=5, left=left, right=right)
+    node = Cluster(id=5, left=left, right=right)
 
     assert node.id == 5
     assert node.left.id == 0
