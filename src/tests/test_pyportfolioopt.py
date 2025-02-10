@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from pypfopt import HRPOpt
 
-from pyhrp.cluster import hrp
+from pyhrp.hrp import hrp
 
 
 def test_allocation(prices):
