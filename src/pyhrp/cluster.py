@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Literal
+
 import numpy as np
 import pandas as pd
 import scipy.cluster.hierarchy as sch
@@ -62,6 +64,16 @@ class Cluster(sch.ClusterNode):
         # combine left and right into a new cluster
         return self._parity(cov=cov)
 
+    @property
+    def leaves(self):
+        """
+        Give a set of all reachable leaf nodes.
+        """
+        if self.is_leaf():
+            return {self.id}
+        else:
+            return set(self.left.leaves).union(self.right.leaves)
+
     def _parity(self, cov) -> Cluster:
         """
         Given two clusters compute in a bottom-up approach their parent.
@@ -104,3 +116,43 @@ class Cluster(sch.ClusterNode):
             self[asset] = weight
 
         return self
+
+    def distance(
+        self,
+        distance_matrix: np.ndarray,
+        other: Cluster,
+        method: Literal["single", "complete", "average", "ward"] = "single",
+    ) -> float:
+        """
+        Calculate distance between two clusters using specified linkage method.
+
+        Parameters:
+            distance_matrix: The full distance matrix between all points
+            other: Another cluster to calculate distance to
+            method: Linkage method to use for distance calculation
+                   - "single": minimum distance between points (nearest neighbor)
+                   - "complete": maximum distance between points (furthest neighbor)
+                   - "average": average distance between all points
+                   - "ward": Ward variance minimization
+
+        Returns:
+            float: Distance between the clusters
+        """
+        # Extract submatrix of distances between leaves of both clusters
+        a = np.array([x for x in self.leaves])
+        b = np.array([x for x in other.leaves])
+
+        d = distance_matrix[np.ix_(a, b)]
+
+        if method == "single":
+            return np.min(d)
+        elif method == "complete":
+            return np.max(d)
+        elif method == "average":
+            return np.mean(d)
+        elif method == "ward":
+            # Ward's method based on variance minimization
+            n1, n2 = len(self.leaves), len(other.leaves)
+            return np.sqrt(((n1 * n2) / (n1 + n2)) * np.sum(d * d) / (n1 * n2))
+        else:
+            raise ValueError(f"Unknown linkage method: {method}")

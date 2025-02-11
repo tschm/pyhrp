@@ -45,6 +45,8 @@ def test_left_right():
     assert c.right.variance == 3.0
     assert c.left.variance == 2.0
 
+    assert c.leaves == {1, 2}
+
 
 def test_riskparity():
     left = Cluster(id=1)
@@ -71,3 +73,15 @@ def test_riskparity():
         (1.0 / 3.0) ** 2 * 4 + (2.0 / 3.0) ** 2 * 2.0 + 2.0 * (1.0 / 3.0) * (2.0 / 3.0),
     )
     np.testing.assert_almost_equal(cluster.variance, (4.0 / 9.0) + (8.0 / 9.0) + (4.0 / 9.0))
+
+
+def test_distance(distance):
+    # cor = returns.corr().values
+    # distance = np.sqrt(np.clip((1.0 - cor) / 2.0, a_min=0.0, a_max=1.0))
+    # np.fill_diagonal(distance, val=0.0)
+
+    left = Cluster(id=0)
+    right = Cluster(id=10)
+
+    x = left.distance(distance_matrix=distance, other=right, method="average")
+    assert x == pytest.approx(0.6377218246354981)
