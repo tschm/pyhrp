@@ -37,21 +37,30 @@ def _(returns):
 @app.cell
 def _(cor):
     # The implementation by Marcos Lopez de Prado is based on the 'single' metric
-    from pyhrp.hrp import Dendrogram
+    from pyhrp.hrp import build_tree
 
-    dendrogram_before = Dendrogram.build(cor, method="single")
+    dendrogram_before = build_tree(cor, method="single")
     dendrogram_before.plot()
-    return Dendrogram, dendrogram_before
+    return build_tree, dendrogram_before
 
 
 @app.cell
-def _(Dendrogram, cor):
+def _(build_tree, cor):
     # The dendrogram suffers because of the 'chaining' effect. LdP is using
     # now only the order of the leaves (e.g. the assets) and
     # constructs a second Dendrogram.
-    dendrogram_bisection = Dendrogram.build(cor, method="single", bisection=True)
+    dendrogram_bisection = build_tree(cor, method="single", bisection=True)
     dendrogram_bisection.plot()
-    return
+    return (dendrogram_bisection,)
+
+
+@app.cell
+def _(cov, dendrogram_bisection):
+    from pyhrp.algos import risk_parity
+    # root = dendrogram_bisection.root
+
+    root = risk_parity(dendrogram_bisection.root, cov)
+    return (root,)
 
 
 @app.cell
