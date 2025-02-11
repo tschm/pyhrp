@@ -85,10 +85,10 @@ class Dendrogram(NamedTuple):
                 # Split the IDs into left and right halves
                 left, right = split(ids)
 
-                nnn += 1
+                # nnn += 1
                 # Recursively construct the left and right subtrees
                 left_node = _bisection(ids=left)
-                nnn += 1
+                # nnn += 1
                 right_node = _bisection(ids=right)
 
                 nnn += 1
@@ -100,7 +100,7 @@ class Dendrogram(NamedTuple):
 
             # Apply the bisection method if requested
             if bisection:
-                nnn = len(root.pre_order())
+                nnn = len(root.pre_order()) - 1
                 # Get the leaf IDs in pre-order traversal order
                 leaf_ids = root.pre_order()
                 # Reconstruct the tree using the bisection method
@@ -109,41 +109,32 @@ class Dendrogram(NamedTuple):
             return root
             # return Cluster(id=root.id, left=root.left, right=root.right)
 
-        def _node_to_linkage(n):
+        def _node_to_linkage(root: Cluster, distance_matrix: np.ndarray) -> np.ndarray:
             """
             Convert a hierarchical clustering tree (root node) back into a linkage matrix.
+            Needed to plot the dendrogram
 
             Parameters:
             root: The root node of the hierarchical clustering tree.
-            n: The number of original data points.
 
             Returns:
-            linkage_matrix: A (n-1) x 4 numpy array representing the linkage matrix.
+            linkage_matrix: A n x 4 numpy array representing the linkage matrix.
             """
             linkage_matrix = []
-            current_id = n  # Start assigning IDs for merged clusters from n
 
             def _traverse(node):
-                nonlocal current_id
-                if node.is_leaf():
-                    return node.id  # Return the leaf node's ID
+                if node.left is not None:
+                    # Recursively traverse the left and right children
+                    _traverse(node.left)
+                    _traverse(node.right)
 
-                # Recursively traverse the left and right children
-                left_id = _traverse(node.left)
-                right_id = _traverse(node.right)
-
-                # Record the merge step
-                linkage_matrix.append([left_id, right_id, float(node.count), node.count])
-
-                # Assign a new ID to the merged cluster
-                merged_id = current_id
-                current_id += 1
-                return merged_id
+                    # Record the merge step
+                    linkage_matrix.append([node.left.id, node.right.id, float(node.count), node.count])
 
             # Start the traversal
             _traverse(root)
             M = np.array(linkage_matrix)
-
+            # print(M)
             return M
 
         def convert_to_nodes(cluster_node):
@@ -182,7 +173,7 @@ class Dendrogram(NamedTuple):
         assert isinstance(root, Cluster), f"Root {type(root)}"
 
         if bisection:
-            links = _node_to_linkage(n=cor.shape[0])
+            links = _node_to_linkage(root=root, distance_matrix=distance)
 
         return Dendrogram(root=root, linkage=links, distance=distance, bisection=bisection, method=method)
 
