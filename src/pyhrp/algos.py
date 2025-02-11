@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from pyhrp.cluster import Cluster
+from .cluster import Cluster
 
 
 def risk_parity(root: Cluster, cov: pd.DataFrame) -> Cluster:
