@@ -24,6 +24,9 @@ def test_left_right():
     left["B"] = 0.8
     left.variance = 2.0
 
+    assert left["A"] == 0.2
+    assert left["B"] == 0.8
+
     right = Cluster(id=2)
     right["C"] = 0.2
     right["D"] = 0.5
