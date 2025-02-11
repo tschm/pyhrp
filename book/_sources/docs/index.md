@@ -16,7 +16,8 @@ Here's a simple example
 
 ```python
 import pandas as pd
-from pyhrp.hrp import Dendrogram
+from pyhrp.hrp import build_tree
+from pyhrp.algos import risk_parity
 
 prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
 
@@ -24,9 +25,10 @@ returns = prices.pct_change().dropna(axis=0, how="all")
 cov, cor = returns.cov(), returns.corr()
 
 # Compute the dendrogram based on the correlation matrix and Ward's metric
-dendrogram = Dendrogram.build(cor.values, method='ward')
+dendrogram = build_tree(cor.values, method='ward')
 
-root = dendrogram.root.risk_parity(cov)
+root = dendrogram.root
+risk_parity(root=root, cov=cov)
 
 ax = dendrogram.plot(orientation="left")
 ax.get_figure().savefig("dendrogram.png")
