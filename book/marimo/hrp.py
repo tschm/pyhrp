@@ -50,12 +50,6 @@ def _(Dendrogram, cor):
     # now only the order of the leaves (e.g. the assets) and
     # constructs a second Dendrogram.
     dendrogram_bisection = Dendrogram.build(cor, method="single", bisection=True)
-    dendrogram_bisection.linkage
-    return (dendrogram_bisection,)
-
-
-@app.cell
-def _(dendrogram_bisection):
     dendrogram_bisection.plot()
     return
 
