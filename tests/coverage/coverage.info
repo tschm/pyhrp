@@ -20,7 +20,7 @@ DA:34,1
 DA:35,1
 DA:36,1
 DA:38,1
-DA:39,0
+DA:39,1
 DA:41,1
 DA:42,1
 DA:44,1
@@ -67,7 +67,7 @@ DA:155,1
 DA:156,1
 DA:158,1
 LF:65
-LH:64
+LH:65
 FN:17,21,Cluster.__init__
 FNDA:1,Cluster.__init__
 FN:25,27,Cluster.variance
@@ -75,7 +75,7 @@ FNDA:1,Cluster.variance
 FN:31,36,Cluster.variance
 FNDA:1,Cluster.variance
 FN:38,39,Cluster.__getitem__
-FNDA:0,Cluster.__getitem__
+FNDA:1,Cluster.__getitem__
 FN:41,42,Cluster.__setitem__
 FNDA:1,Cluster.__setitem__
 FN:45,47,Cluster.weights
@@ -91,7 +91,7 @@ FNDA:1,Cluster._parity.parity
 FN:120,158,Cluster.distance
 FNDA:1,Cluster.distance
 FNF:11
-FNH:10
+FNH:11
 end_of_record
 SF:src/pyhrp/hrp.py
 DA:3,1
