@@ -752,10 +752,10 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "matplotlib" },
-    { name = "numpy" },
-    { name = "pandas" },
-    { name = "scipy" },
+    { name = "matplotlib", specifier = ">=3.10.0" },
+    { name = "numpy", specifier = ">=2.2.2" },
+    { name = "pandas", specifier = ">=2.2.3" },
+    { name = "scipy", specifier = ">=1.15.1" },
 ]
 
 [package.metadata.requires-dev]
