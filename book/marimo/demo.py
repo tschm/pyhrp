@@ -27,12 +27,12 @@ def _(__file__):
 @app.cell
 def _(returns):
     # compute the dendrogram
-    from pyhrp.hrp import Dendrogram
+    from pyhrp.hrp import build_tree
 
     cor = returns.corr().values
-    dendrogram = Dendrogram.build(cor, method="ward")
+    dendrogram = build_tree(cor, method="ward")
     dendrogram.plot(labels=returns.columns)
-    return Dendrogram, cor, dendrogram
+    return build_tree, cor, dendrogram
 
 
 @app.cell
