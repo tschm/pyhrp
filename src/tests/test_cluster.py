@@ -76,12 +76,20 @@ def test_riskparity():
 
 
 def test_distance(distance):
-    # cor = returns.corr().values
-    # distance = np.sqrt(np.clip((1.0 - cor) / 2.0, a_min=0.0, a_max=1.0))
-    # np.fill_diagonal(distance, val=0.0)
-
     left = Cluster(id=0)
     right = Cluster(id=10)
 
     x = left.distance(distance_matrix=distance, other=right, method="average")
     assert x == pytest.approx(0.6377218246354981)
+
+    x = left.distance(distance_matrix=distance, other=right, method="single")
+    assert x == pytest.approx(0.6377218246354981)
+
+    x = left.distance(distance_matrix=distance, other=right, method="complete")
+    assert x == pytest.approx(0.6377218246354981)
+
+    x = left.distance(distance_matrix=distance, other=right, method="ward")
+    assert x == pytest.approx(0.450937426710419)
+
+    with pytest.raises(ValueError):
+        left.distance(distance_matrix=distance, other=right, method="dunno")
