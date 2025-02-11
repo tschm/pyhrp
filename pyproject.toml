@@ -6,10 +6,6 @@ authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    #    "numpy",
-    #    "pandas",
-    #    "scipy",
-    #    "matplotlib",
     "matplotlib>=3.10.0",
     "numpy>=2.2.2",
     "pandas>=2.2.3",
