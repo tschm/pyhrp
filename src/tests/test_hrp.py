@@ -26,3 +26,7 @@ def test_plot(returns):
     dendrogram = Dendrogram.build(cor.values, method="single", bisection=True)
 
     dendrogram.plot()
+
+    import matplotlib.pyplot as plt
+
+    plt.show()

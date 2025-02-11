@@ -52,7 +52,8 @@ class Dendrogram(NamedTuple):
             # https://stackoverflow.com/questions/18952587/
             matrix = np.sqrt(np.clip((1.0 - cor) / 2.0, a_min=0.0, a_max=1.0))
             np.fill_diagonal(matrix, val=0.0)
-            return ssd.squareform(matrix)
+            return matrix
+            # return ssd.squareform(matrix)
 
         def _tree() -> Cluster:
             """
@@ -109,7 +110,7 @@ class Dendrogram(NamedTuple):
             return root
             # return Cluster(id=root.id, left=root.left, right=root.right)
 
-        def _node_to_linkage(root: Cluster, distance_matrix: np.ndarray) -> np.ndarray:
+        def _node_to_linkage(root: Cluster) -> np.ndarray:
             """
             Convert a hierarchical clustering tree (root node) back into a linkage matrix.
             Needed to plot the dendrogram
@@ -128,8 +129,11 @@ class Dendrogram(NamedTuple):
                     _traverse(node.left)
                     _traverse(node.right)
 
+                    # dist = node.left.distance(other=node.right, distance_matrix=distance_matrix)
+                    dist = float(node.count)
+
                     # Record the merge step
-                    linkage_matrix.append([node.left.id, node.right.id, float(node.count), node.count])
+                    linkage_matrix.append([node.left.id, node.right.id, dist, node.count])
 
             # Start the traversal
             _traverse(root)
@@ -164,7 +168,7 @@ class Dendrogram(NamedTuple):
             return Cluster(id=cluster_node.id, count=cluster_node.count)
 
         distance = _dist()
-        links = sch.linkage(distance, method=method)
+        links = sch.linkage(ssd.squareform(distance), method=method)
         root = _tree()
 
         # convert all nodes into Cluster
@@ -173,7 +177,7 @@ class Dendrogram(NamedTuple):
         assert isinstance(root, Cluster), f"Root {type(root)}"
 
         if bisection:
-            links = _node_to_linkage(root=root, distance_matrix=distance)
+            links = _node_to_linkage(root=root)
 
         return Dendrogram(root=root, linkage=links, distance=distance, bisection=bisection, method=method)
 
