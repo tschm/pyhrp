@@ -24,4 +24,9 @@ def test_plot(returns):
 
     # you can either use a pre-computed node or you can construct a new dendrogram
     dendrogram = Dendrogram.build(cor.values, method="single", bisection=True)
+
     dendrogram.plot()
+
+    import matplotlib.pyplot as plt
+
+    plt.show()

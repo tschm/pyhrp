@@ -24,6 +24,9 @@ def test_left_right():
     left["B"] = 0.8
     left.variance = 2.0
 
+    assert left["A"] == 0.2
+    assert left["B"] == 0.8
+
     right = Cluster(id=2)
     right["C"] = 0.2
     right["D"] = 0.5
@@ -44,6 +47,8 @@ def test_left_right():
 
     assert c.right.variance == 3.0
     assert c.left.variance == 2.0
+
+    assert c.leaves == {1, 2}
 
 
 def test_riskparity():
@@ -71,3 +76,23 @@ def test_riskparity():
         (1.0 / 3.0) ** 2 * 4 + (2.0 / 3.0) ** 2 * 2.0 + 2.0 * (1.0 / 3.0) * (2.0 / 3.0),
     )
     np.testing.assert_almost_equal(cluster.variance, (4.0 / 9.0) + (8.0 / 9.0) + (4.0 / 9.0))
+
+
+def test_distance(distance):
+    left = Cluster(id=0)
+    right = Cluster(id=10)
+
+    x = left.distance(distance_matrix=distance, other=right, method="average")
+    assert x == pytest.approx(0.6377218246354981)
+
+    x = left.distance(distance_matrix=distance, other=right, method="single")
+    assert x == pytest.approx(0.6377218246354981)
+
+    x = left.distance(distance_matrix=distance, other=right, method="complete")
+    assert x == pytest.approx(0.6377218246354981)
+
+    x = left.distance(distance_matrix=distance, other=right, method="ward")
+    assert x == pytest.approx(0.450937426710419)
+
+    with pytest.raises(ValueError):
+        left.distance(distance_matrix=distance, other=right, method="dunno")
