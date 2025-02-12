@@ -11,9 +11,6 @@ class Portfolio:
     _variance: float = None
     _weights: dict[int, float] = field(default_factory=dict)
 
-    # def __post_init__(self):
-    #    if self.variance < 0:
-    #        raise ValueError("Variance cannot be negative.")
     @property
     def variance(self):
         return self._variance
@@ -47,9 +44,6 @@ class Cluster(Node):
         super().__init__(value=id, left=left, right=right, **kwargs)
         self.portfolio = Portfolio()
 
-        # self.__assets = {}
-        # self.__variance = None
-
     @property
     def id(self):
         return self.value
@@ -57,17 +51,6 @@ class Cluster(Node):
     @property
     def is_leaf(self):
         return self.left is None and self.right is None
-
-    # def __getitem__(self, item):
-    #     return self.__assets[item]
-    #
-    # def __setitem__(self, key, value):
-    #     self.__assets[key] = value
-
-    # @property
-    # def weights(self):
-    #     """weight series"""
-    #     return pd.Series(self.__assets, name="Weights").sort_index()
 
     @property
     def leaves(self):
