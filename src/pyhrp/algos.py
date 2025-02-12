@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Any
+
 import numpy as np
 import pandas as pd
 
@@ -11,7 +13,7 @@ def risk_parity(root: Cluster, cov: pd.DataFrame) -> Cluster:
     if root.is_leaf:
         # a node is a leaf if has no further relatives downstream.
         # no leaves, no branches, ...
-        asset = cov.keys().to_list()[root.id]
+        asset = cov.keys().to_list()[root.value]
         root.portfolio[asset] = 1.0
         root.portfolio.variance = cov[asset][asset]
         return root
@@ -67,3 +69,18 @@ def _parity(cluster, cov) -> Cluster:
         cluster.portfolio[asset] = weight
 
     return cluster
+
+
+def one_over_n(root: Cluster) -> dict[int, Any] | None:
+    # print(root.levels)
+    w = 1
+    portfolios = {}
+    for n, level in enumerate(root.levels):
+        for node in level:
+            for leaf in node.leaves:
+                root.portfolio[leaf.value] = w / node.leaf_count
+
+        portfolios[n] = root.portfolio.copy()
+        w *= 0.5
+
+    return portfolios
