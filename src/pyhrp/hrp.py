@@ -83,8 +83,8 @@ def build_tree(
         if node.left is not None:
             left = to_cluster(node.left)
             right = to_cluster(node.right)
-            return Cluster(id=node.id, left=left, right=right)
-        return Cluster(id=node.id)
+            return Cluster(value=node.id, left=left, right=right)
+        return Cluster(value=node.id)
 
     root = to_cluster(sch.to_tree(links, rd=False))
 
@@ -96,7 +96,7 @@ def build_tree(
             nonlocal nnn
 
             if len(ids) == 1:
-                return Cluster(id=ids[0])
+                return Cluster(value=ids[0])
 
             mid = len(ids) // 2
             left_ids, right_ids = ids[:mid], ids[mid:]
@@ -105,10 +105,10 @@ def build_tree(
             right = bisect_tree(right_ids)
 
             nnn += 1
-            return Cluster(id=nnn, left=left, right=right)
+            return Cluster(value=nnn, left=left, right=right)
 
         # Rebuild tree using bisection
-        leaf_ids = [node.id for node in root.leaves]
+        leaf_ids = [node.value for node in root.leaves]
         nnn = max(leaf_ids)
         root = bisect_tree(leaf_ids)
 
@@ -119,7 +119,7 @@ def build_tree(
             if node.left is not None:
                 get_linkage(node.left)
                 get_linkage(node.right)
-                links.append([node.left.id, node.right.id, float(node.size), node.size])
+                links.append([node.left.value, node.right.value, float(node.size), node.size])
 
         get_linkage(root)
         links = np.array(links)

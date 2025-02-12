@@ -5,7 +5,7 @@ from pyhrp.hrp import build_tree
 
 def test_linkage(returns, resource_dir):
     dendrogram = build_tree(cor=returns.corr().values, method="single", bisection=False)
-    ids = [node.id for node in dendrogram.root.leaves]
+    ids = [node.value for node in dendrogram.root.leaves]
 
     assert ids == [11, 7, 19, 6, 14, 5, 10, 13, 3, 1, 4, 16, 0, 2, 17, 9, 8, 18, 12, 15]
 
@@ -14,7 +14,7 @@ def test_linkage(returns, resource_dir):
 
 def test_bisection(returns, resource_dir):
     dendrogram = build_tree(cor=returns.corr().values, method="single", bisection=True)
-    ids = [node.id for node in dendrogram.root.leaves]
+    ids = [node.value for node in dendrogram.root.leaves]
     # The order doesn't change when using bisection
     assert ids == [11, 7, 19, 6, 14, 5, 10, 13, 3, 1, 4, 16, 0, 2, 17, 9, 8, 18, 12, 15]
 

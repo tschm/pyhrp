@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import copy
 from dataclasses import dataclass, field
 
 import pandas as pd
@@ -32,6 +33,12 @@ class Portfolio:
         """weight series"""
         return pd.Series(self._weights, name="Weights").sort_index()
 
+    def copy(self):
+        variance = self.variance
+        weights = copy(self._weights)
+
+        return Portfolio(variance, weights)
+
 
 class Cluster(Node):
     """
@@ -40,13 +47,9 @@ class Cluster(Node):
     it is connecting to.
     """
 
-    def __init__(self, id, left: Cluster | None = None, right: Cluster | None = None, **kwargs):
-        super().__init__(value=id, left=left, right=right, **kwargs)
+    def __init__(self, value, left: Cluster | None = None, right: Cluster | None = None, **kwargs):
+        super().__init__(value=value, left=left, right=right, **kwargs)
         self.portfolio = Portfolio()
-
-    @property
-    def id(self):
-        return self.value
 
     @property
     def is_leaf(self):

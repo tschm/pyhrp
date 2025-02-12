@@ -9,33 +9,33 @@ from pyhrp.cluster import Cluster
 
 
 def test_cluster_simple():
-    c = Cluster(id=2)
+    c = Cluster(value=2)
     assert c.is_leaf
 
 
 def test_negative_variance():
     with pytest.raises(ValueError):
-        c = Cluster(id=1)
+        c = Cluster(value=1)
         c.portfolio.variance = -1
 
 
 def test_left_right():
-    left = Cluster(id=1)
+    left = Cluster(value=1)
     left.portfolio["A"] = 0.2
     left.portfolio["B"] = 0.8
-    left.variance = 2.0
+    left.portfolio.variance = 2.0
 
     assert left.portfolio["A"] == 0.2
     assert left.portfolio["B"] == 0.8
 
-    right = Cluster(id=2)
+    right = Cluster(value=2)
     right.portfolio["C"] = 0.2
     right.portfolio["D"] = 0.5
     right.portfolio["F"] = 0.3
-    right.variance = 3.0
+    right.portfolio.variance = 3.0
 
     c = Cluster(
-        id=3,
+        value=3,
         left=left,
         right=right,
     )
@@ -46,24 +46,18 @@ def test_left_right():
     assert c.left
     assert c.right
 
-    assert c.right.variance == 3.0
-    assert c.left.variance == 2.0
+    assert c.right.portfolio.variance == 3.0
+    assert c.left.portfolio.variance == 2.0
 
     assert c.leaves == [left, right]
 
-    # assert not left.__eq__(right)
-    # assert left.__ne__(right)
-
-    # assert not left.__eq__(right)
-    # assert not left.__eq__("Peter Maffay")
-
 
 def test_riskparity():
-    left = Cluster(id=1)
+    left = Cluster(value=1)
     left.portfolio["A"] = 1.0
     left.portfolio.variance = 4.0
 
-    right = Cluster(id=0)
+    right = Cluster(value=0)
     # assets={"A": 1.0}, variance=4)
     right.portfolio["B"] = 1.0
     right.portfolio.variance = 2.0
@@ -72,7 +66,7 @@ def test_riskparity():
     cov = np.array([[2.0, 1.0], [1.0, 4.0]])
     cov = pd.DataFrame(data=cov, index=["B", "A"], columns=["B", "A"])
 
-    cl = Cluster(id=3, left=left, right=right)
+    cl = Cluster(value=3, left=left, right=right)
 
     cluster = risk_parity(cl, cov=cov)
 

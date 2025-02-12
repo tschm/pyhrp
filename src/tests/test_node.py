@@ -2,11 +2,11 @@ from pyhrp.cluster import Cluster
 
 
 def test_node():
-    left = Cluster(id=0)
-    right = Cluster(id=1)
+    left = Cluster(value=0)
+    right = Cluster(value=1)
 
-    assert left.id == 0
-    assert right.id == 1
+    assert left.value == 0
+    assert right.value == 1
     assert left.size == 1
     assert right.size == 1
 
@@ -16,11 +16,11 @@ def test_node():
     assert left.is_leaf
     assert right.is_leaf
 
-    node = Cluster(id=5, left=left, right=right)
+    node = Cluster(value=5, left=left, right=right)
 
-    assert node.id == 5
-    assert node.left.id == 0
-    assert node.right.id == 1
+    assert node.value == 5
+    assert node.left.value == 0
+    assert node.right.value == 1
     assert node.size == 3
     assert node.preorder == [node, left, right]
 
