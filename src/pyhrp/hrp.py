@@ -83,8 +83,8 @@ def build_tree(
         if node.left is not None:
             left = to_cluster(node.left)
             right = to_cluster(node.right)
-            return Cluster(id=node.id, left=left, right=right, count=node.count)
-        return Cluster(id=node.id, count=node.count)
+            return Cluster(id=node.id, left=left, right=right)
+        return Cluster(id=node.id)
 
     root = to_cluster(sch.to_tree(links, rd=False))
 
@@ -105,10 +105,10 @@ def build_tree(
             right = bisect_tree(right_ids)
 
             nnn += 1
-            return Cluster(id=nnn, left=left, right=right, count=len(ids))
+            return Cluster(id=nnn, left=left, right=right)
 
         # Rebuild tree using bisection
-        leaf_ids = root.pre_order()
+        leaf_ids = [node.id for node in root.leaves]
         nnn = max(leaf_ids)
         root = bisect_tree(leaf_ids)
 
@@ -119,7 +119,7 @@ def build_tree(
             if node.left is not None:
                 get_linkage(node.left)
                 get_linkage(node.right)
-                links.append([node.left.id, node.right.id, float(node.count), node.count])
+                links.append([node.left.id, node.right.id, float(node.size), node.size])
 
         get_linkage(root)
         links = np.array(links)

@@ -8,7 +8,7 @@ from .cluster import Cluster
 
 def risk_parity(root: Cluster, cov: pd.DataFrame) -> Cluster:
     """compute a cluster"""
-    if root.is_leaf():
+    if root.is_leaf:
         # a node is a leaf if has no further relatives downstream.
         # no leaves, no branches, ...
         asset = cov.keys().to_list()[root.id]

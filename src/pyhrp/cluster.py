@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import pandas as pd
-import scipy.cluster.hierarchy as sch
+from binarytree import Node
 
 
-class Cluster(sch.ClusterNode):
+class Cluster(Node):
     """
     Clusters are the nodes of the graphs we build.
     Each cluster is aware of the left and the right cluster
@@ -12,19 +12,27 @@ class Cluster(sch.ClusterNode):
     """
 
     def __init__(self, id, left: Cluster | None = None, right: Cluster | None = None, **kwargs):
-        super().__init__(id, left, right, **kwargs)
+        super().__init__(value=id, left=left, right=right, **kwargs)
 
         self.__assets = {}
         self.__variance = None
 
-    def __hash__(self):
-        return hash(self.id)  # Use an attribute of the object to generate the hash
+    @property
+    def id(self):
+        return self.value
 
-    def __eq__(self, other: object) -> bool:
-        """Equality based on cluster ID"""
-        if not isinstance(other, Cluster):
-            return False
-        return self.id == other.id
+    @property
+    def is_leaf(self):
+        return self.left is None and self.right is None
+
+    # def __hash__(self):
+    #    return hash(self.id)  # Use an attribute of the object to generate the hash
+
+    # def __eq__(self, other: object) -> bool:
+    #    """Equality based on cluster ID"""
+    #    if not isinstance(other, Cluster):
+    #        return False
+    #    return self.id == other.id
 
     # Property for 'variance'
     @property
@@ -57,7 +65,7 @@ class Cluster(sch.ClusterNode):
         """
         Give a set of all reachable leaf nodes.
         """
-        if self.is_leaf():
-            return {self}
+        if self.is_leaf:
+            return [self]
         else:
-            return set(self.left.leaves).union(self.right.leaves)
+            return self.left.leaves + self.right.leaves
