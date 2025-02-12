@@ -14,6 +14,6 @@ def test_allocation(prices):
     ww = pd.Series(weights)
 
     cluster = hrp(prices=prices, method="single", bisection=True)
-    print(cluster.weights)
+    print(cluster.portfolio.weights)
 
-    assert np.linalg.norm(ww - cluster.weights) < 0.006
+    assert np.linalg.norm(ww - cluster.portfolio.weights) < 0.006

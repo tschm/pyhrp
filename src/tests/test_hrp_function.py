@@ -15,7 +15,7 @@ def test_hrp(prices, resource_dir):
 
     x.index.name = None
 
-    pd.testing.assert_series_equal(x, cluster.weights, check_exact=False)
+    pd.testing.assert_series_equal(x, cluster.portfolio.weights, check_exact=False)
 
 
 def test_marcos(resource_dir, prices):
@@ -28,4 +28,4 @@ def test_marcos(resource_dir, prices):
 
     x.index.name = None
 
-    pd.testing.assert_series_equal(x, cluster.weights, check_exact=False)
+    pd.testing.assert_series_equal(x, cluster.portfolio.weights, check_exact=False)
