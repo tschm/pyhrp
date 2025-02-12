@@ -415,8 +415,8 @@ correlation matrix, the links and the node, e.g. the root of the tree (dendrogra
 </div>
 <p>You may expect a weight series here but instead the <code class="docutils literal notranslate"><span class="pre">hrp</span></code> function returns a
 <code class="docutils literal notranslate"><span class="pre">Cluster</span></code> object. The <code class="docutils literal notranslate"><span class="pre">Cluster</span></code> simplifies all further post-analysis.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">variance</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">weights</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">variance</span><span class="p">)</span>
 <span class="c1"># You can drill into the graph by going downstream</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">left</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>

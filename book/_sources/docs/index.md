@@ -49,8 +49,8 @@ You may expect a weight series here but instead the `hrp` function returns a
 `Cluster` object. The `Cluster` simplifies all further post-analysis.
 
 ```python
-print(cluster.weights)
-print(cluster.variance)
+print(cluster.portfolio.weights)
+print(cluster.portfolio.variance)
 # You can drill into the graph by going downstream
 print(cluster.left)
 print(cluster.right)
