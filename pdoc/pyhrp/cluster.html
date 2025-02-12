@@ -43,6 +43,9 @@
                                 <a class="variable" href="#Cluster.weights">weights</a>
                         </li>
                         <li>
+                                <a class="variable" href="#Cluster.total_weight">total_weight</a>
+                        </li>
+                        <li>
                                 <a class="variable" href="#Cluster.leaves">leaves</a>
                         </li>
                 </ul>
@@ -124,14 +127,18 @@
 </span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__assets</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Weights&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
 </span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>
 </span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>    <span class="nd">@property</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="sd">        Give a set of all reachable leaf nodes.</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>            <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="p">}</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>            <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">total_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>    <span class="nd">@property</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a><span class="sd">        Give a set of all reachable leaf nodes.</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>            <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="p">}</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>            <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -196,14 +203,18 @@
 </span><span id="Cluster-54"><a href="#Cluster-54"><span class="linenos">54</span></a>        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__assets</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Weights&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
 </span><span id="Cluster-55"><a href="#Cluster-55"><span class="linenos">55</span></a>
 </span><span id="Cluster-56"><a href="#Cluster-56"><span class="linenos">56</span></a>    <span class="nd">@property</span>
-</span><span id="Cluster-57"><a href="#Cluster-57"><span class="linenos">57</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Cluster-58"><a href="#Cluster-58"><span class="linenos">58</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="Cluster-59"><a href="#Cluster-59"><span class="linenos">59</span></a><span class="sd">        Give a set of all reachable leaf nodes.</span>
-</span><span id="Cluster-60"><a href="#Cluster-60"><span class="linenos">60</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Cluster-61"><a href="#Cluster-61"><span class="linenos">61</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
-</span><span id="Cluster-62"><a href="#Cluster-62"><span class="linenos">62</span></a>            <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="p">}</span>
-</span><span id="Cluster-63"><a href="#Cluster-63"><span class="linenos">63</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="Cluster-64"><a href="#Cluster-64"><span class="linenos">64</span></a>            <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span>
+</span><span id="Cluster-57"><a href="#Cluster-57"><span class="linenos">57</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">total_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Cluster-58"><a href="#Cluster-58"><span class="linenos">58</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</span><span id="Cluster-59"><a href="#Cluster-59"><span class="linenos">59</span></a>
+</span><span id="Cluster-60"><a href="#Cluster-60"><span class="linenos">60</span></a>    <span class="nd">@property</span>
+</span><span id="Cluster-61"><a href="#Cluster-61"><span class="linenos">61</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Cluster-62"><a href="#Cluster-62"><span class="linenos">62</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Cluster-63"><a href="#Cluster-63"><span class="linenos">63</span></a><span class="sd">        Give a set of all reachable leaf nodes.</span>
+</span><span id="Cluster-64"><a href="#Cluster-64"><span class="linenos">64</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Cluster-65"><a href="#Cluster-65"><span class="linenos">65</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
+</span><span id="Cluster-66"><a href="#Cluster-66"><span class="linenos">66</span></a>            <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="p">}</span>
+</span><span id="Cluster-67"><a href="#Cluster-67"><span class="linenos">67</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="Cluster-68"><a href="#Cluster-68"><span class="linenos">68</span></a>            <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -276,6 +287,24 @@ it is connecting to.</p>
 
 
                             </div>
+                            <div id="Cluster.total_weight" class="classattr">
+                                        <input id="Cluster.total_weight-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr variable">
+            <span class="name">total_weight</span>
+
+                <label class="view-source-button" for="Cluster.total_weight-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Cluster.total_weight"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster.total_weight-56"><a href="#Cluster.total_weight-56"><span class="linenos">56</span></a>    <span class="nd">@property</span>
+</span><span id="Cluster.total_weight-57"><a href="#Cluster.total_weight-57"><span class="linenos">57</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">total_weight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Cluster.total_weight-58"><a href="#Cluster.total_weight-58"><span class="linenos">58</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</span></pre></div>
+
+
+    
+
+                            </div>
                             <div id="Cluster.leaves" class="classattr">
                                         <input id="Cluster.leaves-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr variable">
@@ -285,15 +314,15 @@ it is connecting to.</p>
 
     </div>
     <a class="headerlink" href="#Cluster.leaves"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster.leaves-56"><a href="#Cluster.leaves-56"><span class="linenos">56</span></a>    <span class="nd">@property</span>
-</span><span id="Cluster.leaves-57"><a href="#Cluster.leaves-57"><span class="linenos">57</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Cluster.leaves-58"><a href="#Cluster.leaves-58"><span class="linenos">58</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="Cluster.leaves-59"><a href="#Cluster.leaves-59"><span class="linenos">59</span></a><span class="sd">        Give a set of all reachable leaf nodes.</span>
-</span><span id="Cluster.leaves-60"><a href="#Cluster.leaves-60"><span class="linenos">60</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Cluster.leaves-61"><a href="#Cluster.leaves-61"><span class="linenos">61</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
-</span><span id="Cluster.leaves-62"><a href="#Cluster.leaves-62"><span class="linenos">62</span></a>            <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="p">}</span>
-</span><span id="Cluster.leaves-63"><a href="#Cluster.leaves-63"><span class="linenos">63</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="Cluster.leaves-64"><a href="#Cluster.leaves-64"><span class="linenos">64</span></a>            <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster.leaves-60"><a href="#Cluster.leaves-60"><span class="linenos">60</span></a>    <span class="nd">@property</span>
+</span><span id="Cluster.leaves-61"><a href="#Cluster.leaves-61"><span class="linenos">61</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Cluster.leaves-62"><a href="#Cluster.leaves-62"><span class="linenos">62</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Cluster.leaves-63"><a href="#Cluster.leaves-63"><span class="linenos">63</span></a><span class="sd">        Give a set of all reachable leaf nodes.</span>
+</span><span id="Cluster.leaves-64"><a href="#Cluster.leaves-64"><span class="linenos">64</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Cluster.leaves-65"><a href="#Cluster.leaves-65"><span class="linenos">65</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">():</span>
+</span><span id="Cluster.leaves-66"><a href="#Cluster.leaves-66"><span class="linenos">66</span></a>            <span class="k">return</span> <span class="p">{</span><span class="bp">self</span><span class="p">}</span>
+</span><span id="Cluster.leaves-67"><a href="#Cluster.leaves-67"><span class="linenos">67</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="Cluster.leaves-68"><a href="#Cluster.leaves-68"><span class="linenos">68</span></a>            <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span>
 </span></pre></div>
 
 
