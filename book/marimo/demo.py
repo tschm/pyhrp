@@ -36,12 +36,6 @@ def _(returns):
 
 
 @app.cell
-def _(dendrogram):
-    dendrogram.root.pre_order()
-    return
-
-
-@app.cell
 def _():
     import marimo as mo
 
