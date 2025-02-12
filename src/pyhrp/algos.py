@@ -67,3 +67,7 @@ def _parity(cluster, cov) -> Cluster:
         cluster.portfolio[asset] = weight
 
     return cluster
+
+
+def one_over_n(root: Cluster) -> Cluster:
+    print(root.levels)
