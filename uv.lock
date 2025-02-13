@@ -760,7 +760,6 @@ version = "0.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "binarytree" },
-    { name = "matplotlib" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "scipy" },
@@ -768,6 +767,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "matplotlib" },
     { name = "pre-commit" },
     { name = "pyportfolioopt" },
     { name = "pytest" },
@@ -777,7 +777,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "binarytree", specifier = ">=6.5.1" },
-    { name = "matplotlib", specifier = ">=3.10.0" },
     { name = "numpy", specifier = ">=2.2.2" },
     { name = "pandas", specifier = ">=2.2.3" },
     { name = "scipy", specifier = ">=1.15.1" },
@@ -785,6 +784,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "matplotlib", specifier = ">=3.10.0" },
     { name = "pre-commit", specifier = ">=4.0.1" },
     { name = "pyportfolioopt", specifier = ">=1.5.6" },
     { name = "pytest", specifier = ">=8.3.3" },
