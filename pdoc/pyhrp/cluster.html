@@ -132,56 +132,43 @@
 </span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>        <span class="k">return</span> <span class="n">Portfolio</span><span class="p">(</span><span class="n">variance</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
 </span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>
 </span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>        <span class="c1"># Create a figure and axis</span>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>        <span class="c1"># fig, ax = plt.subplots()</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>        <span class="c1"># Plot the weights using pandas&#39; built-in plotting, without needing to import matplotlib</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a>        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;skyblue&quot;</span><span class="p">)</span>
 </span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>        <span class="c1"># Plot the weights using a bar chart</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>        <span class="c1"># self.weights.plot(kind=&quot;bar&quot;, color=&#39;skyblue&#39;, ax=ax)</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>        <span class="c1"># Set x-axis labels and rotations</span>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
 </span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>        <span class="c1"># Set the x-axis labels to the index of the pandas Series</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>        <span class="c1"># ax.set_xticks(range(len(self.weights)))</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>        <span class="c1"># ax.set_xticklabels(self.weights.index, rotation=0)</span>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>        <span class="c1"># Return the ax object for further customizations</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>        <span class="k">return</span> <span class="n">ax</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>
 </span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>        <span class="c1"># Return the ax object for further modifications</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>        <span class="c1"># return ax</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>        <span class="c1"># Plot the weights using pandas&#39; built-in plotting, without needing to import matplotlib</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;skyblue&quot;</span><span class="p">)</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>        <span class="c1"># Set x-axis labels and rotations</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>        <span class="c1"># Return the ax object for further customizations</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>        <span class="k">return</span> <span class="n">ax</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Cluster</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a><span class="sd">    Clusters are the nodes of the graphs we build.</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a><span class="sd">    Each cluster is aware of the left and the right cluster</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a><span class="sd">    it is connecting to.</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Cluster</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a><span class="sd">    Clusters are the nodes of the graphs we build.</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a><span class="sd">    Each cluster is aware of the left and the right cluster</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a><span class="sd">    it is connecting to.</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span> <span class="n">Cluster</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="n">Cluster</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">portfolio</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">()</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>    <span class="nd">@property</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>    <span class="nd">@property</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a><span class="sd">        Give a set of all reachable leaf nodes.</span>
 </span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>
-</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span> <span class="n">Cluster</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="n">Cluster</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">portfolio</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">()</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>
-</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>    <span class="nd">@property</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>
-</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>    <span class="nd">@property</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a><span class="sd">        Give a set of all reachable leaf nodes.</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a>
-</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a><span class="sd">        Note that the leaves method of the Node class implemented in BinaryTree</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a><span class="sd">        is not respecting the &#39;correct&#39; order of the nodes.</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">:</span>
-</span><span id="L-90"><a href="#L-90"><span class="linenos">90</span></a>            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
-</span><span id="L-91"><a href="#L-91"><span class="linenos">91</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="L-92"><a href="#L-92"><span class="linenos">92</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">leaves</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">leaves</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a><span class="sd">        Note that the leaves method of the Node class implemented in BinaryTree</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a><span class="sd">        is not respecting the &#39;correct&#39; order of the nodes.</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">:</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">leaves</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">leaves</span>
 </span></pre></div>
 
 
@@ -231,27 +218,14 @@
 </span><span id="Portfolio-41"><a href="#Portfolio-41"><span class="linenos">41</span></a>        <span class="k">return</span> <span class="n">Portfolio</span><span class="p">(</span><span class="n">variance</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
 </span><span id="Portfolio-42"><a href="#Portfolio-42"><span class="linenos">42</span></a>
 </span><span id="Portfolio-43"><a href="#Portfolio-43"><span class="linenos">43</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Portfolio-44"><a href="#Portfolio-44"><span class="linenos">44</span></a>        <span class="c1"># Create a figure and axis</span>
-</span><span id="Portfolio-45"><a href="#Portfolio-45"><span class="linenos">45</span></a>        <span class="c1"># fig, ax = plt.subplots()</span>
+</span><span id="Portfolio-44"><a href="#Portfolio-44"><span class="linenos">44</span></a>        <span class="c1"># Plot the weights using pandas&#39; built-in plotting, without needing to import matplotlib</span>
+</span><span id="Portfolio-45"><a href="#Portfolio-45"><span class="linenos">45</span></a>        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;skyblue&quot;</span><span class="p">)</span>
 </span><span id="Portfolio-46"><a href="#Portfolio-46"><span class="linenos">46</span></a>
-</span><span id="Portfolio-47"><a href="#Portfolio-47"><span class="linenos">47</span></a>        <span class="c1"># Plot the weights using a bar chart</span>
-</span><span id="Portfolio-48"><a href="#Portfolio-48"><span class="linenos">48</span></a>        <span class="c1"># self.weights.plot(kind=&quot;bar&quot;, color=&#39;skyblue&#39;, ax=ax)</span>
+</span><span id="Portfolio-47"><a href="#Portfolio-47"><span class="linenos">47</span></a>        <span class="c1"># Set x-axis labels and rotations</span>
+</span><span id="Portfolio-48"><a href="#Portfolio-48"><span class="linenos">48</span></a>        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
 </span><span id="Portfolio-49"><a href="#Portfolio-49"><span class="linenos">49</span></a>
-</span><span id="Portfolio-50"><a href="#Portfolio-50"><span class="linenos">50</span></a>        <span class="c1"># Set the x-axis labels to the index of the pandas Series</span>
-</span><span id="Portfolio-51"><a href="#Portfolio-51"><span class="linenos">51</span></a>        <span class="c1"># ax.set_xticks(range(len(self.weights)))</span>
-</span><span id="Portfolio-52"><a href="#Portfolio-52"><span class="linenos">52</span></a>        <span class="c1"># ax.set_xticklabels(self.weights.index, rotation=0)</span>
-</span><span id="Portfolio-53"><a href="#Portfolio-53"><span class="linenos">53</span></a>
-</span><span id="Portfolio-54"><a href="#Portfolio-54"><span class="linenos">54</span></a>        <span class="c1"># Return the ax object for further modifications</span>
-</span><span id="Portfolio-55"><a href="#Portfolio-55"><span class="linenos">55</span></a>        <span class="c1"># return ax</span>
-</span><span id="Portfolio-56"><a href="#Portfolio-56"><span class="linenos">56</span></a>
-</span><span id="Portfolio-57"><a href="#Portfolio-57"><span class="linenos">57</span></a>        <span class="c1"># Plot the weights using pandas&#39; built-in plotting, without needing to import matplotlib</span>
-</span><span id="Portfolio-58"><a href="#Portfolio-58"><span class="linenos">58</span></a>        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;skyblue&quot;</span><span class="p">)</span>
-</span><span id="Portfolio-59"><a href="#Portfolio-59"><span class="linenos">59</span></a>
-</span><span id="Portfolio-60"><a href="#Portfolio-60"><span class="linenos">60</span></a>        <span class="c1"># Set x-axis labels and rotations</span>
-</span><span id="Portfolio-61"><a href="#Portfolio-61"><span class="linenos">61</span></a>        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span id="Portfolio-62"><a href="#Portfolio-62"><span class="linenos">62</span></a>
-</span><span id="Portfolio-63"><a href="#Portfolio-63"><span class="linenos">63</span></a>        <span class="c1"># Return the ax object for further customizations</span>
-</span><span id="Portfolio-64"><a href="#Portfolio-64"><span class="linenos">64</span></a>        <span class="k">return</span> <span class="n">ax</span>
+</span><span id="Portfolio-50"><a href="#Portfolio-50"><span class="linenos">50</span></a>        <span class="c1"># Return the ax object for further customizations</span>
+</span><span id="Portfolio-51"><a href="#Portfolio-51"><span class="linenos">51</span></a>        <span class="k">return</span> <span class="n">ax</span>
 </span></pre></div>
 
 
@@ -342,27 +316,14 @@
     </div>
     <a class="headerlink" href="#Portfolio.plot"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Portfolio.plot-43"><a href="#Portfolio.plot-43"><span class="linenos">43</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Portfolio.plot-44"><a href="#Portfolio.plot-44"><span class="linenos">44</span></a>        <span class="c1"># Create a figure and axis</span>
-</span><span id="Portfolio.plot-45"><a href="#Portfolio.plot-45"><span class="linenos">45</span></a>        <span class="c1"># fig, ax = plt.subplots()</span>
+</span><span id="Portfolio.plot-44"><a href="#Portfolio.plot-44"><span class="linenos">44</span></a>        <span class="c1"># Plot the weights using pandas&#39; built-in plotting, without needing to import matplotlib</span>
+</span><span id="Portfolio.plot-45"><a href="#Portfolio.plot-45"><span class="linenos">45</span></a>        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;skyblue&quot;</span><span class="p">)</span>
 </span><span id="Portfolio.plot-46"><a href="#Portfolio.plot-46"><span class="linenos">46</span></a>
-</span><span id="Portfolio.plot-47"><a href="#Portfolio.plot-47"><span class="linenos">47</span></a>        <span class="c1"># Plot the weights using a bar chart</span>
-</span><span id="Portfolio.plot-48"><a href="#Portfolio.plot-48"><span class="linenos">48</span></a>        <span class="c1"># self.weights.plot(kind=&quot;bar&quot;, color=&#39;skyblue&#39;, ax=ax)</span>
+</span><span id="Portfolio.plot-47"><a href="#Portfolio.plot-47"><span class="linenos">47</span></a>        <span class="c1"># Set x-axis labels and rotations</span>
+</span><span id="Portfolio.plot-48"><a href="#Portfolio.plot-48"><span class="linenos">48</span></a>        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
 </span><span id="Portfolio.plot-49"><a href="#Portfolio.plot-49"><span class="linenos">49</span></a>
-</span><span id="Portfolio.plot-50"><a href="#Portfolio.plot-50"><span class="linenos">50</span></a>        <span class="c1"># Set the x-axis labels to the index of the pandas Series</span>
-</span><span id="Portfolio.plot-51"><a href="#Portfolio.plot-51"><span class="linenos">51</span></a>        <span class="c1"># ax.set_xticks(range(len(self.weights)))</span>
-</span><span id="Portfolio.plot-52"><a href="#Portfolio.plot-52"><span class="linenos">52</span></a>        <span class="c1"># ax.set_xticklabels(self.weights.index, rotation=0)</span>
-</span><span id="Portfolio.plot-53"><a href="#Portfolio.plot-53"><span class="linenos">53</span></a>
-</span><span id="Portfolio.plot-54"><a href="#Portfolio.plot-54"><span class="linenos">54</span></a>        <span class="c1"># Return the ax object for further modifications</span>
-</span><span id="Portfolio.plot-55"><a href="#Portfolio.plot-55"><span class="linenos">55</span></a>        <span class="c1"># return ax</span>
-</span><span id="Portfolio.plot-56"><a href="#Portfolio.plot-56"><span class="linenos">56</span></a>
-</span><span id="Portfolio.plot-57"><a href="#Portfolio.plot-57"><span class="linenos">57</span></a>        <span class="c1"># Plot the weights using pandas&#39; built-in plotting, without needing to import matplotlib</span>
-</span><span id="Portfolio.plot-58"><a href="#Portfolio.plot-58"><span class="linenos">58</span></a>        <span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s2">&quot;bar&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;skyblue&quot;</span><span class="p">)</span>
-</span><span id="Portfolio.plot-59"><a href="#Portfolio.plot-59"><span class="linenos">59</span></a>
-</span><span id="Portfolio.plot-60"><a href="#Portfolio.plot-60"><span class="linenos">60</span></a>        <span class="c1"># Set x-axis labels and rotations</span>
-</span><span id="Portfolio.plot-61"><a href="#Portfolio.plot-61"><span class="linenos">61</span></a>        <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">weights</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-</span><span id="Portfolio.plot-62"><a href="#Portfolio.plot-62"><span class="linenos">62</span></a>
-</span><span id="Portfolio.plot-63"><a href="#Portfolio.plot-63"><span class="linenos">63</span></a>        <span class="c1"># Return the ax object for further customizations</span>
-</span><span id="Portfolio.plot-64"><a href="#Portfolio.plot-64"><span class="linenos">64</span></a>        <span class="k">return</span> <span class="n">ax</span>
+</span><span id="Portfolio.plot-50"><a href="#Portfolio.plot-50"><span class="linenos">50</span></a>        <span class="c1"># Return the ax object for further customizations</span>
+</span><span id="Portfolio.plot-51"><a href="#Portfolio.plot-51"><span class="linenos">51</span></a>        <span class="k">return</span> <span class="n">ax</span>
 </span></pre></div>
 
 
@@ -381,33 +342,33 @@
 
     </div>
     <a class="headerlink" href="#Cluster"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster-67"><a href="#Cluster-67"><span class="linenos">67</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Cluster</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
-</span><span id="Cluster-68"><a href="#Cluster-68"><span class="linenos">68</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="Cluster-69"><a href="#Cluster-69"><span class="linenos">69</span></a><span class="sd">    Clusters are the nodes of the graphs we build.</span>
-</span><span id="Cluster-70"><a href="#Cluster-70"><span class="linenos">70</span></a><span class="sd">    Each cluster is aware of the left and the right cluster</span>
-</span><span id="Cluster-71"><a href="#Cluster-71"><span class="linenos">71</span></a><span class="sd">    it is connecting to.</span>
-</span><span id="Cluster-72"><a href="#Cluster-72"><span class="linenos">72</span></a><span class="sd">    &quot;&quot;&quot;</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster-54"><a href="#Cluster-54"><span class="linenos">54</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Cluster</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
+</span><span id="Cluster-55"><a href="#Cluster-55"><span class="linenos">55</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Cluster-56"><a href="#Cluster-56"><span class="linenos">56</span></a><span class="sd">    Clusters are the nodes of the graphs we build.</span>
+</span><span id="Cluster-57"><a href="#Cluster-57"><span class="linenos">57</span></a><span class="sd">    Each cluster is aware of the left and the right cluster</span>
+</span><span id="Cluster-58"><a href="#Cluster-58"><span class="linenos">58</span></a><span class="sd">    it is connecting to.</span>
+</span><span id="Cluster-59"><a href="#Cluster-59"><span class="linenos">59</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="Cluster-60"><a href="#Cluster-60"><span class="linenos">60</span></a>
+</span><span id="Cluster-61"><a href="#Cluster-61"><span class="linenos">61</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span> <span class="n">Cluster</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="n">Cluster</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="Cluster-62"><a href="#Cluster-62"><span class="linenos">62</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="Cluster-63"><a href="#Cluster-63"><span class="linenos">63</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">portfolio</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">()</span>
+</span><span id="Cluster-64"><a href="#Cluster-64"><span class="linenos">64</span></a>
+</span><span id="Cluster-65"><a href="#Cluster-65"><span class="linenos">65</span></a>    <span class="nd">@property</span>
+</span><span id="Cluster-66"><a href="#Cluster-66"><span class="linenos">66</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Cluster-67"><a href="#Cluster-67"><span class="linenos">67</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span>
+</span><span id="Cluster-68"><a href="#Cluster-68"><span class="linenos">68</span></a>
+</span><span id="Cluster-69"><a href="#Cluster-69"><span class="linenos">69</span></a>    <span class="nd">@property</span>
+</span><span id="Cluster-70"><a href="#Cluster-70"><span class="linenos">70</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Cluster-71"><a href="#Cluster-71"><span class="linenos">71</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Cluster-72"><a href="#Cluster-72"><span class="linenos">72</span></a><span class="sd">        Give a set of all reachable leaf nodes.</span>
 </span><span id="Cluster-73"><a href="#Cluster-73"><span class="linenos">73</span></a>
-</span><span id="Cluster-74"><a href="#Cluster-74"><span class="linenos">74</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span> <span class="n">Cluster</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="n">Cluster</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Cluster-75"><a href="#Cluster-75"><span class="linenos">75</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="Cluster-76"><a href="#Cluster-76"><span class="linenos">76</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">portfolio</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">()</span>
-</span><span id="Cluster-77"><a href="#Cluster-77"><span class="linenos">77</span></a>
-</span><span id="Cluster-78"><a href="#Cluster-78"><span class="linenos">78</span></a>    <span class="nd">@property</span>
-</span><span id="Cluster-79"><a href="#Cluster-79"><span class="linenos">79</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Cluster-80"><a href="#Cluster-80"><span class="linenos">80</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span>
-</span><span id="Cluster-81"><a href="#Cluster-81"><span class="linenos">81</span></a>
-</span><span id="Cluster-82"><a href="#Cluster-82"><span class="linenos">82</span></a>    <span class="nd">@property</span>
-</span><span id="Cluster-83"><a href="#Cluster-83"><span class="linenos">83</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Cluster-84"><a href="#Cluster-84"><span class="linenos">84</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="Cluster-85"><a href="#Cluster-85"><span class="linenos">85</span></a><span class="sd">        Give a set of all reachable leaf nodes.</span>
-</span><span id="Cluster-86"><a href="#Cluster-86"><span class="linenos">86</span></a>
-</span><span id="Cluster-87"><a href="#Cluster-87"><span class="linenos">87</span></a><span class="sd">        Note that the leaves method of the Node class implemented in BinaryTree</span>
-</span><span id="Cluster-88"><a href="#Cluster-88"><span class="linenos">88</span></a><span class="sd">        is not respecting the &#39;correct&#39; order of the nodes.</span>
-</span><span id="Cluster-89"><a href="#Cluster-89"><span class="linenos">89</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Cluster-90"><a href="#Cluster-90"><span class="linenos">90</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">:</span>
-</span><span id="Cluster-91"><a href="#Cluster-91"><span class="linenos">91</span></a>            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
-</span><span id="Cluster-92"><a href="#Cluster-92"><span class="linenos">92</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="Cluster-93"><a href="#Cluster-93"><span class="linenos">93</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">leaves</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">leaves</span>
+</span><span id="Cluster-74"><a href="#Cluster-74"><span class="linenos">74</span></a><span class="sd">        Note that the leaves method of the Node class implemented in BinaryTree</span>
+</span><span id="Cluster-75"><a href="#Cluster-75"><span class="linenos">75</span></a><span class="sd">        is not respecting the &#39;correct&#39; order of the nodes.</span>
+</span><span id="Cluster-76"><a href="#Cluster-76"><span class="linenos">76</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Cluster-77"><a href="#Cluster-77"><span class="linenos">77</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">:</span>
+</span><span id="Cluster-78"><a href="#Cluster-78"><span class="linenos">78</span></a>            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
+</span><span id="Cluster-79"><a href="#Cluster-79"><span class="linenos">79</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="Cluster-80"><a href="#Cluster-80"><span class="linenos">80</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">leaves</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">leaves</span>
 </span></pre></div>
 
 
@@ -427,9 +388,9 @@ it is connecting to.</p>
 
     </div>
     <a class="headerlink" href="#Cluster.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster.__init__-74"><a href="#Cluster.__init__-74"><span class="linenos">74</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span> <span class="n">Cluster</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="n">Cluster</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-</span><span id="Cluster.__init__-75"><a href="#Cluster.__init__-75"><span class="linenos">75</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="Cluster.__init__-76"><a href="#Cluster.__init__-76"><span class="linenos">76</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">portfolio</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">()</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster.__init__-61"><a href="#Cluster.__init__-61"><span class="linenos">61</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">left</span><span class="p">:</span> <span class="n">Cluster</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">right</span><span class="p">:</span> <span class="n">Cluster</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+</span><span id="Cluster.__init__-62"><a href="#Cluster.__init__-62"><span class="linenos">62</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="n">value</span><span class="p">,</span> <span class="n">left</span><span class="o">=</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="o">=</span><span class="n">right</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="Cluster.__init__-63"><a href="#Cluster.__init__-63"><span class="linenos">63</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">portfolio</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -456,9 +417,9 @@ it is connecting to.</p>
 
     </div>
     <a class="headerlink" href="#Cluster.is_leaf"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster.is_leaf-78"><a href="#Cluster.is_leaf-78"><span class="linenos">78</span></a>    <span class="nd">@property</span>
-</span><span id="Cluster.is_leaf-79"><a href="#Cluster.is_leaf-79"><span class="linenos">79</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Cluster.is_leaf-80"><a href="#Cluster.is_leaf-80"><span class="linenos">80</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster.is_leaf-65"><a href="#Cluster.is_leaf-65"><span class="linenos">65</span></a>    <span class="nd">@property</span>
+</span><span id="Cluster.is_leaf-66"><a href="#Cluster.is_leaf-66"><span class="linenos">66</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">is_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Cluster.is_leaf-67"><a href="#Cluster.is_leaf-67"><span class="linenos">67</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span> <span class="ow">is</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -474,18 +435,18 @@ it is connecting to.</p>
 
     </div>
     <a class="headerlink" href="#Cluster.leaves"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster.leaves-82"><a href="#Cluster.leaves-82"><span class="linenos">82</span></a>    <span class="nd">@property</span>
-</span><span id="Cluster.leaves-83"><a href="#Cluster.leaves-83"><span class="linenos">83</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="Cluster.leaves-84"><a href="#Cluster.leaves-84"><span class="linenos">84</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-</span><span id="Cluster.leaves-85"><a href="#Cluster.leaves-85"><span class="linenos">85</span></a><span class="sd">        Give a set of all reachable leaf nodes.</span>
-</span><span id="Cluster.leaves-86"><a href="#Cluster.leaves-86"><span class="linenos">86</span></a>
-</span><span id="Cluster.leaves-87"><a href="#Cluster.leaves-87"><span class="linenos">87</span></a><span class="sd">        Note that the leaves method of the Node class implemented in BinaryTree</span>
-</span><span id="Cluster.leaves-88"><a href="#Cluster.leaves-88"><span class="linenos">88</span></a><span class="sd">        is not respecting the &#39;correct&#39; order of the nodes.</span>
-</span><span id="Cluster.leaves-89"><a href="#Cluster.leaves-89"><span class="linenos">89</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="Cluster.leaves-90"><a href="#Cluster.leaves-90"><span class="linenos">90</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">:</span>
-</span><span id="Cluster.leaves-91"><a href="#Cluster.leaves-91"><span class="linenos">91</span></a>            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
-</span><span id="Cluster.leaves-92"><a href="#Cluster.leaves-92"><span class="linenos">92</span></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="Cluster.leaves-93"><a href="#Cluster.leaves-93"><span class="linenos">93</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">leaves</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">leaves</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Cluster.leaves-69"><a href="#Cluster.leaves-69"><span class="linenos">69</span></a>    <span class="nd">@property</span>
+</span><span id="Cluster.leaves-70"><a href="#Cluster.leaves-70"><span class="linenos">70</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Cluster.leaves-71"><a href="#Cluster.leaves-71"><span class="linenos">71</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="Cluster.leaves-72"><a href="#Cluster.leaves-72"><span class="linenos">72</span></a><span class="sd">        Give a set of all reachable leaf nodes.</span>
+</span><span id="Cluster.leaves-73"><a href="#Cluster.leaves-73"><span class="linenos">73</span></a>
+</span><span id="Cluster.leaves-74"><a href="#Cluster.leaves-74"><span class="linenos">74</span></a><span class="sd">        Note that the leaves method of the Node class implemented in BinaryTree</span>
+</span><span id="Cluster.leaves-75"><a href="#Cluster.leaves-75"><span class="linenos">75</span></a><span class="sd">        is not respecting the &#39;correct&#39; order of the nodes.</span>
+</span><span id="Cluster.leaves-76"><a href="#Cluster.leaves-76"><span class="linenos">76</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="Cluster.leaves-77"><a href="#Cluster.leaves-77"><span class="linenos">77</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_leaf</span><span class="p">:</span>
+</span><span id="Cluster.leaves-78"><a href="#Cluster.leaves-78"><span class="linenos">78</span></a>            <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="p">]</span>
+</span><span id="Cluster.leaves-79"><a href="#Cluster.leaves-79"><span class="linenos">79</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="Cluster.leaves-80"><a href="#Cluster.leaves-80"><span class="linenos">80</span></a>            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">leaves</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">right</span><span class="o">.</span><span class="n">leaves</span>
 </span></pre></div>
 
 

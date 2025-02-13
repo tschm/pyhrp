@@ -130,7 +130,7 @@
 </span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>
 </span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the dendrogram&quot;&quot;&quot;</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>        <span class="n">sch</span><span class="o">.</span><span class="n">dendrogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>        <span class="n">sch</span><span class="o">.</span><span class="n">dendrogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span> <span class="n">leaf_rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>
 </span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>
 </span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="k">def</span><span class="w"> </span><span class="nf">_compute_distance_matrix</span><span class="p">(</span><span class="n">corr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
@@ -291,7 +291,7 @@
 </span><span id="Dendrogram-46"><a href="#Dendrogram-46"><span class="linenos">46</span></a>
 </span><span id="Dendrogram-47"><a href="#Dendrogram-47"><span class="linenos">47</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="Dendrogram-48"><a href="#Dendrogram-48"><span class="linenos">48</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the dendrogram&quot;&quot;&quot;</span>
-</span><span id="Dendrogram-49"><a href="#Dendrogram-49"><span class="linenos">49</span></a>        <span class="n">sch</span><span class="o">.</span><span class="n">dendrogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="Dendrogram-49"><a href="#Dendrogram-49"><span class="linenos">49</span></a>        <span class="n">sch</span><span class="o">.</span><span class="n">dendrogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span> <span class="n">leaf_rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -368,7 +368,7 @@
     <a class="headerlink" href="#Dendrogram.plot"></a>
             <div class="pdoc-code codehilite"><pre><span></span><span id="Dendrogram.plot-47"><a href="#Dendrogram.plot-47"><span class="linenos">47</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 </span><span id="Dendrogram.plot-48"><a href="#Dendrogram.plot-48"><span class="linenos">48</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the dendrogram&quot;&quot;&quot;</span>
-</span><span id="Dendrogram.plot-49"><a href="#Dendrogram.plot-49"><span class="linenos">49</span></a>        <span class="n">sch</span><span class="o">.</span><span class="n">dendrogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="Dendrogram.plot-49"><a href="#Dendrogram.plot-49"><span class="linenos">49</span></a>        <span class="n">sch</span><span class="o">.</span><span class="n">dendrogram</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span> <span class="n">leaf_rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></pre></div>
 
 
