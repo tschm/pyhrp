@@ -5,7 +5,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal
 
-import matplotlib.pyplot as plt
 import numpy as np
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
@@ -44,12 +43,9 @@ class Dendrogram:
     distance: np.ndarray
     method: str
 
-    def plot(self, ax=None, **kwargs):
+    def plot(self, **kwargs):
         """Plot the dendrogram"""
-        if ax is None:
-            _, ax = plt.subplots(figsize=(25, 20))
-        sch.dendrogram(self.linkage, ax=ax, **kwargs)
-        return ax
+        sch.dendrogram(self.linkage, **kwargs)
 
 
 def _compute_distance_matrix(corr: np.ndarray) -> np.ndarray:

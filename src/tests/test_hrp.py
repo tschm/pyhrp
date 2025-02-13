@@ -27,8 +27,11 @@ def test_plot(returns):
     # dendrogram = Dendrogram.build(cor.values, method="single", bisection=True)
     dendrogram = build_tree(cor=cor.values, method="single", bisection=True)
 
-    dendrogram.plot()
-
     import matplotlib.pyplot as plt
+
+    _, ax = plt.subplots(figsize=(25, 20))
+    dendrogram.plot(ax=ax)
+
+    # import matplotlib.pyplot as plt
 
     plt.show()

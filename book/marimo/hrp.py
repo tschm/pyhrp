@@ -96,8 +96,6 @@ def _(build_tree, cor, cov):
 
 @app.cell
 def _(cov, dendrogram_bisection, plt, risk_parity):
-    # root = dendrogram_bisection.root
-
     root_bisection = risk_parity(dendrogram_bisection.root, cov)
 
     weights_bisection = root_bisection.portfolio.weights
@@ -122,14 +120,14 @@ def _(build_tree, cor, cov):
 
 
 @app.cell
-def _(cov, dendrogram_ward, plt, risk_parity, weights_bisection):
+def _(cov, dendrogram_ward, plt, risk_parity):
     root_ward = risk_parity(dendrogram_ward.root, cov)
     weights_ward = root_ward.portfolio.weights
 
     weights_ward.plot(kind="bar")  # Or another plot type if needed
 
     # Ensure all possible x-axis labels are shown
-    plt.xticks(ticks=range(len(weights_ward)), labels=weights_bisection.index, rotation=90)
+    plt.xticks(ticks=range(len(weights_ward)), labels=weights_ward.index, rotation=90)
 
     # Optionally, adjust the layout to avoid label clipping
     plt.tight_layout()
