@@ -45,7 +45,7 @@ class Dendrogram:
 
     def plot(self, **kwargs):
         """Plot the dendrogram"""
-        sch.dendrogram(self.linkage, **kwargs)
+        sch.dendrogram(self.linkage, leaf_rotation=90, **kwargs)
 
 
 def _compute_distance_matrix(corr: np.ndarray) -> np.ndarray:

@@ -40,24 +40,11 @@ class Portfolio:
         return Portfolio(variance, weights)
 
     def plot(self):
-        # Create a figure and axis
-        # fig, ax = plt.subplots()
-
-        # Plot the weights using a bar chart
-        # self.weights.plot(kind="bar", color='skyblue', ax=ax)
-
-        # Set the x-axis labels to the index of the pandas Series
-        # ax.set_xticks(range(len(self.weights)))
-        # ax.set_xticklabels(self.weights.index, rotation=0)
-
-        # Return the ax object for further modifications
-        # return ax
-
         # Plot the weights using pandas' built-in plotting, without needing to import matplotlib
         ax = self.weights.plot(kind="bar", color="skyblue")
 
         # Set x-axis labels and rotations
-        ax.set_xticklabels(self.weights.index, rotation=0)
+        ax.set_xticklabels(self.weights.index, rotation=90)
 
         # Return the ax object for further customizations
         return ax

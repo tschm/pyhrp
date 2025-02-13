@@ -29,8 +29,8 @@ def test_plot(returns):
 
     import matplotlib.pyplot as plt
 
-    _, ax = plt.subplots(figsize=(25, 20))
-    dendrogram.plot(ax=ax)
+    # _, ax = plt.subplots(figsize=(25, 20))
+    dendrogram.plot()
 
     # import matplotlib.pyplot as plt
 
