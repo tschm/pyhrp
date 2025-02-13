@@ -27,8 +27,7 @@ cov, cor = returns.cov(), returns.corr()
 # Compute the dendrogram based on the correlation matrix and Ward's metric
 dendrogram = build_tree(cor.values, method='ward')
 
-root = dendrogram.root
-risk_parity(root=root, cov=cov)
+root = risk_parity(root=dendrogram.root, cov=cov)
 
 ax = dendrogram.plot(orientation="left")
 ax.get_figure().savefig("dendrogram.png")
@@ -42,18 +41,18 @@ import pandas as pd
 from pyhrp.hrp import hrp
 
 prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
-cluster = hrp(prices=prices, method="ward", bisection=False)
+root = hrp(prices=prices, method="ward", bisection=False)
 ```
 
 You may expect a weight series here but instead the `hrp` function returns a
-`Cluster` object. The `Cluster` simplifies all further post-analysis.
+`Node` object. The `node` simplifies all further post-analysis.
 
 ```python
-print(cluster.portfolio.weights)
-print(cluster.portfolio.variance)
+print(root.portfolio.weights)
+print(root.portfolio.variance)
 # You can drill into the graph by going downstream
-print(cluster.left)
-print(cluster.right)
+print(root.left)
+print(root.right)
 ```
 
 ## uv
