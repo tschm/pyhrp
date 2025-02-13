@@ -57,10 +57,11 @@ def _():
 
 
 @app.cell
-def _(build_tree, cor, cov):
+def _(build_tree, cor, cov, plt):
     # The first dendrogram is suffering. We observe the chaining effect
     dendrogram_before = build_tree(cor, method="single")
     dendrogram_before.plot(labels=cov.columns)
+    plt.show()
     return (dendrogram_before,)
 
 
@@ -69,73 +70,44 @@ def _(cov, dendrogram_before, plt, risk_parity):
     # The weights are not well balanced
     # No surprise given exposure of nodes like 11, 12 or 15
     root_before = risk_parity(dendrogram_before.root, cov)
-    weights_before = root_before.portfolio.weights
-
-    weights_before.plot(kind="bar")  # Or another plot type if needed
-
-    # Ensure all possible x-axis labels are shown
-    plt.xticks(ticks=range(len(weights_before)), labels=weights_before.index, rotation=90)
-
-    # Optionally, adjust the layout to avoid label clipping
-    plt.tight_layout()
-
+    root_before.portfolio.plot()
     plt.show()
-
-    return root_before, weights_before
+    return (root_before,)
 
 
 @app.cell
-def _(build_tree, cor, cov):
+def _(build_tree, cor, cov, plt):
     # The dendrogram suffers because of the 'chaining' effect. LdP is using
     # now only the order of the leaves (e.g. the assets) and
     # constructs a second Dendrogram.
     dendrogram_bisection = build_tree(cor, method="single", bisection=True)
     dendrogram_bisection.plot(labels=cov.columns)
+    plt.show()
     return (dendrogram_bisection,)
 
 
 @app.cell
 def _(cov, dendrogram_bisection, plt, risk_parity):
-    # root = dendrogram_bisection.root
-
     root_bisection = risk_parity(dendrogram_bisection.root, cov)
-
-    weights_bisection = root_bisection.portfolio.weights
-
-    weights_bisection.plot(kind="bar")  # Or another plot type if needed
-
-    # Ensure all possible x-axis labels are shown
-    plt.xticks(ticks=range(len(weights_bisection)), labels=weights_bisection.index, rotation=90)
-
-    # Optionally, adjust the layout to avoid label clipping
-    plt.tight_layout()
-
+    root_bisection.portfolio.plot()
     plt.show()
-    return root_bisection, weights_bisection
+    return (root_bisection,)
 
 
 @app.cell
-def _(build_tree, cor, cov):
+def _(build_tree, cor, cov, plt):
     dendrogram_ward = build_tree(cor, method="ward")
     dendrogram_ward.plot(labels=cov.columns)
+    plt.show()
     return (dendrogram_ward,)
 
 
 @app.cell
-def _(cov, dendrogram_ward, plt, risk_parity, weights_bisection):
+def _(cov, dendrogram_ward, plt, risk_parity):
     root_ward = risk_parity(dendrogram_ward.root, cov)
-    weights_ward = root_ward.portfolio.weights
-
-    weights_ward.plot(kind="bar")  # Or another plot type if needed
-
-    # Ensure all possible x-axis labels are shown
-    plt.xticks(ticks=range(len(weights_ward)), labels=weights_bisection.index, rotation=90)
-
-    # Optionally, adjust the layout to avoid label clipping
-    plt.tight_layout()
-
+    root_ward.portfolio.plot()
     plt.show()
-    return root_ward, weights_ward
+    return (root_ward,)
 
 
 @app.cell

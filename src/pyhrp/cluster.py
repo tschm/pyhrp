@@ -39,6 +39,16 @@ class Portfolio:
 
         return Portfolio(variance, weights)
 
+    def plot(self):
+        # Plot the weights using pandas' built-in plotting, without needing to import matplotlib
+        ax = self.weights.plot(kind="bar", color="skyblue")
+
+        # Set x-axis labels and rotations
+        ax.set_xticklabels(self.weights.index, rotation=90)
+
+        # Return the ax object for further customizations
+        return ax
+
 
 class Cluster(Node):
     """
@@ -59,6 +69,9 @@ class Cluster(Node):
     def leaves(self):
         """
         Give a set of all reachable leaf nodes.
+
+        Note that the leaves method of the Node class implemented in BinaryTree
+        is not respecting the 'correct' order of the nodes.
         """
         if self.is_leaf:
             return [self]

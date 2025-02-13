@@ -10,9 +10,6 @@ def test_node():
     assert left.size == 1
     assert right.size == 1
 
-    assert left.preorder == [left]
-    assert right.preorder == [right]
-
     assert left.is_leaf
     assert right.is_leaf
 
@@ -22,6 +19,6 @@ def test_node():
     assert node.left.value == 0
     assert node.right.value == 1
     assert node.size == 3
-    assert node.preorder == [node, left, right]
 
     assert not node.is_leaf
+    assert node.leaves == [left, right]
