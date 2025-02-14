@@ -23,5 +23,5 @@ def test_riskparity():
 
     cluster = risk_parity(cl, cov=cov)
 
-    np.testing.assert_allclose(cluster.portfolio.weights, np.array([1.0, 2.0]) / 3.0)
+    np.testing.assert_allclose(cluster.portfolio.weights.values, np.array([1.0, 2.0]) / 3.0)
     np.testing.assert_almost_equal(cluster.portfolio.variance(cov), 1.7777777777777777)
