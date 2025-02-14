@@ -781,9 +781,9 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "binarytree", specifier = ">=6.5.1" },
-    { name = "numpy", specifier = ">=2.2.2" },
-    { name = "pandas", specifier = ">=2.2.3" },
-    { name = "scipy", specifier = ">=1.15.1" },
+    { name = "numpy", specifier = ">=2" },
+    { name = "pandas", specifier = ">=2" },
+    { name = "scipy", specifier = ">=1.15" },
 ]
 
 [package.metadata.requires-dev]
