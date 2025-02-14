@@ -59,9 +59,8 @@ class Portfolio:
 
     def plot(self):
         # Plot the weights using pandas' built-in plotting, without needing to import matplotlib
+        names = [asset.name for asset in self.weights.index]
         ax = self.weights.plot(kind="bar", color="skyblue")
-
-        names = list([asset.name for asset in self.weights.index])
 
         # Set x-axis labels and rotations
         ax.set_xticklabels(names, rotation=90, fontsize=8)
@@ -98,14 +97,14 @@ class Cluster(Node):
         else:
             return self.left.leaves + self.right.leaves
 
-    @property
-    def children(self):
-        _children = []
-
-        if self.left is not None:
-            _children += [self.left]
-
-        if self.right is not None:
-            _children += [self.right]
-
-        return _children
+    # @property
+    # def children(self):
+    #     _children = []
+    #
+    #     if self.left is not None:
+    #         _children += [self.left]
+    #
+    #     if self.right is not None:
+    #         _children += [self.right]
+    #
+    #     return _children
