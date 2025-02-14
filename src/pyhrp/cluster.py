@@ -21,11 +21,6 @@ class Asset:
             return False
         return self.name == other.name
 
-    def __le_(self, other: Any) -> bool:
-        if not isinstance(other, Asset):
-            return False
-        return self.name <= other.name
-
     def __lt__(self, other: Any) -> bool:
         if not isinstance(other, Asset):
             return False
