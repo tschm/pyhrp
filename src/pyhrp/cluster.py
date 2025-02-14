@@ -91,15 +91,3 @@ class Cluster(Node):
             return [self]
         else:
             return self.left.leaves + self.right.leaves
-
-    # @property
-    # def children(self):
-    #     _children = []
-    #
-    #     if self.left is not None:
-    #         _children += [self.left]
-    #
-    #     if self.right is not None:
-    #         _children += [self.right]
-    #
-    #     return _children
