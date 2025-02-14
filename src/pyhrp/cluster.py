@@ -1,31 +1,55 @@
 from __future__ import annotations
 
-from copy import copy
 from dataclasses import dataclass, field
+from typing import Any
 
+import numpy as np
 import pandas as pd
 from binarytree import Node
 
 
+@dataclass(frozen=True)
+class Asset:
+    mu: float = None
+    name: str = None
+
+    def __hash__(self) -> int:
+        return hash(self.name)
+
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Asset):
+            return False
+        return self.name == other.name
+
+    def __le_(self, other: Any) -> bool:
+        if not isinstance(other, Asset):
+            return False
+        return self.name <= other.name
+
+    def __lt__(self, other: Any) -> bool:
+        if not isinstance(other, Asset):
+            return False
+        return self.name < other.name
+
+
 @dataclass
 class Portfolio:
-    _variance: float = None
-    _weights: dict[int, float] = field(default_factory=dict)
+    # _variance: float = None
+    _weights: dict[Asset, float] = field(default_factory=dict)
 
     @property
-    def variance(self):
-        return self._variance
+    def assets(self) -> list[Asset]:
+        return list(self._weights.keys())
 
-    @variance.setter
-    def variance(self, value: float):
-        if value < 0:
-            raise ValueError("Variance cannot be negative.")
-        self._variance = value
+    def variance(self, cov: pd.DataFrame) -> float:
+        c = cov[self.assets].loc[self.assets].values
+        w = self.weights[self.assets].values
+        return np.linalg.multi_dot((w, c, w))
 
-    def __getitem__(self, item):
+    def __getitem__(self, item) -> float:
         return self._weights[item]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value: float):
         self._weights[key] = value
 
     @property
@@ -33,18 +57,14 @@ class Portfolio:
         """weight series"""
         return pd.Series(self._weights, name="Weights").sort_index()
 
-    def copy(self):
-        variance = self.variance
-        weights = copy(self._weights)
-
-        return Portfolio(variance, weights)
-
     def plot(self):
         # Plot the weights using pandas' built-in plotting, without needing to import matplotlib
         ax = self.weights.plot(kind="bar", color="skyblue")
 
+        names = list([asset.name for asset in self.weights.index])
+
         # Set x-axis labels and rotations
-        ax.set_xticklabels(self.weights.index, rotation=90)
+        ax.set_xticklabels(names, rotation=90)
 
         # Return the ax object for further customizations
         return ax
@@ -77,3 +97,15 @@ class Cluster(Node):
             return [self]
         else:
             return self.left.leaves + self.right.leaves
+
+    @property
+    def children(self):
+        _children = []
+
+        if self.left is not None:
+            _children += [self.left]
+
+        if self.right is not None:
+            _children += [self.right]
+
+        return _children
