@@ -3,6 +3,8 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from pyhrp.cluster import Asset
+
 
 @pytest.fixture(scope="session", name="resource_dir")
 def resource_fixture():
@@ -12,9 +14,12 @@ def resource_fixture():
 
 @pytest.fixture(scope="session")
 def prices(resource_dir):
-    return pd.read_csv(resource_dir / "stock_prices.csv", parse_dates=True, index_col="date").truncate(
+    _prices = pd.read_csv(resource_dir / "stock_prices.csv", parse_dates=True, index_col="date").truncate(
         before="2017-01-01"
     )
+
+    _prices.columns = [Asset(name=column) for column in _prices.columns]
+    return _prices
 
 
 @pytest.fixture(scope="session")

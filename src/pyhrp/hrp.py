@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Literal
 
 import numpy as np
+import pandas as pd
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
@@ -28,8 +29,9 @@ def hrp(
     :return: the root cluster of the risk parity portfolio
     """
     returns = prices.pct_change().dropna(axis=0, how="all")
+
     cov, cor = returns.cov(), returns.corr()
-    node = node or build_tree(cor.values, method=method, bisection=bisection).root
+    node = node or build_tree(cor, method=method, bisection=bisection).root
 
     return risk_parity(root=node, cov=cov)
 
@@ -43,9 +45,9 @@ class Dendrogram:
     distance: np.ndarray
     method: str
 
-    def plot(self, **kwargs):
+    def plot(self, labels, **kwargs):
         """Plot the dendrogram"""
-        sch.dendrogram(self.linkage, leaf_rotation=90, **kwargs)
+        sch.dendrogram(self.linkage, leaf_rotation=90, leaf_font_size=8, labels=labels, **kwargs)
 
 
 def _compute_distance_matrix(corr: np.ndarray) -> np.ndarray:
@@ -56,7 +58,7 @@ def _compute_distance_matrix(corr: np.ndarray) -> np.ndarray:
 
 
 def build_tree(
-    cor: np.ndarray, method: Literal["single", "complete", "average", "ward"] = "ward", bisection: bool = False
+    cor: pd.DataFrame, method: Literal["single", "complete", "average", "ward"] = "ward", bisection: bool = False
 ) -> Dendrogram:
     """
     Build hierarchical cluster tree from correlation matrix
@@ -71,7 +73,7 @@ def build_tree(
         linkage: Linkage matrix for plotting
     """
     # Create distance matrix and linkage
-    dist = _compute_distance_matrix(cor)
+    dist = _compute_distance_matrix(cor.values)
     links = sch.linkage(ssd.squareform(dist), method=method)
 
     # Convert scipy tree to our Cluster format
@@ -119,5 +121,8 @@ def build_tree(
 
         get_linkage(root)
         links = np.array(links)
+
+    # for leaf in root.leaves:
+    #    leaf.asset = cor.columns[leaf.value]
 
     return Dendrogram(root=root, linkage=links, method=method, distance=dist)

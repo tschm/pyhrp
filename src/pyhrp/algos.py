@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import Any
 
-import numpy as np
 import pandas as pd
 
-from .cluster import Cluster
+from .cluster import Cluster, Portfolio
 
 
 def risk_parity(root: Cluster, cov: pd.DataFrame) -> Cluster:
@@ -15,7 +14,7 @@ def risk_parity(root: Cluster, cov: pd.DataFrame) -> Cluster:
         # no leaves, no branches, ...
         asset = cov.keys().to_list()[root.value]
         root.portfolio[asset] = 1.0
-        root.portfolio.variance = cov[asset][asset]
+        # root.portfolio.variance = cov[asset][asset]
         return root
 
     # drill down on the left
@@ -49,7 +48,7 @@ def _parity(cluster, cov) -> Cluster:
         return v_right / (v_left + v_right), v_left / (v_left + v_right)
 
     # split is s.t. v_left * alpha_left == v_right * alpha_right and alpha + beta = 1
-    alpha_left, alpha_right = parity(cluster.left.portfolio.variance, cluster.right.portfolio.variance)
+    alpha_left, alpha_right = parity(cluster.left.portfolio.variance(cov), cluster.right.portfolio.variance(cov))
 
     # assets in the cluster are the assets of the left and right cluster
     # further downstream
@@ -58,13 +57,6 @@ def _parity(cluster, cov) -> Cluster:
         **(alpha_right * cluster.right.portfolio.weights).to_dict(),
     }
 
-    weights = np.array(list(assets.values()))
-
-    covariance = cov[assets.keys()].loc[assets.keys()]
-
-    var = np.linalg.multi_dot((weights, covariance, weights))
-
-    cluster.portfolio.variance = var
     for asset, weight in assets.items():
         cluster.portfolio[asset] = weight
 
@@ -78,9 +70,38 @@ def one_over_n(root: Cluster) -> dict[int, Any] | None:
     for n, level in enumerate(root.levels):
         for node in level:
             for leaf in node.leaves:
-                root.portfolio[leaf.value] = w / node.leaf_count
+                root.portfolio[leaf.asset] = w / node.leaf_count
 
-        portfolios[n] = root.portfolio.copy()
+        portfolios[n] = root.portfolio.weights
+        print(portfolios[n])
         w *= 0.5
 
     return portfolios
+
+
+def generic(root: Cluster, fct) -> dict[int, Any] | None:
+    # print(root.levels)
+    portfolios = {}
+    for n, level in enumerate(root.levels):
+        for node in level:
+            portfolio = fct(node.leaves)
+            # each node is not fully invested!
+            for asset in portfolio.assets:
+                root.portfolio[asset] = portfolio[asset]
+
+        portfolio = fct(level)
+        for node in level:
+            for leaf in node.leaves:
+                root.portfolio[leaf.value] = portfolio[node.value] * root.portfolio[leaf.value]
+
+        portfolios[n] = root.portfolio.weights
+
+    return portfolios
+
+
+def one(leaves: list[Cluster]) -> dict[int, Any] | None:
+    p = Portfolio()
+    n = len(leaves)
+    for leaf in leaves:
+        p[leaf.value] = 1 / n
+    return p

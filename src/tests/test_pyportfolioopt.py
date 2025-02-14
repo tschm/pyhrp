@@ -10,10 +10,11 @@ def test_allocation(prices):
     returns = prices.pct_change().dropna(axis=0, how="all")
 
     optimizer = HRPOpt(returns)
-    weights = optimizer.optimize(linkage_method="single")
-    ww = pd.Series(weights)
+    weights = pd.Series(optimizer.optimize(linkage_method="single"))
+    print(weights)
 
     cluster = hrp(prices=prices, method="single", bisection=True)
-    print(cluster.portfolio.weights)
+    w = cluster.portfolio.weights
+    print(w)
 
-    assert np.linalg.norm(ww - cluster.portfolio.weights) < 0.006
+    assert np.linalg.norm(weights - w[weights.index]) < 0.006

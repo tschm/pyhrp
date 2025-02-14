@@ -1,6 +1,6 @@
 import marimo
 
-__generated_with = "0.11.2"
+__generated_with = "0.11.4"
 app = marimo.App()
 
 
@@ -33,14 +33,17 @@ def _(__file__):
 def _(data):
     import pandas as pd
 
+    from pyhrp.cluster import Asset
+
     prices = pd.read_csv(data / "stock_prices.csv", index_col=0)
     returns = prices.pct_change().dropna(axis=0, how="all").fillna(0.0)
-    return pd, prices, returns
+    returns.columns = [Asset(name=column) for column in returns.columns]
+    return Asset, pd, prices, returns
 
 
 @app.cell
 def _(returns):
-    cor = returns.corr().values
+    cor = returns.corr()
     cov = returns.cov()
     return cor, cov
 
@@ -60,7 +63,7 @@ def _():
 def _(build_tree, cor, cov, plt):
     # The first dendrogram is suffering. We observe the chaining effect
     dendrogram_before = build_tree(cor, method="single")
-    dendrogram_before.plot(labels=cov.columns)
+    dendrogram_before.plot(labels=[column.name for column in cov.columns])
     plt.show()
     return (dendrogram_before,)
 
@@ -81,7 +84,7 @@ def _(build_tree, cor, cov, plt):
     # now only the order of the leaves (e.g. the assets) and
     # constructs a second Dendrogram.
     dendrogram_bisection = build_tree(cor, method="single", bisection=True)
-    dendrogram_bisection.plot(labels=cov.columns)
+    dendrogram_bisection.plot(labels=[column.name for column in cov.columns])
     plt.show()
     return (dendrogram_bisection,)
 
@@ -97,7 +100,7 @@ def _(cov, dendrogram_bisection, plt, risk_parity):
 @app.cell
 def _(build_tree, cor, cov, plt):
     dendrogram_ward = build_tree(cor, method="ward")
-    dendrogram_ward.plot(labels=cov.columns)
+    dendrogram_ward.plot(labels=[column.name for column in cov.columns])
     plt.show()
     return (dendrogram_ward,)
 
@@ -123,7 +126,7 @@ def _(pd, plt, root_bisection, root_ward):
     weights_df.plot(kind="bar", width=0.8)
 
     # Ensure all possible x-axis labels are shown
-    plt.xticks(ticks=range(len(weights_df)), labels=weights_df.index, rotation=90)
+    plt.xticks(ticks=range(len(weights_df)), labels=[asset.name for asset in weights_df.index], rotation=90)
 
     # Optionally, adjust the layout to avoid label clipping
     plt.tight_layout()

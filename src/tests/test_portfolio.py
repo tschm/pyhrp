@@ -1,51 +1,34 @@
+import numpy as np
+import pandas as pd
 import pytest
 from matplotlib import pyplot as plt
 
-from pyhrp.cluster import Portfolio
+from pyhrp.cluster import Asset, Portfolio
 
 
 def test_portfolio():
     p = Portfolio()
-    p.variance = 5
-    p["A"] = 0.4
-    p["B"] = 0.3
-    p["C"] = 0.3
+    a = Asset(name="A")
+    b = Asset(name="B")
+    c = Asset(name="C")
 
-    assert str(p) == "Portfolio(_variance=5, _weights={'A': 0.4, 'B': 0.3, 'C': 0.3})"
+    p[a] = 0.4
+    p[b] = 0.3
+    p[c] = 0.3
+
+    cov = pd.DataFrame(index=[a, b, c], columns=[a, b, c], data=np.diag([2, 3, 4]))
+
     ax = p.plot()
     ax.set_facecolor("lightyellow")  # Change the background color
     ax.grid(True)  # Enable gridlines
 
     plt.show()
 
-
-def test_negative_variance():
-    with pytest.raises(ValueError):
-        p = Portfolio()
-        p.variance = -1
-
-
-def test_portfolio_variance():
-    p = Portfolio()
-    p.variance = 5
-    assert p.variance == 5
+    assert p.variance(cov) == pytest.approx(0.95)
 
 
 def test_getset_item():
     p = Portfolio()
-    p["A"] = 0.4
-    assert p["A"] == 0.4
-
-
-def test_copy():
-    p = Portfolio()
-    p["A"] = 0.4
-    p.variance = 5
-
-    p2 = p.copy()
-    p2["A"] = 0.5
-    p2.variance = 10
-
-    # no change here...
-    assert p.variance == 5
-    assert p["A"] == 0.4
+    a = Asset(name="A")
+    p[a] = 0.4
+    assert p[a] == 0.4
