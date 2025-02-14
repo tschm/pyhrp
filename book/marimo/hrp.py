@@ -63,7 +63,7 @@ def _():
 def _(build_tree, cor, cov, plt):
     # The first dendrogram is suffering. We observe the chaining effect
     dendrogram_before = build_tree(cor, method="single")
-    dendrogram_before.plot(labels=[column.name for column in cov.columns])
+    dendrogram_before.plot()
     plt.show()
     return (dendrogram_before,)
 
@@ -84,7 +84,7 @@ def _(build_tree, cor, cov, plt):
     # now only the order of the leaves (e.g. the assets) and
     # constructs a second Dendrogram.
     dendrogram_bisection = build_tree(cor, method="single", bisection=True)
-    dendrogram_bisection.plot(labels=[column.name for column in cov.columns])
+    dendrogram_bisection.plot()
     plt.show()
     return (dendrogram_bisection,)
 
@@ -100,7 +100,7 @@ def _(cov, dendrogram_bisection, plt, risk_parity):
 @app.cell
 def _(build_tree, cor, cov, plt):
     dendrogram_ward = build_tree(cor, method="ward")
-    dendrogram_ward.plot(labels=[column.name for column in cov.columns])
+    dendrogram_ward.plot()
     plt.show()
     return (dendrogram_ward,)
 

@@ -11,10 +11,8 @@ def risk_parity(root: Cluster, cov: pd.DataFrame) -> Cluster:
     """compute a cluster"""
     if root.is_leaf:
         # a node is a leaf if has no further relatives downstream.
-        # no leaves, no branches, ...
         asset = cov.keys().to_list()[root.value]
         root.portfolio[asset] = 1.0
-        # root.portfolio.variance = cov[asset][asset]
         return root
 
     # drill down on the left
@@ -34,21 +32,11 @@ def _parity(cluster, cov) -> Cluster:
     :param cov: covariance matrix. Will pick the correct sub-matrix
 
     """
-
-    # combine two clusters
-
-    def parity(v_left, v_right):
-        """
-        Compute the weights for a risk parity portfolio of two assets
-        :param v_left: Variance of the "left" portfolio
-        :param v_right: Variance of the "right" portfolio
-        :return: w, 1-w the weights for the left and the right portfolio.
-                 It is w*v_left == (1-w)*v_right hence w = v_right / (v_right + v_left)
-        """
-        return v_right / (v_left + v_right), v_left / (v_left + v_right)
-
     # split is s.t. v_left * alpha_left == v_right * alpha_right and alpha + beta = 1
-    alpha_left, alpha_right = parity(cluster.left.portfolio.variance(cov), cluster.right.portfolio.variance(cov))
+    v_left = cluster.left.portfolio.variance(cov)
+    v_right = cluster.right.portfolio.variance(cov)
+
+    alpha_left, alpha_right = v_right / (v_left + v_right), v_left / (v_left + v_right)
 
     # assets in the cluster are the assets of the left and right cluster
     # further downstream
