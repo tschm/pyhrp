@@ -40,7 +40,7 @@ def _(data):
 
 @app.cell
 def _(returns):
-    cor = returns.corr().values
+    cor = returns.corr()
     cov = returns.cov()
     return cor, cov
 

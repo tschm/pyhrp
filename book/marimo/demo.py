@@ -29,7 +29,7 @@ def _(returns):
     # compute the dendrogram
     from pyhrp.hrp import build_tree
 
-    cor = returns.corr().values
+    cor = returns.corr()
     dendrogram = build_tree(cor, method="ward")
     dendrogram.plot(labels=returns.columns)
     return build_tree, cor, dendrogram
