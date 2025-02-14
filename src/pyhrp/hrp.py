@@ -11,7 +11,7 @@ import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
 from .algos import risk_parity
-from .cluster import Asset, Cluster
+from .cluster import Cluster
 
 
 def hrp(
@@ -29,7 +29,6 @@ def hrp(
     :return: the root cluster of the risk parity portfolio
     """
     returns = prices.pct_change().dropna(axis=0, how="all")
-    returns.columns = [Asset(name=column) for column in returns.columns]
 
     cov, cor = returns.cov(), returns.corr()
     node = node or build_tree(cor, method=method, bisection=bisection).root
@@ -46,9 +45,9 @@ class Dendrogram:
     distance: np.ndarray
     method: str
 
-    def plot(self, **kwargs):
+    def plot(self, labels, **kwargs):
         """Plot the dendrogram"""
-        sch.dendrogram(self.linkage, leaf_rotation=90, **kwargs)
+        sch.dendrogram(self.linkage, leaf_rotation=90, leaf_font_size=8, labels=labels, **kwargs)
 
 
 def _compute_distance_matrix(corr: np.ndarray) -> np.ndarray:
@@ -123,7 +122,7 @@ def build_tree(
         get_linkage(root)
         links = np.array(links)
 
-    for leaf in root.leaves:
-        leaf.asset = cor.columns[leaf.value]
+    # for leaf in root.leaves:
+    #    leaf.asset = cor.columns[leaf.value]
 
     return Dendrogram(root=root, linkage=links, method=method, distance=dist)

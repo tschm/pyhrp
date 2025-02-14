@@ -64,7 +64,7 @@ class Portfolio:
         names = list([asset.name for asset in self.weights.index])
 
         # Set x-axis labels and rotations
-        ax.set_xticklabels(names, rotation=90)
+        ax.set_xticklabels(names, rotation=90, fontsize=8)
 
         # Return the ax object for further customizations
         return ax
