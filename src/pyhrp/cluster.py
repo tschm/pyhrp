@@ -57,14 +57,10 @@ class Portfolio:
         w = {asset.name: weight for asset, weight in self.weights.items()}
         return pd.Series({name: w[name] for name in names})
 
-    def plot(self, assets):
+    def plot(self, names):
         # Plot the weights using pandas' built-in plotting, without needing to import matplotlib
         # a = self.weights_vs_name(names)
-        a = self.weights.loc[assets]
-
-        names = [asset.name for asset in assets]
-
-        # a = pd.Series({name : w[name] for name in names})
+        a = self.weights_vs_name(names)
 
         ax = a.plot(kind="bar", color="skyblue")
 

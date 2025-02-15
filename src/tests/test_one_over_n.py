@@ -34,15 +34,12 @@ def test_generic():
     root.left = Node(11)
     root.right = Node(0)
     a = Asset(name="A")
-    # root.right.asset = a
 
     root.left.left = Node(1)
     b = Asset(name="B")
-    # root.left.left.asset = b
 
     root.left.right = Node(2)
     c = Asset(name="C")
-    # root.left.right.asset = c
 
     dendrogram = Dendrogram(root=root, assets=[a, b, c])
 
