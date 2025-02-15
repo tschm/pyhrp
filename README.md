@@ -30,11 +30,11 @@ Here's a simple example
 
 # Compute the dendrogram based on the correlation matrix and Ward's metric
 >>> dendrogram = build_tree(cor, method='ward')
->>> ax = dendrogram.plot()
+>>> dendrogram.plot()
 
 # Compute the weights on the dendrogram
 >>> root = risk_parity(root=dendrogram.root, cov=cov)
->>> root.portfolio.plot(names=dendrogram.names)
+>>> ax = root.portfolio.plot(names=dendrogram.names)
 ```
 
 For your convenience you can bypass the construction of the covariance and
