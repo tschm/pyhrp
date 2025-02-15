@@ -36,12 +36,6 @@
             <li>
                     <a class="function" href="#one_over_n">one_over_n</a>
             </li>
-            <li>
-                    <a class="function" href="#generic">generic</a>
-            </li>
-            <li>
-                    <a class="function" href="#one">one</a>
-            </li>
     </ul>
 
 
@@ -130,28 +124,6 @@
 </span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>
 </span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>        <span class="n">w</span> <span class="o">*=</span> <span class="mf">0.5</span>
 </span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>        <span class="k">yield</span> <span class="n">n</span><span class="p">,</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">portfolio</span><span class="p">)</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a><span class="k">def</span><span class="w"> </span><span class="nf">generic</span><span class="p">(</span><span class="n">dendrogram</span><span class="p">,</span> <span class="n">fct</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Portfolio</span><span class="p">]]:</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>    <span class="c1"># print(root.levels)</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>    <span class="n">root</span> <span class="o">=</span> <span class="n">dendrogram</span><span class="o">.</span><span class="n">root</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>    <span class="n">assets</span> <span class="o">=</span> <span class="n">dendrogram</span><span class="o">.</span><span class="n">assets</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>
-</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">levels</span><span class="p">):</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">level</span><span class="p">:</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>            <span class="n">portfolio</span> <span class="o">=</span> <span class="n">fct</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>            <span class="k">for</span> <span class="n">asset</span> <span class="ow">in</span> <span class="n">portfolio</span><span class="o">.</span><span class="n">assets</span><span class="p">:</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>                <span class="n">root</span><span class="o">.</span><span class="n">portfolio</span><span class="p">[</span><span class="n">assets</span><span class="p">[</span><span class="n">asset</span><span class="p">]]</span> <span class="o">=</span> <span class="n">portfolio</span><span class="p">[</span><span class="n">asset</span><span class="p">]</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>
-</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>        <span class="k">yield</span> <span class="n">n</span><span class="p">,</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">portfolio</span><span class="p">)</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>
-</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a>
-</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a><span class="k">def</span><span class="w"> </span><span class="nf">one</span><span class="p">(</span><span class="n">leaves</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Cluster</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Portfolio</span><span class="p">:</span>
-</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">()</span>
-</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a>    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">leaves</span><span class="p">)</span>
-</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a>    <span class="k">for</span> <span class="n">leaf</span> <span class="ow">in</span> <span class="n">leaves</span><span class="p">:</span>
-</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a>        <span class="n">p</span><span class="p">[</span><span class="n">leaf</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">n</span>
-</span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a>    <span class="k">return</span> <span class="n">p</span>
 </span></pre></div>
 
 
@@ -214,58 +186,6 @@
 </span><span id="one_over_n-66"><a href="#one_over_n-66"><span class="linenos">66</span></a>
 </span><span id="one_over_n-67"><a href="#one_over_n-67"><span class="linenos">67</span></a>        <span class="n">w</span> <span class="o">*=</span> <span class="mf">0.5</span>
 </span><span id="one_over_n-68"><a href="#one_over_n-68"><span class="linenos">68</span></a>        <span class="k">yield</span> <span class="n">n</span><span class="p">,</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">portfolio</span><span class="p">)</span>
-</span></pre></div>
-
-
-    
-
-                </section>
-                <section id="generic">
-                            <input id="generic-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">generic</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">dendrogram</span>, </span><span class="param"><span class="n">fct</span></span><span class="return-annotation">) -> <span class="s1">&#39;Generator[tuple[int, Portfolio]]&#39;</span>:</span></span>
-
-                <label class="view-source-button" for="generic-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#generic"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="generic-71"><a href="#generic-71"><span class="linenos">71</span></a><span class="k">def</span><span class="w"> </span><span class="nf">generic</span><span class="p">(</span><span class="n">dendrogram</span><span class="p">,</span> <span class="n">fct</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Generator</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Portfolio</span><span class="p">]]:</span>
-</span><span id="generic-72"><a href="#generic-72"><span class="linenos">72</span></a>    <span class="c1"># print(root.levels)</span>
-</span><span id="generic-73"><a href="#generic-73"><span class="linenos">73</span></a>    <span class="n">root</span> <span class="o">=</span> <span class="n">dendrogram</span><span class="o">.</span><span class="n">root</span>
-</span><span id="generic-74"><a href="#generic-74"><span class="linenos">74</span></a>    <span class="n">assets</span> <span class="o">=</span> <span class="n">dendrogram</span><span class="o">.</span><span class="n">assets</span>
-</span><span id="generic-75"><a href="#generic-75"><span class="linenos">75</span></a>
-</span><span id="generic-76"><a href="#generic-76"><span class="linenos">76</span></a>    <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">level</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">levels</span><span class="p">):</span>
-</span><span id="generic-77"><a href="#generic-77"><span class="linenos">77</span></a>        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">level</span><span class="p">:</span>
-</span><span id="generic-78"><a href="#generic-78"><span class="linenos">78</span></a>            <span class="n">portfolio</span> <span class="o">=</span> <span class="n">fct</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">leaves</span><span class="p">)</span>
-</span><span id="generic-79"><a href="#generic-79"><span class="linenos">79</span></a>            <span class="k">for</span> <span class="n">asset</span> <span class="ow">in</span> <span class="n">portfolio</span><span class="o">.</span><span class="n">assets</span><span class="p">:</span>
-</span><span id="generic-80"><a href="#generic-80"><span class="linenos">80</span></a>                <span class="n">root</span><span class="o">.</span><span class="n">portfolio</span><span class="p">[</span><span class="n">assets</span><span class="p">[</span><span class="n">asset</span><span class="p">]]</span> <span class="o">=</span> <span class="n">portfolio</span><span class="p">[</span><span class="n">asset</span><span class="p">]</span>
-</span><span id="generic-81"><a href="#generic-81"><span class="linenos">81</span></a>
-</span><span id="generic-82"><a href="#generic-82"><span class="linenos">82</span></a>        <span class="k">yield</span> <span class="n">n</span><span class="p">,</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">portfolio</span><span class="p">)</span>
-</span></pre></div>
-
-
-    
-
-                </section>
-                <section id="one">
-                            <input id="one-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
-<div class="attr function">
-            
-        <span class="def">def</span>
-        <span class="name">one</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">leaves</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n"><a href="cluster.html#Cluster">pyhrp.cluster.Cluster</a></span><span class="p">]</span></span><span class="return-annotation">) -> <span class="n"><a href="cluster.html#Portfolio">pyhrp.cluster.Portfolio</a></span>:</span></span>
-
-                <label class="view-source-button" for="one-view-source"><span>View Source</span></label>
-
-    </div>
-    <a class="headerlink" href="#one"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="one-85"><a href="#one-85"><span class="linenos">85</span></a><span class="k">def</span><span class="w"> </span><span class="nf">one</span><span class="p">(</span><span class="n">leaves</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Cluster</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Portfolio</span><span class="p">:</span>
-</span><span id="one-86"><a href="#one-86"><span class="linenos">86</span></a>    <span class="n">p</span> <span class="o">=</span> <span class="n">Portfolio</span><span class="p">()</span>
-</span><span id="one-87"><a href="#one-87"><span class="linenos">87</span></a>    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">leaves</span><span class="p">)</span>
-</span><span id="one-88"><a href="#one-88"><span class="linenos">88</span></a>    <span class="k">for</span> <span class="n">leaf</span> <span class="ow">in</span> <span class="n">leaves</span><span class="p">:</span>
-</span><span id="one-89"><a href="#one-89"><span class="linenos">89</span></a>        <span class="n">p</span><span class="p">[</span><span class="n">leaf</span><span class="o">.</span><span class="n">value</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">n</span>
-</span><span id="one-90"><a href="#one-90"><span class="linenos">90</span></a>    <span class="k">return</span> <span class="n">p</span>
 </span></pre></div>
 
 
