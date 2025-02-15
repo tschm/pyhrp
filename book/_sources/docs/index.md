@@ -17,44 +17,43 @@ We take heavily advantage of the scipy.cluster.hierarchy package.
 Here's a simple example
 
 ```python
-import pandas as pd
-from pyhrp.hrp import build_tree
-from pyhrp.algos import risk_parity
+>>> import pandas as pd
+>>> from pyhrp.hrp import build_tree
+>>> from pyhrp.algos import risk_parity
+>>> from pyhrp.cluster import Asset
 
-prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
+>>> prices = pd.read_csv("resources/stock_prices.csv", index_col=0, parse_dates=True)
+>>> prices.columns = [Asset(name=column) for column in prices.columns]
 
-returns = prices.pct_change().dropna(axis=0, how="all")
-cov, cor = returns.cov(), returns.corr()
+>>> returns = prices.pct_change().dropna(axis=0, how="all")
+>>> cov, cor = returns.cov(), returns.corr()
 
 # Compute the dendrogram based on the correlation matrix and Ward's metric
-dendrogram = build_tree(cor, method='ward')
+>>> dendrogram = build_tree(cor, method='ward')
 
-root = risk_parity(root=dendrogram.root, cov=cov)
-
-ax = dendrogram.plot(orientation="left")
-ax.get_figure().savefig("dendrogram.png")
+>>> root = risk_parity(root=dendrogram.root, cov=cov)
+>>> dendrogram.plot()
 ```
 
 For your convenience you can bypass the construction of the covariance and
 correlation matrix, the links and the node, e.g. the root of the tree (dendrogram).
 
 ```python
-import pandas as pd
-from pyhrp.hrp import hrp
+>>> from pyhrp.hrp import hrp
 
-prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
-root = hrp(prices=prices, method="ward", bisection=False)
+>>> root = hrp(prices=prices, method="ward", bisection=False)
 ```
 
 You may expect a weight series here but instead the `hrp` function returns a
 `Node` object. The `node` simplifies all further post-analysis.
 
 ```python
-print(root.portfolio.weights)
-print(root.portfolio.variance(cov))
-# You can drill into the graph by going downstream
-print(root.left)
-print(root.right)
+>>> weights = root.portfolio.weights
+>>> variance = root.portfolio.variance(cov)
+
+# You can drill deeper into the tree
+>>> left = root.left
+>>> right = root.right
 ```
 
 ## uv
