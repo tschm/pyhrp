@@ -54,8 +54,6 @@ You may expect a weight series here but instead the `hrp` function returns a
 # You can drill deeper into the tree
 >>> left = root.left
 >>> right = root.right
-
-
 ```
 
 ## uv
