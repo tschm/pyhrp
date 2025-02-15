@@ -17,7 +17,6 @@ def docstring():
 
     code = "\n".join(blocks).strip()
 
-    code += "\n assert False"
     # Add a docstring wrapper for doctest to process the code
     docstring = f'"""\n{code}\n"""'
 
@@ -40,25 +39,3 @@ def test_blocks2(docstring):
     # Check captured output for errors
     if captured_output.getvalue():
         pytest.fail(f"Doctests failed with the following output:\n{captured_output.getvalue()}")
-
-    # Check if there were any failures
-    # if doctest_results is None:
-    #    print("All doctests passed!")
-    # else:
-    #    print(f"Doctests failed: Failures")
-
-    # Create a temporary Python file to run doctests on
-    # with open('test_script.py', 'w') as f:
-    #    f.write('"""' + "\n")
-    #    for code in code_blocks:
-    #        f.write(code.strip() + "\n")
-    #    f.write('"""' + "\n")
-
-
-# Run doctest on the temporary script
-# import doctest
-# doctest.testfile('test_script.py')
-
-# Optionally, delete the temporary script after testing
-# import os
-# os.remove('test_script.py')
