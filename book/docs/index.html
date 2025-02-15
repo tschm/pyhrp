@@ -399,9 +399,11 @@ We take heavily advantage of the scipy.cluster.hierarchy package.</p>
 
 <span class="go"># Compute the dendrogram based on the correlation matrix and Ward&#39;s metric</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dendrogram</span> <span class="o">=</span> <span class="n">build_tree</span><span class="p">(</span><span class="n">cor</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
-
-<span class="gp">&gt;&gt;&gt; </span><span class="n">root</span> <span class="o">=</span> <span class="n">risk_parity</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">dendrogram</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">dendrogram</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+
+<span class="go"># Compute the weights on the dendrogram</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">root</span> <span class="o">=</span> <span class="n">risk_parity</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">dendrogram</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ax</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">portfolio</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="n">dendrogram</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>For your convenience you can bypass the construction of the covariance and
