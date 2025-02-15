@@ -41,11 +41,12 @@ For your convenience you can bypass the construction of the covariance and
 correlation matrix, the links and the node, e.g. the root of the tree (dendrogram).
 
 ```python
-import pandas as pd
-from pyhrp.hrp import hrp
+>>> import pandas as pd
+>>> from pyhrp.hrp import hrp
 
-prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
-root = hrp(prices=prices, method="ward", bisection=False)
+>>> prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
+>>> root = hrp(prices=prices, method="ward", bisection=False)
+
 ```
 
 You may expect a weight series here but instead the `hrp` function returns a
