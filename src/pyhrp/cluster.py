@@ -52,15 +52,24 @@ class Portfolio:
         """weight series"""
         return pd.Series(self._weights, name="Weights").sort_index()
 
-    def plot(self):
+    # @property
+    def weights_vs_name(self, names):
+        w = {asset.name: weight for asset, weight in self.weights.items()}
+        return pd.Series({name: w[name] for name in names})
+
+    def plot(self, assets):
         # Plot the weights using pandas' built-in plotting, without needing to import matplotlib
-        names = [asset.name for asset in self.weights.index]
-        ax = self.weights.plot(kind="bar", color="skyblue")
+        # a = self.weights_vs_name(names)
+        a = self.weights.loc[assets]
+
+        names = [asset.name for asset in assets]
+
+        # a = pd.Series({name : w[name] for name in names})
+
+        ax = a.plot(kind="bar", color="skyblue")
 
         # Set x-axis labels and rotations
         ax.set_xticklabels(names, rotation=90, fontsize=8)
-
-        # Return the ax object for further customizations
         return ax
 
 

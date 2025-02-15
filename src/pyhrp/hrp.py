@@ -41,10 +41,14 @@ class Dendrogram:
     """Simple container for dendrogram data and plotting"""
 
     root: Cluster
-    linkage: np.ndarray
-    distance: np.ndarray
-    method: str
     assets: list[Asset]
+    linkage: np.ndarray | None = None
+    distance: np.ndarray | None = None
+    method: str | None = None
+
+    def __post_init__(self):
+        if not len(self.root.leaves) == len(self.assets):
+            raise ValueError("Inconsistent number of assets and leaves")
 
     def plot(self, **kwargs):
         """Plot the dendrogram"""
@@ -133,8 +137,5 @@ def build_tree(
 
         get_linkage(root)
         links = np.array(links)
-
-    # for leaf in root.leaves:
-    #    leaf.asset = cor.columns[leaf.value]
 
     return Dendrogram(root=root, linkage=links, method=method, distance=dist, assets=list(cor.columns))

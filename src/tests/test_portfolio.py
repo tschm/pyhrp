@@ -18,7 +18,7 @@ def test_portfolio():
 
     cov = pd.DataFrame(index=[a, b, c], columns=[a, b, c], data=np.diag([2, 3, 4]))
 
-    ax = p.plot()
+    ax = p.plot(assets=[a, b, c])
     ax.set_facecolor("lightyellow")  # Change the background color
     ax.grid(True)  # Enable gridlines
 

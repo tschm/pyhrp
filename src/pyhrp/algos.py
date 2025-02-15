@@ -51,38 +51,40 @@ def _parity(cluster, cov) -> Cluster:
     return cluster
 
 
-def one_over_n(root: Cluster) -> dict[int, Any] | None:
-    # print(root.levels)
+def one_over_n(dendrogram) -> dict[int, Any] | None:
+    root = dendrogram.root
+    assets = dendrogram.assets
+    names = dendrogram.names
+
     w = 1
     portfolios = {}
+
     for n, level in enumerate(root.levels):
         for node in level:
             for leaf in node.leaves:
-                root.portfolio[leaf.asset] = w / node.leaf_count
+                root.portfolio[assets[leaf.value]] = w / node.leaf_count
 
-        portfolios[n] = root.portfolio.weights
+        portfolios[n] = root.portfolio.weights_vs_name(names=names)
         print(portfolios[n])
         w *= 0.5
 
     return portfolios
 
 
-def generic(root: Cluster, fct) -> dict[int, Any] | None:
+def generic(dendrogram, fct) -> dict[int, Any] | None:
     # print(root.levels)
+    root = dendrogram.root
+    assets = dendrogram.assets
+    names = dendrogram.names
+
     portfolios = {}
     for n, level in enumerate(root.levels):
         for node in level:
             portfolio = fct(node.leaves)
-            # each node is not fully invested!
             for asset in portfolio.assets:
-                root.portfolio[asset] = portfolio[asset]
+                root.portfolio[assets[asset]] = portfolio[asset]
 
-        portfolio = fct(level)
-        for node in level:
-            for leaf in node.leaves:
-                root.portfolio[leaf.value] = portfolio[node.value] * root.portfolio[leaf.value]
-
-        portfolios[n] = root.portfolio.weights
+        portfolios[n] = root.portfolio.weights_vs_name(names=names)
 
     return portfolios
 
