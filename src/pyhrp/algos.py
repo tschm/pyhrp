@@ -65,25 +65,3 @@ def one_over_n(dendrogram) -> Generator[tuple[int, Portfolio]]:
 
         w *= 0.5
         yield n, deepcopy(root.portfolio)
-
-
-def generic(dendrogram, fct) -> Generator[tuple[int, Portfolio]]:
-    # print(root.levels)
-    root = dendrogram.root
-    assets = dendrogram.assets
-
-    for n, level in enumerate(root.levels):
-        for node in level:
-            portfolio = fct(node.leaves)
-            for asset in portfolio.assets:
-                root.portfolio[assets[asset]] = portfolio[asset]
-
-        yield n, deepcopy(root.portfolio)
-
-
-def one(leaves: list[Cluster]) -> Portfolio:
-    p = Portfolio()
-    n = len(leaves)
-    for leaf in leaves:
-        p[leaf.value] = 1 / n
-    return p

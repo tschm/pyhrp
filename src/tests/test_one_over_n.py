@@ -1,6 +1,6 @@
 import pytest
 
-from pyhrp.algos import generic, one, one_over_n
+from pyhrp.algos import one_over_n
 from pyhrp.cluster import Asset
 from pyhrp.cluster import Cluster as Node
 from pyhrp.hrp import Dendrogram
@@ -25,27 +25,6 @@ def test_one_over_n():
     dendrogram = Dendrogram(root=root, assets=[a, b, c])
 
     for level, portfolio in one_over_n(dendrogram):
-        print(f"Level: {level}")
-        print(portfolio)
-
-
-def test_generic():
-    root = Node(10)
-    root.left = Node(11)
-    root.right = Node(0)
-    a = Asset(name="A")
-
-    root.left.left = Node(1)
-    b = Asset(name="B")
-
-    root.left.right = Node(2)
-    c = Asset(name="C")
-
-    dendrogram = Dendrogram(root=root, assets=[a, b, c])
-
-    print(dendrogram.root)
-
-    for level, portfolio in generic(dendrogram, fct=one):
         print(f"Level: {level}")
         print(portfolio)
 
