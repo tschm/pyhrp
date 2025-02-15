@@ -7,9 +7,9 @@ import pytest
 
 
 @pytest.fixture()
-def docstring(resource_dir):
+def docstring(root_dir):
     # Read the README.md file
-    with open(resource_dir.parent.parent.parent / "README.md") as f:
+    with open(root_dir / "README.md") as f:
         content = f.read()
 
     # Extract Python code blocks (assuming they are in triple backticks)
