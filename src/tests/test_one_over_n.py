@@ -24,7 +24,7 @@ def test_one_over_n():
 
     dendrogram = Dendrogram(root=root, assets=[a, b, c])
 
-    for level, portfolio in one_over_n(dendrogram).items():
+    for level, portfolio in one_over_n(dendrogram):
         print(f"Level: {level}")
         print(portfolio)
 
@@ -45,7 +45,7 @@ def test_generic():
 
     print(dendrogram.root)
 
-    for level, portfolio in generic(dendrogram, fct=one).items():
+    for level, portfolio in generic(dendrogram, fct=one):
         print(f"Level: {level}")
         print(portfolio)
 
