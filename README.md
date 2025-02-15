@@ -21,7 +21,7 @@ Here's a simple example
 >>> from pyhrp.hrp import build_tree
 >>> from pyhrp.algos import risk_parity
 
->>> prices = pd.read_csv("tests/resources/stock_prices.csv", index_col=0, parse_dates=True)
+>>> prices = pd.read_csv("resources/stock_prices.csv", index_col=0, parse_dates=True)
 
 >>> returns = prices.pct_change().dropna(axis=0, how="all")
 >>> cov, cor = returns.cov(), returns.corr()
