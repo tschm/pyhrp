@@ -51,7 +51,7 @@ You may expect a weight series here but instead the `hrp` function returns a
 
 ```python
 print(root.portfolio.weights)
-print(root.portfolio.variance)
+print(root.portfolio.variance(cov))
 # You can drill into the graph by going downstream
 print(root.left)
 print(root.right)
