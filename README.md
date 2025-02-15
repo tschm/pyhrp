@@ -32,7 +32,6 @@ Here's a simple example
 >>> dendrogram = build_tree(cor, method='ward')
 
 >>> root = risk_parity(root=dendrogram.root, cov=cov)
-
 >>> dendrogram.plot()
 
 ```
@@ -44,8 +43,9 @@ correlation matrix, the links and the node, e.g. the root of the tree (dendrogra
 >>> import pandas as pd
 >>> from pyhrp.hrp import hrp
 
->>> prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
+>>> prices = pd.read_csv("resources/stock_prices.csv", index_col=0, parse_dates=True)
 >>> root = hrp(prices=prices, method="ward", bisection=False)
+
 
 ```
 
