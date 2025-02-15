@@ -27,15 +27,8 @@ def docstring(resource_dir):
 @pytest.fixture
 def mock_read_csv(resource_dir):
     # Mocked DataFrame that you control
-
     mock_df = pd.read_csv(resource_dir / "stock_prices.csv", index_col=0, parse_dates=True)
-    # mock_data = {
-    #    'A': [1, 2, 3],
-    #    'B': [4, 5, 6]
-    # }
-    # mock_df = pd.DataFrame(mock_data)
-    # print("Hello WORLD")
-    # Patch pd.read_csv to return the mock DataFrame
+
     with patch("pandas.read_csv", return_value=mock_df) as mock:
         yield mock
 
