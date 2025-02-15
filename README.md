@@ -39,11 +39,8 @@ For your convenience you can bypass the construction of the covariance and
 correlation matrix, the links and the node, e.g. the root of the tree (dendrogram).
 
 ```python
->>> import pandas as pd
 >>> from pyhrp.hrp import hrp
 
->>> prices = pd.read_csv("resources/stock_prices.csv", index_col=0, parse_dates=True)
->>> prices.columns = [Asset(name=column) for column in prices.columns]
 >>> root = hrp(prices=prices, method="ward", bisection=False)
 ```
 
