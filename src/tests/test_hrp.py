@@ -7,98 +7,29 @@ from pyhrp.hrp import build_tree
 
 def test_linkage(returns, resource_dir):
     dendrogram = build_tree(cor=returns.corr(), method="single", bisection=False)
-    ids = [node.value for node in dendrogram.root.leaves]
-
-    assert ids == [11, 7, 19, 6, 14, 5, 10, 13, 3, 1, 4, 16, 0, 2, 17, 9, 8, 18, 12, 15]
+    assert dendrogram.ids == [11, 7, 19, 6, 14, 5, 10, 13, 3, 1, 4, 16, 0, 2, 17, 9, 8, 18, 12, 15]
 
     np.testing.assert_array_almost_equal(dendrogram.linkage, np.loadtxt(resource_dir / "links.csv", delimiter=","))
 
 
 def test_bisection(returns, resource_dir):
     dendrogram = build_tree(cor=returns.corr(), method="single", bisection=True)
-    ids = [node.value for node in dendrogram.root.leaves]
     # The order doesn't change when using bisection
-    assert ids == [11, 7, 19, 6, 14, 5, 10, 13, 3, 1, 4, 16, 0, 2, 17, 9, 8, 18, 12, 15]
-
-
-def test_plot(returns):
-    # compute covariance matrix and correlation matrices (both as DataFrames)
-    cor = returns.corr()
-
-    # you can either use a pre-computed node or you can construct a new dendrogram
-    # dendrogram = Dendrogram.build(cor.values, method="single", bisection=True)
-    dendrogram = build_tree(cor=cor, method="single", bisection=True)
-
-    dendrogram.plot()
-
-    plt.show()
-
-    assert dendrogram.names == [
-        "UAA",
-        "WMT",
-        "SBUX",
-        "AMD",
-        "RRC",
-        "GE",
-        "T",
-        "XOM",
-        "BABA",
-        "AAPL",
-        "AMZN",
-        "MA",
-        "GOOG",
-        "FB",
-        "PFE",
-        "GM",
-        "BAC",
-        "JPM",
-        "SHLD",
-        "BBY",
-    ]
-
-
-def test_plot_no_bisection(returns):
-    # compute covariance matrix and correlation matrices (both as DataFrames)
-    cor = returns.corr()
-
-    # you can either use a pre-computed node or you can construct a new dendrogram
-    # dendrogram = Dendrogram.build(cor.values, method="single", bisection=True)
-    dendrogram = build_tree(cor=cor, method="single", bisection=False)
-
-    dendrogram.plot()
-
-    plt.show()
-
-    assert dendrogram.names == [
-        "UAA",
-        "WMT",
-        "SBUX",
-        "AMD",
-        "RRC",
-        "GE",
-        "T",
-        "XOM",
-        "BABA",
-        "AAPL",
-        "AMZN",
-        "MA",
-        "GOOG",
-        "FB",
-        "PFE",
-        "GM",
-        "BAC",
-        "JPM",
-        "SHLD",
-        "BBY",
-    ]
-
-
-def test_asssets(returns):
-    cor = returns.corr()
-    # assets = cor.columns.tolist()
-    dendrogram = build_tree(cor=cor, method="single", bisection=True)
-    assert dendrogram.assets == cor.columns.tolist()
     assert dendrogram.ids == [11, 7, 19, 6, 14, 5, 10, 13, 3, 1, 4, 16, 0, 2, 17, 9, 8, 18, 12, 15]
+
+
+def test_plot_bisection(returns):
+    # compute covariance matrix and correlation matrices (both as DataFrames)
+    cor = returns.corr()
+
+    # you can either use a pre-computed node or you can construct a new dendrogram
+    # dendrogram = Dendrogram.build(cor.values, method="single", bisection=True)
+    dendrogram = build_tree(cor=cor, method="single", bisection=True)
+
+    dendrogram.plot()
+
+    plt.show()
+
     assert dendrogram.names == [
         "UAA",
         "WMT",
