@@ -27,7 +27,7 @@ returns = prices.pct_change().dropna(axis=0, how="all")
 cov, cor = returns.cov(), returns.corr()
 
 # Compute the dendrogram based on the correlation matrix and Ward's metric
-dendrogram = build_tree(cor.values, method='ward')
+dendrogram = build_tree(cor, method='ward')
 
 root = risk_parity(root=dendrogram.root, cov=cov)
 
