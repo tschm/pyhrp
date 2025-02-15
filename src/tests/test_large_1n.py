@@ -10,6 +10,6 @@ def test_one_over_n(returns):
     dendrogram.plot()
     plt.show()
 
-    for level, portfolio in one_over_n(dendrogram).items():
+    for level, portfolio in one_over_n(dendrogram):
         print(f"Level: {level}")
         print(portfolio)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from typing import Any
+from typing import Generator
 
 import pandas as pd
 
@@ -52,39 +52,33 @@ def _parity(cluster, cov) -> Cluster:
     return cluster
 
 
-def one_over_n(dendrogram) -> dict[int, Any] | None:
+def one_over_n(dendrogram) -> Generator[tuple[int, Portfolio]]:
     root = dendrogram.root
     assets = dendrogram.assets
 
     w = 1
-    portfolios = {}
 
     for n, level in enumerate(root.levels):
         for node in level:
             for leaf in node.leaves:
                 root.portfolio[assets[leaf.value]] = w / node.leaf_count
 
-        portfolios[n] = deepcopy(root.portfolio)
         w *= 0.5
+        yield n, deepcopy(root.portfolio)
 
-    return portfolios
 
-
-def generic(dendrogram, fct) -> dict[int, Any] | None:
+def generic(dendrogram, fct) -> Generator[tuple[int, Portfolio]]:
     # print(root.levels)
     root = dendrogram.root
     assets = dendrogram.assets
 
-    portfolios = {}
     for n, level in enumerate(root.levels):
         for node in level:
             portfolio = fct(node.leaves)
             for asset in portfolio.assets:
                 root.portfolio[assets[asset]] = portfolio[asset]
 
-        portfolios[n] = deepcopy(root.portfolio)
-
-    return portfolios
+        yield n, deepcopy(root.portfolio)
 
 
 def one(leaves: list[Cluster]) -> Portfolio:

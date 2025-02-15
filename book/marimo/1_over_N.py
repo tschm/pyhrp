@@ -50,18 +50,16 @@ def _(returns):
 
 @app.cell
 def _():
-    # The implementation by Marcos Lopez de Prado is based on the 'single' metric
     import matplotlib.pyplot as plt
 
-    from pyhrp.algos import risk_parity
     from pyhrp.hrp import build_tree
 
-    return build_tree, plt, risk_parity
+    return build_tree, plt
 
 
 @app.cell
 def _(build_tree, cor, plt):
-    # The first dendrogram is suffering. We observe the chaining effect
+    # We first build the tree. This task is very separated from the computations of weights on such a tree.
     dendrogram = build_tree(cor, method="ward")
     dendrogram.plot()
     plt.show()
@@ -69,15 +67,17 @@ def _(build_tree, cor, plt):
 
 
 @app.cell
-def _(dendrogram, plt):
+def _(dendrogram, plt, portfolios):
+    # We use the tree from the previous step and perform a 1/n
+    # strategy in an iterative manner
     from pyhrp.algos import one_over_n
 
-    portfolios = one_over_n(dendrogram)
-
-    for level in [0, 1, 2, 3, 4, 5]:
-        portfolios[level].plot(names=dendrogram.names)
+    # Drill deeper, level by level
+    # Root is level 0 at Level 1 are two nodes...
+    for level, portfolio in one_over_n(dendrogram):
+        print(f"Level: {level}")
+        portfolio.plot(names=dendrogram.names)
         plt.show()
-    return level, one_over_n, portfolios
 
 
 @app.cell
