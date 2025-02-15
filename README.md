@@ -32,8 +32,9 @@ Here's a simple example
 >>> dendrogram = build_tree(cor, method='ward')
 >>> dendrogram.plot()
 
+# Compute the weights on the dendrogram
 >>> root = risk_parity(root=dendrogram.root, cov=cov)
->>> root.portfolio.plot(names=dendrogram.names)
+>>> ax = root.portfolio.plot(names=dendrogram.names)
 ```
 
 For your convenience you can bypass the construction of the covariance and
