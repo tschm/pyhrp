@@ -51,6 +51,16 @@ class Dendrogram:
         labels = [asset.name for asset in self.assets]
         sch.dendrogram(self.linkage, leaf_rotation=90, leaf_font_size=8, labels=labels, **kwargs)
 
+    @property
+    def ids(self):
+        """node values in the order left -> right as they appear in the dendrogram"""
+        return [node.value for node in self.root.leaves]
+
+    @property
+    def names(self):
+        """The asset names as induced by the order of ids"""
+        return [self.assets[i].name for i in self.ids]
+
 
 def _compute_distance_matrix(corr: np.ndarray) -> np.ndarray:
     """Convert correlation matrix to distance matrix"""
