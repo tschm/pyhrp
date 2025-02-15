@@ -62,7 +62,7 @@ def _():
 @app.cell
 def _(build_tree, cor, plt):
     # The first dendrogram is suffering. We observe the chaining effect
-    dendrogram = build_tree(cor, method="complete")
+    dendrogram = build_tree(cor, method="ward")
     dendrogram.plot()
     plt.show()
     return (dendrogram,)
