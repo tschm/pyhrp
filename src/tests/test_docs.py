@@ -33,7 +33,7 @@ def mock_read_csv(resource_dir):
         yield mock
 
 
-def test_blocks(docstring, capfd, mock_read_csv):
+def test_blocks(docstring, capfd):  # , mock_read_csv):
     try:
         doctest.run_docstring_examples(docstring, globals())
     except doctest.DocTestFailure as e:
