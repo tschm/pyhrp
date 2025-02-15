@@ -33,4 +33,4 @@ def test_blocks(docstring, capfd):
 
     # If there is any output (error message), fail the test
     if captured.out:
-        pytest.fail(f"Doctests failed with the following output:\n{captured.out}")
+        pytest.fail(f"Doctests failed with the following output:\n{captured.out} and \n{docstring}")
