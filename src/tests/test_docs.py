@@ -1,8 +1,7 @@
 import doctest
+import os
 import re
-from unittest.mock import patch
 
-import pandas as pd
 import pytest
 
 
@@ -23,17 +22,9 @@ def docstring(root_dir):
     return docstring
 
 
-# Test where we mock pd.read_csv
-@pytest.fixture
-def mock_read_csv(resource_dir):
-    # Mocked DataFrame that you control
-    mock_df = pd.read_csv(resource_dir / "stock_prices.csv", index_col=0, parse_dates=True)
+def test_blocks(root_dir, docstring, capfd):
+    os.chdir(root_dir)
 
-    with patch("pandas.read_csv", return_value=mock_df) as mock:
-        yield mock
-
-
-def test_blocks(docstring, capfd, mock_read_csv):
     try:
         doctest.run_docstring_examples(docstring, globals())
     except doctest.DocTestFailure as e:
