@@ -33,7 +33,6 @@ Here's a simple example
 
 >>> root = risk_parity(root=dendrogram.root, cov=cov)
 >>> dendrogram.plot()
-
 ```
 
 For your convenience you can bypass the construction of the covariance and
@@ -44,20 +43,22 @@ correlation matrix, the links and the node, e.g. the root of the tree (dendrogra
 >>> from pyhrp.hrp import hrp
 
 >>> prices = pd.read_csv("resources/stock_prices.csv", index_col=0, parse_dates=True)
+>>> prices.columns = [Asset(name=column) for column in prices.columns]
 >>> root = hrp(prices=prices, method="ward", bisection=False)
-
-
 ```
 
 You may expect a weight series here but instead the `hrp` function returns a
 `Node` object. The `node` simplifies all further post-analysis.
 
 ```python
-print(root.portfolio.weights)
-print(root.portfolio.variance(cov))
-# You can drill into the graph by going downstream
-print(root.left)
-print(root.right)
+>>> weights = root.portfolio.weights
+>>> variance = root.portfolio.variance(cov)
+
+# You can drill deeper into the tree
+>>> left = root.left
+>>> right = root.right
+
+
 ```
 
 ## uv

@@ -18,7 +18,7 @@ def docstring():
     code = "\n".join(blocks).strip()
 
     # Add a docstring wrapper for doctest to process the code
-    docstring = f'"""\n{code}\n"""'
+    docstring = f"\n{code}\n"
 
     return docstring
 
