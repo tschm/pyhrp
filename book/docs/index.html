@@ -396,7 +396,7 @@ We take heavily advantage of the scipy.cluster.hierarchy package.</p>
 <span class="n">cov</span><span class="p">,</span> <span class="n">cor</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">cov</span><span class="p">(),</span> <span class="n">returns</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
 
 <span class="c1"># Compute the dendrogram based on the correlation matrix and Ward&#39;s metric</span>
-<span class="n">dendrogram</span> <span class="o">=</span> <span class="n">build_tree</span><span class="p">(</span><span class="n">cor</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
+<span class="n">dendrogram</span> <span class="o">=</span> <span class="n">build_tree</span><span class="p">(</span><span class="n">cor</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;ward&#39;</span><span class="p">)</span>
 
 <span class="n">root</span> <span class="o">=</span> <span class="n">risk_parity</span><span class="p">(</span><span class="n">root</span><span class="o">=</span><span class="n">dendrogram</span><span class="o">.</span><span class="n">root</span><span class="p">,</span> <span class="n">cov</span><span class="o">=</span><span class="n">cov</span><span class="p">)</span>
 
