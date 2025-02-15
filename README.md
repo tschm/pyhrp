@@ -22,7 +22,7 @@ Here's a simple example
 >>> from pyhrp.algos import risk_parity
 >>> from pyhrp.cluster import Asset
 
->>> prices = pd.read_csv("stock_prices.csv", index_col=0, parse_dates=True)
+>>> prices = pd.read_csv("resources/stock_prices.csv", index_col=0, parse_dates=True)
 >>> prices.columns = [Asset(name=column) for column in prices.columns]
 
 >>> returns = prices.pct_change().dropna(axis=0, how="all")
