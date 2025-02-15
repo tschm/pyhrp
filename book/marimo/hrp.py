@@ -73,7 +73,7 @@ def _(cov, dendrogram_before, plt, risk_parity):
     # The weights are not well balanced
     # No surprise given exposure of nodes like 11, 12 or 15
     root_before = risk_parity(dendrogram_before.root, cov)
-    root_before.portfolio.plot()
+    root_before.portfolio.plot(names=dendrogram_before.names)
     plt.show()
     return (root_before,)
 
@@ -92,7 +92,7 @@ def _(build_tree, cor, cov, plt):
 @app.cell
 def _(cov, dendrogram_bisection, plt, risk_parity):
     root_bisection = risk_parity(dendrogram_bisection.root, cov)
-    root_bisection.portfolio.plot()
+    root_bisection.portfolio.plot(names=dendrogram_bisection.names)
     plt.show()
     return (root_bisection,)
 
@@ -108,7 +108,7 @@ def _(build_tree, cor, cov, plt):
 @app.cell
 def _(cov, dendrogram_ward, plt, risk_parity):
     root_ward = risk_parity(dendrogram_ward.root, cov)
-    root_ward.portfolio.plot()
+    root_ward.portfolio.plot(names=dendrogram_ward.names)
     plt.show()
     return (root_ward,)
 
