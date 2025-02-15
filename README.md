@@ -17,22 +17,22 @@ We take heavily advantage of the scipy.cluster.hierarchy package.
 Here's a simple example
 
 ```python
-import pandas as pd
-from pyhrp.hrp import build_tree
-from pyhrp.algos import risk_parity
+>>> import pandas as pd
+>>> from pyhrp.hrp import build_tree
+>>> from pyhrp.algos import risk_parity
 
-prices = pd.read_csv("test/resources/stock_prices.csv", index_col=0, parse_dates=True)
+>>> prices = pd.read_csv("tests/resources/stock_prices.csv", index_col=0, parse_dates=True)
 
-returns = prices.pct_change().dropna(axis=0, how="all")
-cov, cor = returns.cov(), returns.corr()
+>>> returns = prices.pct_change().dropna(axis=0, how="all")
+>>> cov, cor = returns.cov(), returns.corr()
 
 # Compute the dendrogram based on the correlation matrix and Ward's metric
-dendrogram = build_tree(cor, method='ward')
+>>> dendrogram = build_tree(cor, method='ward')
 
-root = risk_parity(root=dendrogram.root, cov=cov)
+>>> root = risk_parity(root=dendrogram.root, cov=cov)
 
-ax = dendrogram.plot(orientation="left")
-ax.get_figure().savefig("dendrogram.png")
+>>> dendrogram.plot(orientation="left")
+#ax.get_figure().savefig("dendrogram.png")
 ```
 
 For your convenience you can bypass the construction of the covariance and
