@@ -12,10 +12,12 @@ def _(mo):
 
         Inspired by Thomas Raffinot
 
-        - Compute the 1st dendrogram using the 'single' distance method.
-        - Compute the 2nd dendrogram by using the order of leaves
-          of the 1st dendrogram (following an argument by Thomas Raffinot)
-        - Apply Risk Parity in a recursive bottom-up traverse
+        - Compute a dendrogram using the 'ward' distance method.
+          Do not compute a 2nd Dendrogram.
+        - Apply the methods level by level. Go from level 0 (only the root),
+          to level 1 (left and right of the root), to level 2 (...)
+        - On level n evaluate the function f for all leaves for each node.
+
         """
     )
     return
@@ -67,7 +69,7 @@ def _(build_tree, cor, plt):
 
 
 @app.cell
-def _(dendrogram, plt, portfolios):
+def _(dendrogram, plt):
     # We use the tree from the previous step and perform a 1/n
     # strategy in an iterative manner
     from pyhrp.algos import one_over_n
@@ -78,6 +80,7 @@ def _(dendrogram, plt, portfolios):
         print(f"Level: {level}")
         portfolio.plot(names=dendrogram.names)
         plt.show()
+    return level, one_over_n, portfolio
 
 
 @app.cell
