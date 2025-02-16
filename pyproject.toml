@@ -14,7 +14,7 @@ dependencies = [
 
 [project.urls]
 repository = "https://github.com/tschm/pyhrp"
-homepage = "https://tschm.github.io/pyhrp"
+homepage = "https://tschm.github.io/pyhrp/book"
 
 [dependency-groups]
 dev = [
