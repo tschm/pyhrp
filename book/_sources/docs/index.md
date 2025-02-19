@@ -38,7 +38,7 @@ Here's a simple example
 ```
 
 For your convenience you can bypass the construction of the covariance and
-correlation matrix, the links and the node, e.g. the root of the tree (dendrogram).
+correlation matrix, and the construction of the dendrogram.
 
 ```python
 >>> from pyhrp.hrp import hrp
