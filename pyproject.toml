@@ -9,7 +9,7 @@ dependencies = [
     "binarytree>=6.5.1",
     "numpy>=2",
     "pandas>=2",
-    "scipy==1.15.1",
+    "scipy==1.15.2",
 ]
 
 [project.urls]
