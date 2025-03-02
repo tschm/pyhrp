@@ -133,7 +133,14 @@ def build_tree(
             if node.left is not None:
                 get_linkage(node.left)
                 get_linkage(node.right)
-                links.append([node.left.value, node.right.value, float(node.size), node.size])
+                links.append(
+                    [
+                        node.left.value,
+                        node.right.value,
+                        float(node.size),
+                        len(node.left.leaves) + len(node.right.leaves),
+                    ]
+                )
 
         get_linkage(root)
         links = np.array(links)
