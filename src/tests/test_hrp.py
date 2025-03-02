@@ -23,8 +23,10 @@ def test_plot_bisection(returns):
     cor = returns.corr()
 
     # you can either use a pre-computed node or you can construct a new dendrogram
-    # dendrogram = Dendrogram.build(cor.values, method="single", bisection=True)
     dendrogram = build_tree(cor=cor, method="single", bisection=True)
+    print(dendrogram.root)
+    print(dendrogram.linkage)
+    # assert False
 
     dendrogram.plot()
 
