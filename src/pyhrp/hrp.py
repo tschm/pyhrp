@@ -53,8 +53,6 @@ class Dendrogram:
     def plot(self, **kwargs):
         """Plot the dendrogram"""
         labels = [asset.name for asset in self.assets]
-        print(self.linkage)
-
         sch.dendrogram(self.linkage, leaf_rotation=90, leaf_font_size=8, labels=labels, **kwargs)
 
     @property
