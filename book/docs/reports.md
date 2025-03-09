@@ -10,4 +10,4 @@
 
 ## Age
 
-{{ '[Age of Dependencies]({url}/age/dependency-age-sorted.txt)'.format(url=book_url) }}
+{{ '[Age of Dependencies]({url}/age/dependency-age-sorted.txt)'.format(url=book_url)}}
