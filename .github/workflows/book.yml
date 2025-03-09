@@ -28,7 +28,7 @@ jobs:
       - name: "Build the virtual environment for ${{ github.repository }}"
         uses: cvxgrp/.github/actions/environment@v2.2.5
 
-      - uses: cvxgrp/.github/actions/age@main
+      - uses: cvxgrp/.github/actions/age@v2.2.6
 
   test:
     runs-on: "ubuntu-latest"
