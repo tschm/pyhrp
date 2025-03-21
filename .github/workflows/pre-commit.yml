@@ -10,7 +10,7 @@ jobs:
       - name: "Build the virtual environment for ${{ github.repository }}"
         uses: cvxgrp/.github/actions/environment@main
 
-      - uses: tschm/cradle/actions/deptry@v0.1.55
+      - uses: tschm/cradle/actions/deptry@v0.1.56
         with:
           source-folder: 'src/pyhrp'
 
