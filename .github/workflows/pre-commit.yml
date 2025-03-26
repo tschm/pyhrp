@@ -8,13 +8,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.1.56
+        uses: tschm/cradle/actions/environment@v0.1.57
 
-      - uses: tschm/cradle/actions/deptry@v0.1.56
+      - uses: tschm/cradle/actions/deptry@v0.1.57
         with:
           source-folder: 'src/pyhrp'
 
   pre-commit:
     runs-on: ubuntu-latest
     steps:
-      - uses: tschm/cradle/actions/pre-commit@v0.1.56
+      - uses: tschm/cradle/actions/pre-commit@v0.1.57
