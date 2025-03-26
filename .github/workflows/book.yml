@@ -8,7 +8,7 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.1.56
+        uses: tschm/cradle/actions/environment@v0.1.57
 
       - uses: cvxgrp/.github/actions/marimo@v2.2.8
 
@@ -16,7 +16,7 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.1.56
+        uses: tschm/cradle/actions/environment@v0.1.57
 
       - uses: cvxgrp/.github/actions/pdoc@v2.2.8
         with:
@@ -26,7 +26,7 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.1.56
+        uses: tschm/cradle/actions/environment@v0.1.57
 
       - uses: cvxgrp/.github/actions/age@v2.2.8
 
@@ -34,7 +34,7 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.1.56
+        uses: tschm/cradle/actions/environment@v0.1.57
 
       - uses: cvxgrp/.github/actions/coverage@v2.2.8
         with:
@@ -45,7 +45,7 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.1.56
+        uses: tschm/cradle/actions/environment@v0.1.57
 
       - uses: cvxgrp/.github/actions/jupyter@v2.2.8
 
