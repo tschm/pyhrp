@@ -10,7 +10,7 @@ jobs:
       - name: "Build the virtual environment for ${{ github.repository }}"
         uses: tschm/cradle/actions/environment@v0.1.57
 
-      - uses: tschm/cradle/actions/marimo@v0.1.56
+      - uses: tschm/cradle/actions/marimo@v0.1.57
 
   pdoc:
     runs-on: "ubuntu-latest"
@@ -18,7 +18,7 @@ jobs:
       - name: "Build the virtual environment for ${{ github.repository }}"
         uses: tschm/cradle/actions/environment@v0.1.57
 
-      - uses: tschm/cradle/actions/pdoc@v0.1.56
+      - uses: tschm/cradle/actions/pdoc@v0.1.57
         with:
           source-folder: 'src/pyhrp'
 
@@ -28,7 +28,7 @@ jobs:
       - name: "Build the virtual environment for ${{ github.repository }}"
         uses: tschm/cradle/actions/environment@v0.1.57
 
-      - uses: tschm/cradle/actions/age@v0.1.56
+      - uses: tschm/cradle/actions/age@v0.1.57
 
   test:
     runs-on: "ubuntu-latest"
@@ -36,7 +36,7 @@ jobs:
       - name: "Build the virtual environment for ${{ github.repository }}"
         uses: tschm/cradle/actions/environment@v0.1.57
 
-      - uses: tschm/cradle/actions/coverage@v0.1.56
+      - uses: tschm/cradle/actions/coverage@v0.1.57
         with:
           source-folder: 'src/pyhrp'
           tests-folder: 'src/tests'
@@ -47,7 +47,7 @@ jobs:
       - name: "Build the virtual environment for ${{ github.repository }}"
         uses: tschm/cradle/actions/environment@v0.1.57
 
-      - uses: tschm/cradle/actions/jupyter@v0.1.56
+      - uses: tschm/cradle/actions/jupyter@v0.1.57
 
   book:
     runs-on: "ubuntu-latest"
@@ -60,4 +60,4 @@ jobs:
       - name: Checkout [${{ github.repository }}]
         uses: actions/checkout@v4
 
-      - uses: tschm/cradle/actions/book@v0.1.56
+      - uses: tschm/cradle/actions/book@v0.1.57
