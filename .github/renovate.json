@@ -9,5 +9,8 @@
     ":pinDevDependencies"
   ],
   "enabledManagers": ["pep621", "pre-commit", "github-actions", "devcontainer"],
-  "timezone": "Asia/Dubai"
+  "timezone": "Asia/Dubai",
+  "schedule": [
+      "before 10am every wednesday"
+  ]
 }
