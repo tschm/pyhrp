@@ -6,6 +6,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/tschm/pyhrp/badge.png?branch=main)](https://coveralls.io/github/tschm/pyhrp?branch=main)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/tschm/pyhrp/main.svg)](https://results.pre-commit.ci/latest/github/tschm/pyhrp/main)
 [![CodeFactor](https://www.codefactor.io/repository/github/tschm/pyhrp/badge)](https://www.codefactor.io/repository/github/tschm/pyhrp)
+[![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://github.com/renovatebot/renovate)
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/tschm/pyhrp)
 
