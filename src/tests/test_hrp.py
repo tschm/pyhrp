@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import pytest
 
@@ -19,19 +18,18 @@ def test_bisection(returns, resource_dir):
 
 
 def test_plot_bisection(returns):
+    """Test building a dendrogram with bisection and verify the node order."""
     # compute covariance matrix and correlation matrices (both as DataFrames)
     cor = returns.corr()
 
-    # you can either use a pre-computed node or you can construct a new dendrogram
+    # Construct a new dendrogram with bisection
     dendrogram = build_tree(cor=cor, method="single", bisection=True)
-    print(dendrogram.root)
-    print(dendrogram.linkage)
-    # assert False
 
-    dendrogram.plot()
+    # Verify the dendrogram has the expected structure
+    assert dendrogram.root is not None
+    assert dendrogram.linkage is not None
 
-    plt.show()
-
+    # Verify the order of nodes in the dendrogram
     assert dendrogram.names == [
         "UAA",
         "WMT",
@@ -58,15 +56,12 @@ def test_plot_bisection(returns):
 
 @pytest.mark.parametrize("method", ["single", "ward", "average", "complete"])
 def test_invariant_order(returns, method):
+    """Test that the order of nodes is invariant to the bisection parameter."""
     cor = returns.corr()
     dendrogram1 = build_tree(cor=cor, method=method, bisection=True)
     dendrogram2 = build_tree(cor=cor, method=method, bisection=False)
+
+    # Verify that the assets, ids, and names are the same regardless of bisection
     assert dendrogram1.assets == dendrogram2.assets == cor.columns.tolist()
     assert dendrogram1.ids == dendrogram2.ids
     assert dendrogram1.names == dendrogram2.names
-
-    _, ax = plt.subplots()
-
-    dendrogram2.plot(ax=ax)
-    ax.set_title(method)
-    plt.show()
