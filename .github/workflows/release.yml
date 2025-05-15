@@ -32,7 +32,7 @@ jobs:
     steps:
       # Build the package (sdist and wheel) with the new version tag
       - name: build
-        uses: tschm/cradle/actions/build@v0.1.63
+        uses: tschm/cradle/actions/build@v0.1.64
         with:
           tag: ${{ needs.tagging.outputs.new_tag }}  # Use the tag from the previous job
 
