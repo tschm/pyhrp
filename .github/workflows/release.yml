@@ -1,52 +1,63 @@
 name: Bump version and publish
 
-on:
-  workflow_dispatch:
+# Workflow for creating a new release and publishing to PyPI
+# This workflow handles version bumping, package building, and publishing
 
+on:
+  workflow_dispatch:  # Manual trigger only - run when explicitly requested
+
+# Permissions needed for creating tags and releases
 permissions:
-  contents: write
+  contents: write  # Allows writing to repository (for tagging)
 
 jobs:
+  # Job to create a new version tag
   tagging:
     runs-on: ubuntu-latest
     outputs:
-      new_tag: ${{ steps.tag_step.outputs.new_tag }}
+      new_tag: ${{ steps.tag_step.outputs.new_tag }}  # Output the new tag for use in other jobs
 
     steps:
+      # Generate a new version tag based on semantic versioning
       - name: Generate Tag
         id: tag_step
         uses: tschm/cradle/actions/tag@v0.1.63
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Token for GitHub API access
 
+  # Job to build the package with the new version
   build:
     runs-on: ubuntu-latest
-    needs: tagging
+    needs: tagging  # Depends on the tagging job to get the new version
     steps:
+      # Build the package (sdist and wheel) with the new version tag
       - name: build
         uses: tschm/cradle/actions/build@v0.1.63
         with:
-          tag: ${{ needs.tagging.outputs.new_tag }}
+          tag: ${{ needs.tagging.outputs.new_tag }}  # Use the tag from the previous job
 
-
+  # Job to publish the built package to PyPI
   publish:
-    needs: build
+    needs: build  # Depends on the build job to have the package ready
     runs-on: ubuntu-latest
-    environment: release
+    environment: release  # Use the 'release' environment for secrets
 
+    # Permissions needed for PyPI trusted publishing
     permissions:
-      contents: read
-      # This permission is required for trusted publishing.
-      id-token: write
+      contents: read  # Only need read access to the repository
+      id-token: write  # Required for trusted publishing to PyPI
 
     steps:
+      # Check out the repository code
       - name: Checkout [${{ github.repository }}]
         uses: actions/checkout@v4
 
+      # Download the built package artifacts from the build job
       - uses: actions/download-artifact@v4
         with:
-          name: dist
-          path: dist
+          name: dist  # Artifact name containing the built packages
+          path: dist  # Local path to download to
 
+      # Publish the package to PyPI using trusted publishing
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@release/v1  # Official PyPI publishing action
