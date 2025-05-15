@@ -35,7 +35,7 @@ def test_one_over_n():
     assert level0 == 0
 
     # The first level should have weights that sum to 1
-    assert sum(portfolio0.weights.values()) == pytest.approx(1.0)
+    assert sum(portfolio0.weights.values) == pytest.approx(1.0)
 
     # Check that all assets are in the portfolio
     assert set(portfolio0.assets) == {a, b, c}
@@ -44,7 +44,7 @@ def test_one_over_n():
     if len(portfolios) > 1:
         _, portfolio1 = portfolios[1]
         # The sum of weights should still be 1 at each level
-        assert sum(portfolio1.weights.values()) == pytest.approx(1.0)
+        assert sum(portfolio1.weights.values) == pytest.approx(1.0)
 
 
 def test_wrong_number_of_nodes():

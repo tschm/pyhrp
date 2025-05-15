@@ -20,11 +20,11 @@ def test_one_over_n_large(returns):
     # Check properties of each portfolio
     for level, portfolio in portfolios:
         # Weights should sum to 1
-        assert sum(portfolio.weights.values()) == pytest.approx(1.0)
+        assert sum(portfolio.weights.values) == pytest.approx(1.0)
 
         # All assets should be in the portfolio
         assert set(portfolio.assets) == set(dendrogram.assets)
 
         # Each asset should have a positive weight
-        for weight in portfolio.weights.values():
+        for weight in portfolio.weights.values:
             assert weight > 0
