@@ -1,27 +1,36 @@
 name: "CI"
 
+# Continuous Integration workflow for testing the project
+# This workflow ensures the code works across different Python versions
+
 on:
-  push
+  push  # Run on every push to the repository
   #schedule:
-  #  - cron: "0 */2 * * *"  # Runs every 2 hours
+  #  - cron: "0 */2 * * *"  # Uncomment to run every 2 hours (useful for dependency updates)
 
 jobs:
   test:
-    # The type of runner that the job will run on
+    # The type of runner that the job will run on (from matrix strategy)
     runs-on: ${{ matrix.os }}
 
+    # Matrix strategy allows testing across multiple configurations
     strategy:
       matrix:
+        # Currently only testing on Ubuntu, but can be expanded to other OS
         os: [ ubuntu-latest ] #, windows-latest, macos-latest ]
+        # Testing across multiple Python versions to ensure compatibility
         python-version: [ '3.10', '3.11', '3.12', '3.13' ]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      # Set up the Python environment with dependencies
+      # Uses the Python version specified in the matrix
       - name: "Build the virtual environment for ${{ github.repository }}"
         uses: tschm/cradle/actions/environment@v0.1.63
         with:
           python-version: ${{ matrix.python-version }}
 
+      # Run the tests using pytest
       - uses: tschm/cradle/actions/test@v0.1.63
         with:
-          tests-folder: src/tests
+          tests-folder: src/tests  # Path to the test files
