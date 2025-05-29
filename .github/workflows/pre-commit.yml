@@ -14,10 +14,10 @@ jobs:
     steps:
       # Set up the Python environment with dependencies
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.1.68
+        uses: tschm/cradle/actions/environment@v0.1.69
 
       # Run deptry to check for dependency issues
-      - uses: tschm/cradle/actions/deptry@v0.1.68
+      - uses: tschm/cradle/actions/deptry@v0.1.69
         with:
           source-folder: 'src/pyhrp'  # Path to the source code to check
 
@@ -27,4 +27,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # Run pre-commit hooks defined in .pre-commit-config.yaml
-      - uses: tschm/cradle/actions/pre-commit@v0.1.68
+      - uses: tschm/cradle/actions/pre-commit@v0.1.69
