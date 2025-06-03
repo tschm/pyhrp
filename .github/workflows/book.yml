@@ -58,10 +58,9 @@ jobs:
     needs: [test, pdoc, jupyter, marimo, age]
 
     permissions:
-      contents: write
+      contents: read
+      pages: write
+      id-token: write
 
     steps:
-      - name: Checkout [${{ github.repository }}]
-        uses: actions/checkout@v4
-
-      - uses: tschm/cradle/actions/book@v0.1.69
+      - uses: tschm/cradle/actions/book@v0.1.71
