@@ -57,6 +57,9 @@ jobs:
     runs-on: "ubuntu-latest"
     needs: [test, pdoc, jupyter, marimo, age]
 
+    environment:
+      name: github-pages
+
     permissions:
       contents: read
       pages: write
