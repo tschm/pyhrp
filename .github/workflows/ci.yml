@@ -3,6 +3,9 @@ name: "CI"
 # Continuous Integration workflow for testing the project
 # This workflow ensures the code works across different Python versions
 
+permissions:
+  contents: read
+
 on:
   push  # Run on every push to the repository
   #schedule:
