@@ -3,6 +3,9 @@ name: pre-commit
 # Workflow for code quality checks and dependency management
 # This workflow ensures code quality standards are maintained and dependencies are properly managed
 
+permissions:
+  contents: read
+
 on:
   push:  # Run on every push to the repository
 
