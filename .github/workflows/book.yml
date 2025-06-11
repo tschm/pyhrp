@@ -15,17 +15,17 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.1.71
+        uses: tschm/cradle/actions/environment@v0.1.72
 
-      - uses: tschm/cradle/actions/marimo@v0.1.71
+      - uses: tschm/cradle/actions/marimo@v0.1.72
 
   pdoc:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.1.71
+        uses: tschm/cradle/actions/environment@v0.1.72
 
-      - uses: tschm/cradle/actions/pdoc@v0.1.71
+      - uses: tschm/cradle/actions/pdoc@v0.1.72
         with:
           source-folder: 'src/pyhrp'
 
@@ -33,17 +33,17 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.1.71
+        uses: tschm/cradle/actions/environment@v0.1.72
 
-      - uses: tschm/cradle/actions/age@v0.1.71
+      - uses: tschm/cradle/actions/age@v0.1.72
 
   test:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.1.71
+        uses: tschm/cradle/actions/environment@v0.1.72
 
-      - uses: tschm/cradle/actions/coverage@v0.1.71
+      - uses: tschm/cradle/actions/coverage@v0.1.72
         with:
           source-folder: 'src/pyhrp'
           tests-folder: 'src/tests'
@@ -52,9 +52,9 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.1.71
+        uses: tschm/cradle/actions/environment@v0.1.72
 
-      - uses: tschm/cradle/actions/jupyter@v0.1.71
+      - uses: tschm/cradle/actions/jupyter@v0.1.72
 
   book:
     runs-on: "ubuntu-latest"
@@ -68,4 +68,4 @@ jobs:
       id-token: write
 
     steps:
-      - uses: tschm/cradle/actions/book@v0.1.71
+      - uses: tschm/cradle/actions/book@v0.1.72
