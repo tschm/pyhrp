@@ -1,11 +1,29 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = [
+#     "marimo==0.13.15",
+#     "pandas==2.3.0",
+#     "matplotlib==3.10.1",
+#     "pyhrp==1.3.7",
+# ]
+# ///
 import marimo
 
 __generated_with = "0.11.4"
 app = marimo.App()
 
+with app.setup:
+    import marimo as mo
+    import matplotlib.pyplot as plt
+    import pandas as pd
+
+    from pyhrp.algos import risk_parity
+    from pyhrp.cluster import Asset
+    from pyhrp.hrp import build_tree
+
 
 @app.cell
-def _(mo):
+def _():
     mo.md(
         r"""
         # Hierarchical Risk Parity (HRP)
@@ -22,20 +40,8 @@ def _(mo):
 
 
 @app.cell
-def _(__file__):
-    from pathlib import Path
-
-    data = Path(__file__).parent / "data"
-    return Path, data
-
-
-@app.cell
-def _(data):
-    import pandas as pd
-
-    from pyhrp.cluster import Asset
-
-    prices = pd.read_csv(data / "stock_prices.csv", index_col=0)
+def _():
+    prices = pd.read_csv(str(mo.notebook_location() / "public" / "stock_prices.csv"), index_col=0)
     returns = prices.pct_change().dropna(axis=0, how="all").fillna(0.0)
     returns.columns = [Asset(name=column) for column in returns.columns]
     return Asset, pd, prices, returns
@@ -49,18 +55,7 @@ def _(returns):
 
 
 @app.cell
-def _():
-    # The implementation by Marcos Lopez de Prado is based on the 'single' metric
-    import matplotlib.pyplot as plt
-
-    from pyhrp.algos import risk_parity
-    from pyhrp.hrp import build_tree
-
-    return build_tree, plt, risk_parity
-
-
-@app.cell
-def _(build_tree, cor, cov, plt):
+def _(cor):
     # The first dendrogram is suffering. We observe the chaining effect
     dendrogram_before = build_tree(cor, method="single")
     dendrogram_before.plot()
@@ -69,7 +64,7 @@ def _(build_tree, cor, cov, plt):
 
 
 @app.cell
-def _(cov, dendrogram_before, plt, risk_parity):
+def _(cov, dendrogram_before):
     # The weights are not well balanced
     # No surprise given exposure of nodes like 11, 12 or 15
     root_before = risk_parity(dendrogram_before.root, cov)
@@ -79,7 +74,7 @@ def _(cov, dendrogram_before, plt, risk_parity):
 
 
 @app.cell
-def _(build_tree, cor, cov, plt):
+def _(cor):
     # The dendrogram suffers because of the 'chaining' effect. LdP is using
     # now only the order of the leaves (e.g. the assets) and
     # constructs a second Dendrogram.
@@ -90,7 +85,7 @@ def _(build_tree, cor, cov, plt):
 
 
 @app.cell
-def _(cov, dendrogram_bisection, plt, risk_parity):
+def _(cov, dendrogram_bisection):
     root_bisection = risk_parity(dendrogram_bisection.root, cov)
     root_bisection.portfolio.plot(names=dendrogram_bisection.names)
     plt.show()
@@ -98,7 +93,7 @@ def _(cov, dendrogram_bisection, plt, risk_parity):
 
 
 @app.cell
-def _(build_tree, cor, cov, plt):
+def _(cor):
     dendrogram_ward = build_tree(cor, method="ward")
     dendrogram_ward.plot()
     plt.show()
@@ -106,7 +101,7 @@ def _(build_tree, cor, cov, plt):
 
 
 @app.cell
-def _(cov, dendrogram_ward, plt, risk_parity):
+def _(cov, dendrogram_ward):
     root_ward = risk_parity(dendrogram_ward.root, cov)
     root_ward.portfolio.plot(names=dendrogram_ward.names)
     plt.show()
@@ -114,7 +109,7 @@ def _(cov, dendrogram_ward, plt, risk_parity):
 
 
 @app.cell
-def _(pd, plt, root_bisection, root_ward):
+def _(root_bisection, root_ward):
     # Assuming root_before.portfolio.weights1 and root_before.portfolio.weights2 are two weight series
     _weights_ward = root_ward.portfolio.weights
     _weights_bisection = root_bisection.portfolio.weights
@@ -134,13 +129,6 @@ def _(pd, plt, root_bisection, root_ward):
     # Show the plot
     plt.show()
     return (weights_df,)
-
-
-@app.cell
-def _():
-    import marimo as mo
-
-    return (mo,)
 
 
 if __name__ == "__main__":

@@ -5,4 +5,9 @@ root: docs/index
 chapters:
     - file: docs/api
     - file: docs/reports
-    - file: docs/marimo
+
+    - url: https://tschm.github.io/pyhrp/marimo/1_over_N/index.html
+      title: Running hierarchical 1/n
+
+    - url: https://tschm.github.io/pyhrp/marimo/hrp/index.html
+      title: Understanding hierarchical risk parity

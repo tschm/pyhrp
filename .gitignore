@@ -1,5 +1,7 @@
 .idea
 .task
+docs
+__marimo__
 
 sandbox/*
 *.pyc
