@@ -14,10 +14,28 @@ jobs:
   marimo:
     runs-on: "ubuntu-latest"
     steps:
-      - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.1.72
+      - name: Checkout [${{ github.repository }}]
+        uses: actions/checkout@v4
 
-      - uses: tschm/cradle/actions/marimo@v0.1.72
+      - name: Export notebook via wasm
+        run: |
+          # export all .py files in book/marimo directory
+          for py_file in book/marimo/*.py; do
+            if [ -f "$py_file" ]; then
+              filename=$(basename "$py_file" .py)
+              echo "Processing $py_file"
+              mkdir -p "artifacts/marimo/$filename"
+              uvx marimo export html-wasm --sandbox "$py_file" -o "artifacts/marimo/$filename" --mode edit
+            fi
+          done
+
+      - name: Upload documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: marimo
+          path: artifacts/marimo
+          retention-days: 1
+
 
   pdoc:
     runs-on: "ubuntu-latest"
