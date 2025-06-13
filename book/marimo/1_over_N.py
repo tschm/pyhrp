@@ -41,15 +41,7 @@ def _():
 
 @app.cell
 def _():
-    from pathlib import Path
-
-    data = Path(__file__).parent / "data"
-    return (data,)
-
-
-@app.cell
-def _(data):
-    prices = pd.read_csv(data / "stock_prices.csv", index_col=0)
+    prices = pd.read_csv(str(mo.notebook_location / "public" / "stock_prices.csv"), index_col=0)
     returns = prices.pct_change().dropna(axis=0, how="all").fillna(0.0)
     returns.columns = [Asset(name=column) for column in returns.columns]
     return (returns,)
