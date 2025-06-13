@@ -17,6 +17,10 @@ jobs:
       - name: Checkout [${{ github.repository }}]
         uses: actions/checkout@v4
 
+      # Install uv package manager for faster Python package installation
+      - name: 🚀 Install uv
+        uses: astral-sh/setup-uv@v6
+
       - name: Export notebook via wasm
         run: |
           # export all .py files in book/marimo directory
