@@ -52,14 +52,14 @@ jobs:
       id-token: write
 
     steps:
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
+      #- name: Download all artifacts
+      #  uses: actions/download-artifact@v4
+      #  with:
+      #    path: artifacts
 
       # Step 2: Make the minibook
       - name: Upload the book
-        uses: tschm/miniBook/.github/actions/minibook@main
+        uses: tschm/miniBook/.github/actions/book@v0.0.9
         with:
           links: |
             {
@@ -68,21 +68,21 @@ jobs:
               "Test Report": "./tests/html-report/report.html",
               "Notebooks": "./marimushka/index.html"
             }
-          output: 'artifacts'
+          #output: 'artifacts'
           title: 'MiniBook'
 
-      - name: Inspect artifacts
-        run: |
-          tree artifacts
+      #- name: Inspect artifacts
+      #  run: |
+      #    tree artifacts
 
         # Package all artifacts for GitHub Pages deployment
         # This prepares the combined outputs for deployment
-      - name: Upload static files as artifact
-        id: upload
-        uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
-        with:
-          path: artifacts/  # Path to the directory containing all artifacts
+      #- name: Upload static files as artifact
+      #  id: upload
+      #  uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
+      #  with:
+      #    path: artifacts/  # Path to the directory containing all artifacts
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      #- name: Deploy to GitHub Pages
+      #  id: deployment
+      #  uses: actions/deploy-pages@v4
