@@ -16,5 +16,19 @@
   "timezone": "Asia/Dubai",
   "schedule": [
     "before 10am on wednesday"
+  ],
+  "regexManagers": [
+    {
+      "fileMatch": ["^.*\\.py$"],
+      "matchStrings": [
+        // Capture each "name==version" entry inside your dependencies list
+        "#\\s*dependencies\\s*=\\s*\\[([^\\]]*)\\]"
+      ],
+      "depNameTemplate": "{{#each captureGroups.[0].split(',') as |entry|}}{{trim entry.split('==')[0]}}{{#unless @last}}\n{{/unless}}{{/each}}",
+      "currentValueTemplate": "{{#each captureGroups.[0].split(',') as |entry|}}{{trim entry.split('==')[1]}}{{#unless @last}}\n{{/unless}}{{/each}}",
+      "datasourceTemplate": "pypi",
+      "packageNameTemplate": "{{depName}}",
+      "versioningTemplate": "semver"
+    }
   ]
 }
