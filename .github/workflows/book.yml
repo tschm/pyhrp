@@ -17,6 +17,7 @@ jobs:
       - uses: jebel-quant/marimushka@v0.1.1
         with:
           notebooks: 'book/marimo'
+          notebooks_wasm: 'book/marimo'
 
   pdoc:
     runs-on: "ubuntu-latest"
