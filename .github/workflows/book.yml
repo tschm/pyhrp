@@ -39,17 +39,9 @@ jobs:
           source-folder: 'src/pyhrp'
           tests-folder: 'src/tests'
 
-  jupyter:
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.1.72
-
-      - uses: tschm/cradle/actions/jupyter@v0.1.72
-
   book:
     runs-on: "ubuntu-latest"
-    needs: [test, pdoc, jupyter, marimo]
+    needs: [test, pdoc, marimo]
 
     environment:
       name: github-pages
@@ -59,4 +51,41 @@ jobs:
       id-token: write
 
     steps:
-      - uses: tschm/cradle/actions/book@v0.1.72
+      # Step 1: Checkout the repository code
+      - name: Checkout ${{ github.repository }}
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      # Step 2: Make the minibook
+      - name: Upload the book
+        uses: tschm/miniBook/.github/actions/minibook@main
+        with:
+          links: |
+            {
+              "API": "./pdoc/index.html",
+              "Coverage": "./tests/html-coverage/index.html",
+              "Test Report": "./tests/html-report/report.html"
+            }
+          output: 'artifacts'
+          title: 'MiniBook'
+
+      - name: Inspect artifacts
+        run: |
+          tree artifacts
+
+        # Package all artifacts for GitHub Pages deployment
+        # This prepares the combined outputs for deployment
+      - name: Upload static files as artifact
+        id: upload
+        uses: actions/upload-pages-artifact@v3 # or specific "vX.X.X" version tag for this action
+        with:
+          path: artifacts/  # Path to the directory containing all artifacts
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
