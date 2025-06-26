@@ -52,10 +52,6 @@ jobs:
       id-token: write
 
     steps:
-      # Step 1: Checkout the repository code
-      - name: Checkout ${{ github.repository }}
-        uses: actions/checkout@v4
-
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
