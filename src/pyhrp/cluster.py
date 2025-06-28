@@ -14,7 +14,8 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from binarytree import Node
+
+from .treelib import Node
 
 
 @dataclass(frozen=True)

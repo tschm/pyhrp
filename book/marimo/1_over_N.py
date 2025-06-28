@@ -5,6 +5,7 @@
 #     "pandas==2.3.0",
 #     "matplotlib==3.10.1",
 #     "pyhrp==1.3.7",
+#     "polars==1.31.1",
 # ]
 # ///
 import marimo
@@ -15,7 +16,7 @@ app = marimo.App()
 with app.setup:
     import marimo as mo
     import matplotlib.pyplot as plt
-    import pandas as pd
+    import polars as pl
 
     from pyhrp.cluster import Asset
     from pyhrp.hrp import build_tree
@@ -41,7 +42,11 @@ def _():
 
 @app.cell
 def _():
-    prices = pd.read_csv(str(mo.notebook_location / "public" / "stock_prices.csv"), index_col=0)
+    # Read CSV with Polars
+    prices_pl = pl.read_csv(str(mo.notebook_location / "public" / "stock_prices.csv"))
+    # Convert to pandas DataFrame with the first column as index
+    index_col = prices_pl.columns[0]
+    prices = prices_pl.to_pandas().set_index(index_col)
     returns = prices.pct_change().dropna(axis=0, how="all").fillna(0.0)
     returns.columns = [Asset(name=column) for column in returns.columns]
     return (returns,)

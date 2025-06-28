@@ -6,7 +6,6 @@ authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "binarytree>=6.5.1",
     "numpy>=2",
     "pandas>=2",
     "scipy>=1.14.1",
@@ -24,6 +23,8 @@ dev = [
     "pre-commit>=4.2.0",
     "pyportfolioopt>=1.5.6",
     "marimo>=0.11.5",
+    "polars>=1.31.0",
+    "security>=1.3.1"
 ]
 
 [tool.ruff]
@@ -39,11 +40,6 @@ select = ["E", "F", "I"]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-[dependency-groups]
-dev = [
-    "security>=1.3.1",
-]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pyhrp"]
