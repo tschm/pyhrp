@@ -13,7 +13,7 @@ dependencies = [
 
 [project.urls]
 repository = "https://github.com/tschm/pyhrp"
-homepage = "https://tschm.github.io/pyhrp/book"
+homepage = "https://tschm.github.io/pyhrp"
 
 [project.optional-dependencies]
 dev = [
