@@ -3,8 +3,8 @@
 # dependencies = [
 #     "marimo==0.13.15",
 #     "pandas==2.3.0",
-#     "matplotlib==3.10.1",
-#     "pyhrp==1.3.7",
+#     "matplotlib==3.10.3",
+#     "pyhrp==1.3.9",
 #     "polars==1.31.0",
 # ]
 # ///
