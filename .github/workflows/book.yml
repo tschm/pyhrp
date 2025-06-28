@@ -59,7 +59,7 @@ jobs:
 
       # Step 2: Make the minibook
       - name: Upload the book
-        uses: tschm/miniBook/.github/actions/book@v0.0.10
+        uses: tschm/miniBook/.github/actions/book@v0.0.14
         with:
           links: |
             {
