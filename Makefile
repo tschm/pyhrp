@@ -39,10 +39,15 @@ clean: ## Clean generated files and directories
 
 ##@ Marimo
 
-marimo: install ## Start a Marimo server
+marimo_hrp: install ## Start a Marimo server
 	@printf "$(BLUE)Start Marimo server...$(RESET)\n"
 	#@uv pip install marimo
 	@uvx marimo edit --sandbox book/marimo/hrp.py
+
+marimo_1_over_N: install ## Start a Marimo server
+	@printf "$(BLUE)Start Marimo server...$(RESET)\n"
+	#@uv pip install marimo
+	@uvx marimo edit --sandbox book/marimo/1_over_N.py
 
 ##@ Help
 
