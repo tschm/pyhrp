@@ -16,7 +16,7 @@ venv:
 
 install: venv ## Install all dependencies using uv
 	@printf "$(BLUE)Installing dependencies...$(RESET)\n"
-	@uv sync --dev --frozen
+	@uv sync --all-extras --frozen
 
 ##@ Code Quality
 
@@ -41,8 +41,8 @@ clean: ## Clean generated files and directories
 
 marimo: install ## Start a Marimo server
 	@printf "$(BLUE)Start Marimo server...$(RESET)\n"
-	@uv pip install marimo
-	@uv run marimo edit book/marimo
+	#@uv pip install marimo
+	@uvx marimo edit --sandbox book/marimo/hrp.py
 
 ##@ Help
 
