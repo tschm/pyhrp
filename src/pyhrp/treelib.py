@@ -8,7 +8,7 @@ It implements only the functionality needed by the pyhrp package.
 from __future__ import annotations
 
 from collections import deque
-from typing import Deque, Iterator, List, Optional, TypeVar, Union
+from typing import Deque, Iterator, TypeVar, Union
 
 # Type for node values
 NodeValue = Union[int, float, str]
