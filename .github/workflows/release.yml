@@ -48,10 +48,6 @@ jobs:
       id-token: write  # Required for trusted publishing to PyPI
 
     steps:
-      # Check out the repository code
-      - name: Checkout [${{ github.repository }}]
-        uses: actions/checkout@v4
-
       # Download the built package artifacts from the build job
       - uses: actions/download-artifact@v4
         with:
