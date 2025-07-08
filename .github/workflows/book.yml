@@ -14,7 +14,7 @@ jobs:
   marimo:
     runs-on: "ubuntu-latest"
     steps:
-      - uses: jebel-quant/marimushka@v0.1.2
+      - uses: jebel-quant/marimushka@v0.1.4
         with:
           notebooks: 'book/marimo'
           notebooks_wasm: 'book/marimo'
