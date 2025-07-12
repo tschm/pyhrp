@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.2.1
+        uses: tschm/cradle/actions/environment@v0.3.01
 
       - name: List notebooks
         id: set-notebooks
@@ -40,7 +40,7 @@ jobs:
 
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.2.1
+        uses: tschm/cradle/actions/environment@v0.3.01
 
       - name: Run notebook
         run: |
