@@ -12,7 +12,7 @@ curl -L -o templates.zip https://github.com/tschm/.config-templates/archive/refs
 unzip templates.zip
 
 # Copy the extracted configuration files to the current directory
-cp -r .config-templates-main/* .
+cp -r .config-templates-main/. .
 
 # Clean up by removing the zip file and the extracted directory
 # This prevents cluttering the workspace with temporary files

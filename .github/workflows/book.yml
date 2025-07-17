@@ -1,60 +1,91 @@
-name: "book"
+name: "BOOK"
 
-# Trigger the workflow on push events
-# This ensures the documentation is automatically updated whenever code changes are pushed to main
 on:
   push:
     branches:
       - main
 
-permissions:
-  contents: read
 
 jobs:
+  parse-env:
+    if: github.repository != 'tschm/.config-templates'
+    runs-on: ubuntu-latest
+    outputs:
+      source-folder: ${{ steps.export.outputs.SOURCE_FOLDER }}
+      tests-folder: ${{ steps.export.outputs.TESTS_FOLDER }}
+      marimo-folder: ${{ steps.export.outputs.MARIMO_FOLDER }}
+      title: ${{ steps.export.outputs.TITLE }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Parse .env and export variables
+        id: export
+        run: |
+          set -a
+          source .env
+          echo "SOURCE_FOLDER=$SOURCE_FOLDER" >> "$GITHUB_OUTPUT"
+          echo "TESTS_FOLDER=$TESTS_FOLDER" >> "$GITHUB_OUTPUT"
+          echo "MARIMO_FOLDER=$MARIMO_FOLDER" >> "$GITHUB_OUTPUT"
+          echo "TITLE=$TITLE" >> "$GITHUB_OUTPUT"
+          set +a
+        shell: bash
+
   marimo:
+    if: github.repository != 'tschm/.config-templates'
     runs-on: "ubuntu-latest"
+    needs: parse-env
+    permissions:
+      contents: read
     steps:
       - uses: jebel-quant/marimushka@v0.1.4
         with:
-          notebooks: 'book/marimo'
-          notebooks_wasm: 'book/marimo'
+          notebooks: ${{ needs.parse-env.outputs.marimo-folder }}
 
   pdoc:
+    if: github.repository != 'tschm/.config-templates'
     runs-on: "ubuntu-latest"
+    needs: parse-env
+    permissions:
+      contents: read
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
         uses: tschm/cradle/actions/environment@v0.3.01
 
       - uses: tschm/cradle/actions/pdoc@v0.3.01
         with:
-          source-folder: 'src/pyhrp'
+          source-folder: ${{ needs.parse-env.outputs.source-folder }}
 
   test:
+    if: github.repository != 'tschm/.config-templates'
     runs-on: "ubuntu-latest"
+    needs: parse-env
+    permissions:
+      contents: read
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
         uses: tschm/cradle/actions/environment@v0.3.01
 
       - uses: tschm/cradle/actions/coverage@v0.3.01
         with:
-          source-folder: 'src/pyhrp'
-          tests-folder: 'src/tests'
+          tests-folder: ${{ needs.parse-env.outputs.tests-folder }}
+          source-folder: ${{ needs.parse-env.outputs.source-folder }}
 
   book:
+    if: github.repository != 'tschm/.config-templates'
     runs-on: "ubuntu-latest"
-    needs: [test, pdoc, marimo]
+    needs: [test, pdoc, marimo, parse-env]
 
     environment:
-      name: github-pages
+      name: github-pages  # 👈 this is the critical missing piece
 
     permissions:
-      pages: write
-      id-token: write
+      pages: write            # Permission to deploy to Pages
+      id-token: write         # Permission to verify deployment origin
 
     steps:
-      - name: Upload the book
-        uses: tschm/cradle/actions/book@v0.3.01
+      - uses: tschm/cradle/actions/book@v0.3.01
         with:
+          title: ${{ needs.parse-env.outputs.title }}
           links: |
             {
               "API": "./pdoc/index.html",
@@ -62,5 +93,3 @@ jobs:
               "Test Report": "./tests/html-report/report.html",
               "Notebooks": "./marimushka/index.html"
             }
-          #output: 'artifacts'
-          title: 'MiniBook'

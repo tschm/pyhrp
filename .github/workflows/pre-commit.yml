@@ -1,33 +1,14 @@
-name: pre-commit
+name: "PRE-COMMIT"
 
-# Workflow for code quality checks and dependency management
-# This workflow ensures code quality standards are maintained and dependencies are properly managed
+on:
+  push:
 
 permissions:
   contents: read
 
-on:
-  push:  # Run on every push to the repository
-
 jobs:
-  # Job to check for dependency issues using deptry
-  # Deptry identifies unused, missing, or transitive dependencies
-  deptry:
-    runs-on: ubuntu-latest
-    steps:
-      # Set up the Python environment with dependencies
-      - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.3.01
-
-      # Run deptry to check for dependency issues
-      - uses: tschm/cradle/actions/deptry@v0.3.01
-        with:
-          source-folder: 'src/pyhrp'  # Path to the source code to check
-
-  # Job to run pre-commit hooks for code quality checks
-  # This includes linting, formatting, and other code quality checks
   pre-commit:
+    if: github.repository != 'tschm/.config-templates'
     runs-on: ubuntu-latest
     steps:
-      # Run pre-commit hooks defined in .pre-commit-config.yaml
       - uses: tschm/cradle/actions/pre-commit@v0.3.01
