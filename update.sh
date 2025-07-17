@@ -17,3 +17,6 @@ cp -r .config-templates-main/* .
 # Clean up by removing the zip file and the extracted directory
 # This prevents cluttering the workspace with temporary files
 rm -rf templates.zip .config-templates-main
+
+git status
+
