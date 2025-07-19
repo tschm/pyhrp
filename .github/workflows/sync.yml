@@ -1,0 +1,23 @@
+name: Sync Config Templates
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  schedule:
+    - cron: '0 5 * * 1'  # Every Monday at 5:00 UTC
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run sync action
+        uses: tschm/.config-templates@main  # Or @v1 if you tag it
+        with:
+          branch: sync/update-configs
+          commit-message: "chore: sync config files from .config-templates"
