@@ -23,7 +23,7 @@ jobs:
 
       # Override the token for create-pull-request action using the PAT secret
       - name: Create Pull Request (override token)
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.PAT_TOKEN }}          # Use PAT token here
           commit-message:
