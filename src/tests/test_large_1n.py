@@ -1,17 +1,32 @@
+"""Tests for the one_over_n algorithm with real market data."""
+
 import pytest
+from pandas import DataFrame
 
 from pyhrp.algos import one_over_n
 from pyhrp.hrp import build_tree
+from pyhrp.cluster import Portfolio
 
 
-def test_one_over_n_large(returns):
-    """Test the one_over_n algorithm with real market data."""
+def test_one_over_n_large(returns: DataFrame) -> None:
+    """Test the one_over_n algorithm with real market data.
+
+    This test verifies:
+    1. The one_over_n algorithm works with larger, real-world datasets
+    2. The number of portfolios matches the number of tree levels
+    3. Each portfolio has weights that sum to 1.0
+    4. All assets are included in each portfolio
+    5. All weights are positive
+
+    Args:
+        returns: DataFrame of asset returns
+    """
     # Build dendrogram from correlation matrix
     cor = returns.corr()
     dendrogram = build_tree(cor=cor, method="ward")
 
     # Collect portfolios from one_over_n algorithm
-    portfolios = list(one_over_n(dendrogram))
+    portfolios: list[tuple[int, Portfolio]] = list(one_over_n(dendrogram))
 
     # Check that we get the expected number of levels
     assert len(portfolios) > 0

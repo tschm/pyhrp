@@ -1,3 +1,11 @@
+"""Marimo notebook demonstrating the Hierarchical Risk Parity (HRP) portfolio optimization method.
+
+This notebook implements the Hierarchical Risk Parity algorithm as introduced by Marcos Lopez de Prado.
+It compares different approaches to building the hierarchical tree, including the 'single' distance method
+with and without bisection, and the 'ward' method. The notebook visualizes the resulting dendrograms
+and portfolio weights for each approach.
+"""
+
 # /// script
 # requires-python = ">=3.12"
 # dependencies = [

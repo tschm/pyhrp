@@ -1,13 +1,23 @@
+"""Tests for the one_over_n portfolio construction algorithm."""
+
 import pytest
 
 from pyhrp.algos import one_over_n
 from pyhrp.cluster import Asset
 from pyhrp.cluster import Cluster as Node
 from pyhrp.hrp import Dendrogram
+from pyhrp.cluster import Portfolio
 
 
-def test_one_over_n():
-    """Test the one_over_n algorithm with a simple tree structure."""
+def test_one_over_n() -> None:
+    """Test the one_over_n algorithm with a simple tree structure.
+
+    This test verifies:
+    1. The one_over_n algorithm correctly generates portfolios for each level
+    2. The number of portfolios matches the number of tree levels
+    3. Portfolio weights sum to 1.0 at each level
+    4. All assets are included in the portfolio
+    """
     # Create a simple tree structure
     root = Node(10)
     root.left = Node(11)
@@ -25,7 +35,7 @@ def test_one_over_n():
     dendrogram = Dendrogram(root=root, assets=[a, b, c])
 
     # Collect portfolios from one_over_n algorithm
-    portfolios = list(one_over_n(dendrogram))
+    portfolios: list[tuple[int, Portfolio]] = list(one_over_n(dendrogram))
 
     # Check that we get the expected number of levels
     assert len(portfolios) == len(root.levels)
@@ -47,17 +57,27 @@ def test_one_over_n():
         assert sum(portfolio1.weights.values) == pytest.approx(1.0)
 
 
-def test_wrong_number_of_nodes():
+def test_wrong_number_of_nodes() -> None:
+    """Test that Dendrogram raises ValueError when assets and leaves count don't match.
+
+    This test verifies:
+    1. The Dendrogram constructor validates that the number of assets matches
+       the number of leaf nodes in the tree
+    2. A ValueError is raised when there's a mismatch
+    """
+    # Create a tree with 3 leaf nodes
     root = Node(10)
     root.left = Node(11)
     root.right = Node(0)
     root.left.left = Node(1)
     root.left.right = Node(2)
 
+    # Create 4 assets (more than the number of leaf nodes)
     a = Asset(name="A")
     b = Asset(name="B")
     c = Asset(name="C")
     d = Asset(name="D")
 
+    # Verify that a ValueError is raised due to the mismatch
     with pytest.raises(ValueError):
         Dendrogram(root=root, assets=[a, b, c, d])

@@ -1,5 +1,4 @@
-"""
-Data structures for hierarchical risk parity portfolio optimization.
+"""Data structures for hierarchical risk parity portfolio optimization.
 
 This module defines the core data structures used in the hierarchical risk parity algorithm:
 - Asset: Represents a financial asset in a portfolio
@@ -20,8 +19,7 @@ from .treelib import Node
 
 @dataclass(frozen=True)
 class Asset:
-    """
-    Represents a financial asset in a portfolio.
+    """Represents a financial asset in a portfolio.
 
     Attributes:
         mu (float, optional): Expected return of the asset
@@ -32,8 +30,7 @@ class Asset:
     name: str = None
 
     def __hash__(self) -> int:
-        """
-        Hash function for Asset objects.
+        """Hash function for Asset objects.
 
         Returns:
             int: Hash value based on the asset name
@@ -41,8 +38,7 @@ class Asset:
         return hash(self.name)
 
     def __eq__(self, other: Any) -> bool:
-        """
-        Equality comparison for Asset objects.
+        """Equality comparison for Asset objects.
 
         Args:
             other (Any): Object to compare with
@@ -55,8 +51,7 @@ class Asset:
         return self.name == other.name
 
     def __lt__(self, other: Any) -> bool:
-        """
-        Less than comparison for Asset objects.
+        """Less than comparison for Asset objects.
 
         Args:
             other (Any): Object to compare with
@@ -71,12 +66,20 @@ class Asset:
 
 @dataclass
 class Portfolio:
+    """Manages a collection of assets and their weights in a portfolio.
+
+    This class provides methods to calculate portfolio statistics, retrieve and
+    set asset weights, and visualize the portfolio composition.
+
+    Attributes:
+        _weights (dict[Asset, float]): Dictionary mapping assets to their weights in the portfolio
+    """
+
     _weights: dict[Asset, float] = field(default_factory=dict)
 
     @property
     def assets(self) -> list[Asset]:
-        """
-        Get all assets in the portfolio.
+        """Get all assets in the portfolio.
 
         Returns:
             list[Asset]: List of assets in the portfolio
@@ -84,8 +87,7 @@ class Portfolio:
         return list(self._weights.keys())
 
     def variance(self, cov: pd.DataFrame) -> float:
-        """
-        Calculate the variance of the portfolio.
+        """Calculate the variance of the portfolio.
 
         Args:
             cov (pd.DataFrame): Covariance matrix
@@ -98,8 +100,7 @@ class Portfolio:
         return np.linalg.multi_dot((w, c, w))
 
     def __getitem__(self, item: Asset) -> float:
-        """
-        Get the weight of an asset.
+        """Get the weight of an asset.
 
         Args:
             item (Asset): The asset to get the weight for
@@ -110,8 +111,7 @@ class Portfolio:
         return self._weights[item]
 
     def __setitem__(self, key: Asset, value: float) -> None:
-        """
-        Set the weight of an asset.
+        """Set the weight of an asset.
 
         Args:
             key (Asset): The asset to set the weight for
@@ -121,8 +121,7 @@ class Portfolio:
 
     @property
     def weights(self) -> pd.Series:
-        """
-        Get all weights as a pandas Series.
+        """Get all weights as a pandas Series.
 
         Returns:
             pd.Series: Series of weights indexed by assets
@@ -130,8 +129,7 @@ class Portfolio:
         return pd.Series(self._weights, name="Weights").sort_index()
 
     def weights_by_name(self, names: list[str]) -> pd.Series:
-        """
-        Get weights as a pandas Series indexed by asset names.
+        """Get weights as a pandas Series indexed by asset names.
 
         Args:
             names (list[str]): List of asset names to include
@@ -143,8 +141,7 @@ class Portfolio:
         return pd.Series({name: w[name] for name in names})
 
     def plot(self, names: list[str]):
-        """
-        Plot the portfolio weights.
+        """Plot the portfolio weights.
 
         Args:
             names (list[str]): List of asset names to include in the plot
@@ -162,8 +159,7 @@ class Portfolio:
 
 
 class Cluster(Node):
-    """
-    Represents a cluster in the hierarchical clustering tree.
+    """Represents a cluster in the hierarchical clustering tree.
 
     Clusters are the nodes of the graphs we build.
     Each cluster is aware of the left and the right cluster
@@ -174,8 +170,7 @@ class Cluster(Node):
     """
 
     def __init__(self, value: int, left: Cluster | None = None, right: Cluster | None = None, **kwargs):
-        """
-        Initialize a new Cluster.
+        """Initialize a new Cluster.
 
         Args:
             value (int): The identifier for this cluster
@@ -188,8 +183,7 @@ class Cluster(Node):
 
     @property
     def is_leaf(self) -> bool:
-        """
-        Check if this cluster is a leaf node (has no children).
+        """Check if this cluster is a leaf node (has no children).
 
         Returns:
             bool: True if this is a leaf node, False otherwise
@@ -198,8 +192,7 @@ class Cluster(Node):
 
     @property
     def leaves(self) -> list[Cluster]:
-        """
-        Get all reachable leaf nodes in the correct order.
+        """Get all reachable leaf nodes in the correct order.
 
         Note that the leaves method of the Node class implemented in BinaryTree
         is not respecting the 'correct' order of the nodes.

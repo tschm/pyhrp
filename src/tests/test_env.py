@@ -6,23 +6,24 @@ import pytest
 
 
 @pytest.fixture
-def project_root():
+def project_root() -> Path:
     """Fixture that provides the project root directory.
 
     Returns:
         Path: The path to the project root directory.
-
     """
     return Path(__file__).parent.parent.parent
 
 
 @pytest.fixture
-def env_content(project_root: Path):
+def env_content(project_root: Path) -> dict[str, str]:
     """Fixture that provides the content of the .env file as a dictionary.
 
-    Returns:
-        dict: A dictionary containing the key-value pairs from the .env file.
+    Args:
+        project_root: Path to the project root directory.
 
+    Returns:
+        Dict[str, str]: A dictionary containing the key-value pairs from the .env file.
     """
     # Get the project root directory
     env_file_path = project_root / ".env"
@@ -32,7 +33,7 @@ def env_content(project_root: Path):
     return dotenv_values(env_file_path)
 
 
-def test_env_file_exists():
+def test_env_file_exists() -> None:
     """Tests that the .env file exists in the project root.
 
     Verifies:
@@ -46,7 +47,7 @@ def test_env_file_exists():
 
 
 @pytest.mark.parametrize("folder_key", ["MARIMO_FOLDER", "SOURCE_FOLDER", "TESTS_FOLDER"])
-def test_folder_exists(env_content, project_root, folder_key):
+def test_folder_exists(env_content: dict[str, str], project_root: Path, folder_key: str) -> None:
     """Tests that the folder path specified in the .env file exists.
 
     Args:
@@ -56,7 +57,6 @@ def test_folder_exists(env_content, project_root, folder_key):
 
     Verifies:
         The folder path exists in the project structure.
-
     """
     # Get the folder path from the env_content fixture
     folder_path = env_content.get(folder_key)
