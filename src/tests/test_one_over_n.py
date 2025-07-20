@@ -3,10 +3,9 @@
 import pytest
 
 from pyhrp.algos import one_over_n
-from pyhrp.cluster import Asset
+from pyhrp.cluster import Asset, Portfolio
 from pyhrp.cluster import Cluster as Node
 from pyhrp.hrp import Dendrogram
-from pyhrp.cluster import Portfolio
 
 
 def test_one_over_n() -> None:

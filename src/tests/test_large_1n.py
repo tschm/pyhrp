@@ -4,8 +4,8 @@ import pytest
 from pandas import DataFrame
 
 from pyhrp.algos import one_over_n
-from pyhrp.hrp import build_tree
 from pyhrp.cluster import Portfolio
+from pyhrp.hrp import build_tree
 
 
 def test_one_over_n_large(returns: DataFrame) -> None:
