@@ -1,5 +1,8 @@
 docs
 .DS_Store
+pdoc
+
+quantstats.md
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,3 +1,13 @@
+# Workflow: Continuous Integration
+# Purpose: This workflow runs tests on multiple Python versions to ensure
+#          compatibility and code quality across different environments.
+#
+# Trigger: This workflow runs on every push
+#
+# Components:
+#   - 🧪 Run tests on multiple Python versions
+#   - 🔄 Matrix strategy for testing on different environments
+
 name: "CI"
 
 on:
@@ -21,10 +31,10 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
-        uses: tschm/cradle/actions/environment@v0.3.01
+        uses: tschm/cradle/actions/environment@v0.3.04
         with:
           python-version: ${{ matrix.python-version }}
 
-      - uses: tschm/cradle/actions/test@v0.3.01
+      - uses: tschm/cradle/actions/test@v0.3.04
         with:
           tests-folder: src/tests

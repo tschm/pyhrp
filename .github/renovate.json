@@ -11,7 +11,8 @@
     "enabledManagers": [
         "pep621",
         "pre-commit",
-        "github-actions"
+        "github-actions",
+        "devcontainer"
     ],
     "timezone": "Asia/Dubai",
     "schedule": [
