@@ -1,9 +1,7 @@
 name: SYNC
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
 
 permissions:
   contents: write  # Needed to create releases
