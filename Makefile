@@ -81,11 +81,16 @@ clean: ## Clean generated files and directories
 	@git fetch -p
 	@git branch -vv | grep ': gone]' | awk '{print $$1}' | xargs -r git branch -D
 
-##@ Marimo & Jupyter
+##@ Marimo
 
-marimo: uv ## Start a Marimo server
-	@printf "$(BLUE)Start Marimo server...$(RESET)\n"
-	@uvx marimo edit --sandbox $(MARIMO_FOLDER)
+marimo: uv ## Start a Marimo server (use FILE=filename.py to specify a file)
+	@if [ -z "$(FILE)" ]; then \
+		echo "❌ FILE is required. Usage: make marimo FILE=demo.py" >&2; \
+		exit 1; \
+	fi
+
+	@printf "$(BLUE)Start Marimo server with $(MARIMO_FOLDER)/$(FILE)...$(RESET)\n"
+	@uvx marimo edit --sandbox $(MARIMO_FOLDER)/$(FILE)
 
 ##@ Help
 
