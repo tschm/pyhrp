@@ -1,23 +1,36 @@
-name: Sync Config Templates
+name: SYNC
 
 on:
   push:
     branches:
       - main
-  workflow_dispatch:
-  schedule:
-    - cron: '0 5 * * 1'  # Every Monday at 5:00 UTC
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: write  # Needed to create releases
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Run sync action
-        uses: tschm/.config-templates@main  # Or @v1 if you tag it
+      - name: Checkout the target repo
+        uses: actions/checkout@v4
+
+      - name: Sync config templates
+        uses: tschm/.config-templates@main
         with:
           branch: sync/update-configs
-          commit-message: "chore: sync config files from .config-templates"
+          commit-message: sync config files from .config-templates
+
+      # Override the token for create-pull-request action using the PAT secret
+      - name: Create Pull Request (override token)
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.PAT_TOKEN }}          # Use PAT token here
+          commit-message:
+            "chore: sync config files from .config-templates"
+          branch: sync/update-configs
+          title:
+            "chore: sync config files from .config-templates"
+          body: |
+            This PR updates config files from [tschm/.config-templates](https://github.com/tschm/.config-templates).
+          delete-branch: true
