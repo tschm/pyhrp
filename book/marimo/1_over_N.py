@@ -1,3 +1,10 @@
+"""Marimo notebook demonstrating the hierarchical 1/N portfolio allocation strategy.
+
+This notebook implements a hierarchical version of the 1/N portfolio allocation strategy,
+inspired by Thomas Raffinot. It builds a dendrogram using the 'ward' distance method
+and applies the 1/N strategy level by level, from the root to the leaves.
+"""
+
 # /// script
 # requires-python = ">=3.12"
 # dependencies = [

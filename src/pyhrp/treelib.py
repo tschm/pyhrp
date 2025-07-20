@@ -1,5 +1,4 @@
-"""
-A lightweight binary tree implementation to replace the binarytree dependency.
+"""A lightweight binary tree implementation to replace the binarytree dependency.
 
 This module provides a simple Node class that can be used to create binary trees.
 It implements only the functionality needed by the pyhrp package.
@@ -8,16 +7,16 @@ It implements only the functionality needed by the pyhrp package.
 from __future__ import annotations
 
 from collections import deque
-from typing import Deque, Iterator, TypeVar, Union
+from collections.abc import Iterator
+from typing import TypeVar
 
 # Type for node values
-NodeValue = Union[int, float, str]
+NodeValue = int | float | str
 T = TypeVar("T", bound="Node")
 
 
 class Node:
-    """
-    A binary tree node with left and right children.
+    """A binary tree node with left and right children.
 
     This class implements the minimal functionality needed from the binarytree.Node class
     that is used in the pyhrp package.
@@ -29,8 +28,7 @@ class Node:
     """
 
     def __init__(self, value: NodeValue, left: Node | None = None, right: Node | None = None):
-        """
-        Initialize a new Node.
+        """Initialize a new Node.
 
         Args:
             value: The value of the node
@@ -43,8 +41,7 @@ class Node:
 
     @property
     def is_leaf(self) -> bool:
-        """
-        Check if this node is a leaf node (has no children).
+        """Check if this node is a leaf node (has no children).
 
         Returns:
             bool: True if this is a leaf node, False otherwise
@@ -53,8 +50,7 @@ class Node:
 
     @property
     def leaves(self) -> list[Node]:
-        """
-        Get all leaf nodes in the tree rooted at this node.
+        """Get all leaf nodes in the tree rooted at this node.
 
         Returns:
             List[Node]: List of all leaf nodes
@@ -72,8 +68,7 @@ class Node:
 
     @property
     def levels(self) -> list[list[Node]]:
-        """
-        Get nodes by level in the tree.
+        """Get nodes by level in the tree.
 
         Returns:
             List[List[Node]]: List of lists of nodes at each level
@@ -97,8 +92,7 @@ class Node:
 
     @property
     def leaf_count(self) -> int:
-        """
-        Count the number of leaf nodes in the tree.
+        """Count the number of leaf nodes in the tree.
 
         Returns:
             int: Number of leaf nodes
@@ -107,8 +101,7 @@ class Node:
 
     @property
     def size(self) -> int:
-        """
-        Count the total number of nodes in the tree.
+        """Count the total number of nodes in the tree.
 
         Returns:
             int: Total number of nodes
@@ -121,13 +114,12 @@ class Node:
         return size
 
     def __iter__(self) -> Iterator[Node]:
-        """
-        Iterate through all nodes in the tree in level-order.
+        """Iterate through all nodes in the tree in level-order.
 
         Returns:
             Iterator[Node]: Iterator over all nodes
         """
-        queue: Deque[Node] = deque([self])
+        queue: deque[Node] = deque([self])
         while queue:
             node = queue.popleft()
             yield node

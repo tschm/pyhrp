@@ -1,3 +1,14 @@
+# Workflow: Pre-commit
+# Purpose: This workflow runs pre-commit checks to ensure code quality
+#          and consistency across the codebase. It helps catch issues
+#          like formatting errors, linting issues, and other code quality
+#          problems before they are merged.
+#
+# Trigger: This workflow runs on every push
+#
+# Components:
+#   - 🔍 Run pre-commit checks using reusable action
+
 name: "PRE-COMMIT"
 
 on:
@@ -8,7 +19,6 @@ permissions:
 
 jobs:
   pre-commit:
-    if: github.repository != 'tschm/.config-templates'
     runs-on: ubuntu-latest
     steps:
-      - uses: tschm/cradle/actions/pre-commit@v0.3.01
+      - uses: tschm/cradle/actions/pre-commit@v0.3.04

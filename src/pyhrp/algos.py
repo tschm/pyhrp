@@ -1,5 +1,4 @@
-"""
-Portfolio optimization algorithms for hierarchical risk parity.
+"""Portfolio optimization algorithms for hierarchical risk parity.
 
 This module implements various portfolio optimization algorithms:
 - risk_parity: The main hierarchical risk parity algorithm
@@ -8,8 +7,9 @@ This module implements various portfolio optimization algorithms:
 
 from __future__ import annotations
 
+from collections.abc import Generator
 from copy import deepcopy
-from typing import Any, Generator
+from typing import Any
 
 import pandas as pd
 
@@ -17,8 +17,7 @@ from .cluster import Cluster, Portfolio
 
 
 def risk_parity(root: Cluster, cov: pd.DataFrame) -> Cluster:
-    """
-    Compute hierarchical risk parity weights for a cluster tree.
+    """Compute hierarchical risk parity weights for a cluster tree.
 
     This is the main algorithm for hierarchical risk parity. It recursively
     traverses the cluster tree and assigns weights to each node based on
@@ -47,8 +46,7 @@ def risk_parity(root: Cluster, cov: pd.DataFrame) -> Cluster:
 
 
 def _parity(cluster: Cluster, cov: pd.DataFrame) -> Cluster:
-    """
-    Compute risk parity weights for a parent cluster from its children.
+    """Compute risk parity weights for a parent cluster from its children.
 
     This function implements the core risk parity principle: allocating weights
     inversely proportional to risk, so that each sub-portfolio contributes
@@ -84,8 +82,7 @@ def _parity(cluster: Cluster, cov: pd.DataFrame) -> Cluster:
 
 
 def one_over_n(dendrogram: Any) -> Generator[tuple[int, Portfolio]]:
-    """
-    Generate portfolios using the 1/N (equal weight) strategy at each tree level.
+    """Generate portfolios using the 1/N (equal weight) strategy at each tree level.
 
     This function implements a hierarchical 1/N strategy where weights are
     distributed equally among assets within each cluster at each level of the tree.
