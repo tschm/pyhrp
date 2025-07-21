@@ -3,21 +3,21 @@
 from pathlib import Path
 
 import pytest
+from dotenv import dotenv_values
 
 
 @pytest.fixture
-def project_root():
+def project_root() -> Path:
     """Fixture that provides the project root directory.
 
     Returns:
         Path: The path to the project root directory.
-
     """
     return Path(__file__).parent.parent.parent
 
 
 @pytest.fixture
-def env_content(project_root: Path):
+def env_content(project_root: Path) -> dict[str, str]:
     """Fixture that provides the content of the .env file as a dictionary.
 
     Returns:
@@ -27,12 +27,10 @@ def env_content(project_root: Path):
     # Get the project root directory
     env_file_path = project_root / ".env"
 
-    from dotenv import dotenv_values
-
     return dotenv_values(env_file_path)
 
 
-def test_env_file_exists():
+def test_env_file_exists() -> None:
     """Tests that the .env file exists in the project root.
 
     Verifies:
@@ -46,7 +44,7 @@ def test_env_file_exists():
 
 
 @pytest.mark.parametrize("folder_key", ["MARIMO_FOLDER", "SOURCE_FOLDER", "TESTS_FOLDER"])
-def test_folder_exists(env_content, project_root, folder_key):
+def test_folder_exists(env_content, project_root, folder_key) -> None:
     """Tests that the folder path specified in the .env file exists.
 
     Args:
