@@ -1,3 +1,6 @@
+# This file is part of the tschm/.config-templates repository
+# (https://github.com/tschm/.config-templates).
+#
 # Workflow: Book
 # Purpose: This workflow builds and deploys comprehensive documentation for the project.
 #          It combines API documentation, test coverage reports, test results, and
