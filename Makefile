@@ -1,3 +1,6 @@
+# This file is part of the tschm/.config-templates repository
+# (https://github.com/tschm/.config-templates).
+#
 # Colors for pretty output
 BLUE := \033[36m
 BOLD := \033[1m

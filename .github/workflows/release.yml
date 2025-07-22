@@ -1,3 +1,6 @@
+# This file is part of the tschm/.config-templates repository
+# (https://github.com/tschm/.config-templates).
+#
 # Manual Release Workflow for Python Package using Hatch and
 # Trusted Publisher (OIDC)
 #
@@ -104,7 +107,7 @@ jobs:
         id: set_output
         run: |
           echo "built=${{ steps.check_file.outputs.exists }}" >> $GITHUB_OUTPUT
-  
+
 
   release:
     name: Create GitHub Release
