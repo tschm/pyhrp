@@ -45,6 +45,6 @@ jobs:
 
     steps:
       - name: Run deptry
-        uses: tschm/cradle/actions/deptry@v0.3.04
+        uses: tschm/cradle/actions/deptry@v0.3.06
         with:
           source-folder: ${{ needs.parse-env.outputs.source-folder }}
