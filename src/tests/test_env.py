@@ -15,6 +15,44 @@ import pytest
 from dotenv import dotenv_values
 
 
+def find_project_root(start_path: Path = None) -> Path:
+    """Find the project root directory by looking for the .git folder.
+
+    This function iterates up the directory tree from the given starting path
+    until it finds a directory containing a .git folder, which is assumed to be
+    the project root.
+
+    Args:
+        start_path (Path, optional): The path to start searching from.
+            If None, uses the directory of the file calling this function.
+
+    Returns:
+        Path: The path to the project root directory.
+
+    Raises:
+        FileNotFoundError: If no .git directory is found in any parent directory.
+    """
+    if start_path is None:
+        # If no start_path is provided, use the current file's directory
+        start_path = Path(__file__).parent
+
+    # Convert to absolute path to handle relative paths
+    current_path = start_path.absolute()
+
+    # Iterate up the directory tree
+    while current_path != current_path.parent:  # Stop at the root directory
+        # Check if .git directory exists
+        git_dir = current_path / ".git"
+        if git_dir.exists() and git_dir.is_dir():
+            return current_path
+
+        # Move up to the parent directory
+        current_path = current_path.parent
+
+    # If we've reached the root directory without finding .git
+    raise FileNotFoundError("Could not find project root: no .git directory found in any parent directory")
+
+
 @pytest.fixture
 def project_root() -> Path:
     """Fixture that provides the project root directory.
@@ -22,7 +60,7 @@ def project_root() -> Path:
     Returns:
         Path: The path to the project root directory.
     """
-    return Path(__file__).parent.parent.parent
+    return find_project_root(Path(__file__).parent)
 
 
 @pytest.fixture

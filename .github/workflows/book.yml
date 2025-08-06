@@ -20,8 +20,9 @@ name: "BOOK"
 on:
   push:
     branches:
+      # please use either main or master as your default branch
       - main
-
+      - master
 
 jobs:
   parse-env:
@@ -68,9 +69,11 @@ jobs:
       contents: read
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
+        if: hashFiles('pyproject.toml') != ''
         uses: tschm/cradle/actions/environment@v0.3.06
 
       - uses: tschm/cradle/actions/pdoc@v0.3.06
+        if: hashFiles('pyproject.toml') != ''
         with:
           source-folder: ${{ needs.parse-env.outputs.source-folder }}
 
@@ -82,9 +85,11 @@ jobs:
       contents: read
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
+        if: hashFiles('pyproject.toml') != ''
         uses: tschm/cradle/actions/environment@v0.3.06
 
       - uses: tschm/cradle/actions/coverage@v0.3.06
+        if: hashFiles('pyproject.toml') != ''
         with:
           tests-folder: ${{ needs.parse-env.outputs.tests-folder }}
           source-folder: ${{ needs.parse-env.outputs.source-folder }}
@@ -103,6 +108,7 @@ jobs:
 
     steps:
       - uses: tschm/cradle/actions/book@v0.3.06
+        if: hashFiles('pyproject.toml') != ''
         with:
           title: ${{ needs.parse-env.outputs.title }}
           links: |
@@ -110,5 +116,14 @@ jobs:
               "API": "./pdoc/index.html",
               "Coverage": "./tests/html-coverage/index.html",
               "Test Report": "./tests/html-report/report.html",
+              "Notebooks": "./marimushka/index.html"
+            }
+
+      - uses: tschm/cradle/actions/book@v0.3.06
+        if: hashFiles('pyproject.toml') == ''
+        with:
+          title: ${{ needs.parse-env.outputs.title }}
+          links: |
+            {
               "Notebooks": "./marimushka/index.html"
             }

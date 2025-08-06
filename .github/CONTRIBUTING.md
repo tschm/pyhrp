@@ -4,7 +4,7 @@ This file is part of the tschm/.config-templates repository.
 
 This document is a guide to contributing to the project.
 
-We welcome all contributions. You don't need to be an expert (in optimization)
+We welcome all contributions. You don't need to be an expert
 to help out.
 
 ## Checklist
@@ -13,10 +13,10 @@ Contributions are made through
 [pull requests](https://help.github.com/articles/using-pull-requests/).
 Before sending a pull request, make sure you do the following:
 
-- Run 'make fmt' to make sure your code adheres to our [coding style](#code-style).
-  This step also includes our license on top of your new files.
-- [Write unit tests](#writing-unit-tests)
-- Run the [unit tests](#running-unit-tests) and check that they're passing
+- Run 'make check' to make sure your code adheres to our [coding style](#code-style)
+and all tests pass.
+- [Write unit tests](#writing-unit-tests) for new functionality added.
+
 
 ## Building from source
 
@@ -57,10 +57,6 @@ following:
   or address TODOs
 - Browse the open issues,
   and look for the issues tagged "help wanted".
-
-## License
-
-A license is added to new files automatically as a pre-commit hook.
 
 ## Code style
 
