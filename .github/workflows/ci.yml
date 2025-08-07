@@ -34,10 +34,12 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: "Build the virtual environment for ${{ github.repository }}"
+        if: hashFiles('pyproject.toml') != ''
         uses: tschm/cradle/actions/environment@v0.3.06
         with:
           python-version: ${{ matrix.python-version }}
 
       - uses: tschm/cradle/actions/test@v0.3.06
+        if: hashFiles('pyproject.toml') != ''
         with:
           tests-folder: src/tests
