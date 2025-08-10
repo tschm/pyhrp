@@ -3,7 +3,10 @@
 #
 docs
 .DS_Store
-pdoc
+_pdoc
+_book
+_tests
+_marimushka
 
 quantstats.md
 

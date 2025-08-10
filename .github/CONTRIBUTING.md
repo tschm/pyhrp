@@ -1,7 +1,5 @@
 # Contributing
 
-This file is part of the tschm/.config-templates repository.
-
 This document is a guide to contributing to the project.
 
 We welcome all contributions. You don't need to be an expert
@@ -60,15 +58,17 @@ following:
 
 ## Code style
 
-We use black and ruff to enforce our Python coding style.
-Before sending us a pull request, navigate to the project root and run
+We use ruff to enforce our Python coding style.
+Before sending us a pull request, navigate to the project 
+root and run
 
 ```bash
 make fmt
 ```
 
 to make sure that your changes abide by our style conventions.
-Please fix any errors that are reported before sending the pull request.
+Please fix any errors that are reported before sending
+the pull request.
 
 ## Writing unit tests
 

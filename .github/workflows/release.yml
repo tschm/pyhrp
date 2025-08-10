@@ -60,27 +60,24 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-            python-version: '3.13'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      #- name: Set up Python
+      #  uses: actions/setup-python@v5
+      #  with:
+      #      python-version: '3.13'
 
       - name: Build
         if: hashFiles('pyproject.toml') != ''
         run: |
-          pip install --upgrade pip
-          pip install hatch
-
           version=${{ github.event.inputs.tag }}
           version=${version#v}
           echo "Setting version to $version"
           sed -i.bak "s/^version = .*/version = \"$version\"/" pyproject.toml
           rm pyproject.toml.bak
 
-          hatch build
-
-          echo "Uploading dist/"
-          #tar -cf dist.tar dist
+          task build:build -s
 
       - name: Upload dist artifact
         # not tested at runtime!
