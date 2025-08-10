@@ -24,24 +24,24 @@ We take heavily advantage of the scipy.cluster.hierarchy package.
 Here's a simple example
 
 ```python
->> > import pandas as pd
->> > from pyhrp.hrp import build_tree
->> > from pyhrp.algos import risk_parity
->> > from pyhrp.cluster import Asset
+>>> import pandas as pd
+>>> from pyhrp.hrp import build_tree
+>>> from pyhrp.algos import risk_parity
+>>> from pyhrp.cluster import Asset
 
->> > prices = pd.read_csv("tests/resources/stock_prices.csv", index_col=0, parse_dates=True)
->> > prices.columns = [Asset(name=column) for column in prices.columns]
+>>> prices = pd.read_csv("tests/resources/stock_prices.csv", index_col=0, parse_dates=True)
+>>> prices.columns = [Asset(name=column) for column in prices.columns]
 
->> > returns = prices.pct_change().dropna(axis=0, how="all")
->> > cov, cor = returns.cov(), returns.corr()
+>>> returns = prices.pct_change().dropna(axis=0, how="all")
+>>> cov, cor = returns.cov(), returns.corr()
 
 # Compute the dendrogram based on the correlation matrix and Ward's metric
->> > dendrogram = build_tree(cor, method='ward')
->> > dendrogram.plot()
+>>> dendrogram = build_tree(cor, method='ward')
+>>> dendrogram.plot()
 
 # Compute the weights on the dendrogram
->> > root = risk_parity(root=dendrogram.root, cov=cov)
->> > ax = root.portfolio.plot(names=dendrogram.names)
+>>> root = risk_parity(root=dendrogram.root, cov=cov)
+>>> ax = root.portfolio.plot(names=dendrogram.names)
 ```
 
 For your convenience you can bypass the construction of the covariance and
