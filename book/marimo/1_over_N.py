@@ -7,7 +7,7 @@ and applies the 1/N strategy level by level, from the root to the leaves.
 
 import marimo
 
-__generated_with = "0.13.15"
+__generated_with = "0.14.16"
 app = marimo.App()
 
 with app.setup:
@@ -49,24 +49,22 @@ def _():
     column_names = returns.columns.tolist()
     # Create a mapping from column names to Asset objects
     assets_map = {column: Asset(name=column) for column in column_names}
-    return (returns, assets_map)
+    return assets_map, returns
 
 
 @app.cell
-def _(returns, assets_map):
+def _(returns):
     cor = returns.corr()
     cov = returns.cov()
-    return cor, cov, assets_map
+    return (cor,)
 
 
 @app.cell
-def _(cor, assets_map):
+def _(assets_map, cor):
     # We first build the tree. This task is very separated from the computations of weights on such a tree.
     # Convert column names to Asset objects for build_tree
-    assets = [assets_map[col] for col in cor.columns]
+    cor.columns = [assets_map[col] for col in cor.columns]
     dendrogram = build_tree(cor, method="ward")
-    # Replace the assets in the dendrogram with our Asset objects
-    dendrogram.assets = assets
     dendrogram.plot()
     plt.show()
     return (dendrogram,)

@@ -65,10 +65,8 @@ def _(returns, assets_map):
 def _(cor, assets_map):
     # The first dendrogram is suffering. We observe the chaining effect
     # Convert column names to Asset objects for build_tree
-    assets = [assets_map[col] for col in cor.columns]
+    cor.columns = [assets_map[col] for col in cor.columns]
     dendrogram_before = build_tree(cor, method="single")
-    # Replace the assets in the dendrogram with our Asset objects
-    dendrogram_before.assets = assets
     dendrogram_before.plot()
     plt.show()
     return (dendrogram_before,)
@@ -90,10 +88,8 @@ def _(cor, assets_map):
     # now only the order of the leaves (e.g. the assets) and
     # constructs a second Dendrogram.
     # Convert column names to Asset objects for build_tree
-    assets = [assets_map[col] for col in cor.columns]
+    cor.columns = [assets_map[col] for col in cor.columns]
     dendrogram_bisection = build_tree(cor, method="single", bisection=True)
-    # Replace the assets in the dendrogram with our Asset objects
-    dendrogram_bisection.assets = assets
     dendrogram_bisection.plot()
     plt.show()
     return (dendrogram_bisection,)
@@ -110,10 +106,8 @@ def _(cov, dendrogram_bisection):
 @app.cell
 def _(cor, assets_map):
     # Convert column names to Asset objects for build_tree
-    assets = [assets_map[col] for col in cor.columns]
+    cor.columns = [assets_map[col] for col in cor.columns]
     dendrogram_ward = build_tree(cor, method="ward")
-    # Replace the assets in the dendrogram with our Asset objects
-    dendrogram_ward.assets = assets
     dendrogram_ward.plot()
     plt.show()
     return (dendrogram_ward,)
