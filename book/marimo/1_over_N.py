@@ -5,17 +5,6 @@ inspired by Thomas Raffinot. It builds a dendrogram using the 'ward' distance me
 and applies the 1/N strategy level by level, from the root to the leaves.
 """
 
-# /// script
-# requires-python = ">=3.12"
-# dependencies = [
-#     "marimo==0.14.9",
-#     "pandas==2.3.0",
-#     "matplotlib==3.10.3",
-#     "pyhrp==1.3.9",
-#     "polars==1.31.0",
-#     "pyarrow==20.0.0",
-# ]
-# ///
 import marimo
 
 __generated_with = "0.13.15"
