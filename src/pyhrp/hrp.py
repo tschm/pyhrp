@@ -84,9 +84,16 @@ class Dendrogram:
         if not len(self.root.leaves) == len(self.assets):
             raise ValueError("Inconsistent number of assets and leaves")
 
+        for asset in self.assets:
+            assert isinstance(asset, Asset)
+
     def plot(self, **kwargs):
         """Plot the dendrogram."""
-        labels = [asset.name for asset in self.assets]
+        try:
+            labels = [asset.name for asset in self.assets]
+        except AttributeError:
+            labels = [asset for asset in self.assets]
+
         sch.dendrogram(self.linkage, leaf_rotation=90, leaf_font_size=8, labels=labels, **kwargs)
 
     @property

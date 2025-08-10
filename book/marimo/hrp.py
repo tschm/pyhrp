@@ -8,7 +8,7 @@ and portfolio weights for each approach.
 
 import marimo
 
-__generated_with = "0.13.15"
+__generated_with = "0.14.16"
 app = marimo.App()
 
 with app.setup:
@@ -51,21 +51,26 @@ def _():
     column_names = returns.columns.tolist()
     # Create a mapping from column names to Asset objects
     assets_map = {column: Asset(name=column) for column in column_names}
-    return (returns, assets_map)
+    return column_names, returns, assets_map
 
 
 @app.cell
-def _(returns, assets_map):
+def _(column_names, returns):
     cor = returns.corr()
+    cor.columns = [Asset(name=column) for column in column_names]
+    cor.index = [Asset(name=column) for column in column_names]
     cov = returns.cov()
-    return cor, cov, assets_map
+    cov.columns = [Asset(name=column) for column in column_names]
+    cov.index = [Asset(name=column) for column in column_names]
+    return cor, cov
 
 
 @app.cell
-def _(cor, assets_map):
+def _(cor):
     # The first dendrogram is suffering. We observe the chaining effect
     # Convert column names to Asset objects for build_tree
-    cor.columns = [assets_map[col] for col in cor.columns]
+    print(cor)
+
     dendrogram_before = build_tree(cor, method="single")
     dendrogram_before.plot()
     plt.show()
@@ -83,12 +88,11 @@ def _(cov, dendrogram_before):
 
 
 @app.cell
-def _(cor, assets_map):
+def _(cor):
     # The dendrogram suffers because of the 'chaining' effect. LdP is using
     # now only the order of the leaves (e.g. the assets) and
     # constructs a second Dendrogram.
     # Convert column names to Asset objects for build_tree
-    cor.columns = [assets_map[col] for col in cor.columns]
     dendrogram_bisection = build_tree(cor, method="single", bisection=True)
     dendrogram_bisection.plot()
     plt.show()
@@ -104,9 +108,7 @@ def _(cov, dendrogram_bisection):
 
 
 @app.cell
-def _(cor, assets_map):
-    # Convert column names to Asset objects for build_tree
-    cor.columns = [assets_map[col] for col in cor.columns]
+def _(cor):
     dendrogram_ward = build_tree(cor, method="ward")
     dendrogram_ward.plot()
     plt.show()

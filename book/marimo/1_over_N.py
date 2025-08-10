@@ -45,25 +45,25 @@ def _():
     index_col = prices_pl.columns[0]
     prices = prices_pl.to_pandas().set_index(index_col)
     returns = prices.pct_change().dropna(axis=0, how="all").fillna(0.0)
-    # Store original column names for later use
-    column_names = returns.columns.tolist()
-    # Create a mapping from column names to Asset objects
-    assets_map = {column: Asset(name=column) for column in column_names}
-    return assets_map, returns
+    return returns
 
 
 @app.cell
 def _(returns):
+    column_names = returns.columns.tolist()
     cor = returns.corr()
+    cor.columns = [Asset(name=column) for column in column_names]
+    cor.index = [Asset(name=column) for column in column_names]
     cov = returns.cov()
-    return (cor,)
+    cov.columns = [Asset(name=column) for column in column_names]
+    cov.index = [Asset(name=column) for column in column_names]
+    return cor, cov
 
 
 @app.cell
-def _(assets_map, cor):
+def _(cor):
     # We first build the tree. This task is very separated from the computations of weights on such a tree.
     # Convert column names to Asset objects for build_tree
-    cor.columns = [assets_map[col] for col in cor.columns]
     dendrogram = build_tree(cor, method="ward")
     dendrogram.plot()
     plt.show()
