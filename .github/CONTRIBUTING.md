@@ -63,7 +63,7 @@ Before sending us a pull request, navigate to the project
 root and run
 
 ```bash
-make fmt
+make check
 ```
 
 to make sure that your changes abide by our style conventions.
