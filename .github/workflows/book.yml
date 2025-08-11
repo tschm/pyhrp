@@ -35,7 +35,7 @@ jobs:
 
     steps:
       # Check out the repository code
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
