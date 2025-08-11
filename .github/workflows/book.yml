@@ -23,7 +23,6 @@ on:
 
 jobs:
   book:
-    if: github.repository != 'tschm/.config-templates'
     runs-on: "ubuntu-latest"
 
     environment:

@@ -10,7 +10,6 @@ on:
 jobs:
   # Parse .env file and build a matrix of notebooks to test
   list-notebooks:
-    if: github.repository != 'tschm/.config-templates'
     runs-on: ubuntu-latest
     outputs:
       notebook-list: ${{ steps.notebooks.outputs.matrix }}
@@ -43,7 +42,7 @@ jobs:
 
   # Create one job per notebook using the matrix strategy for parallel execution
   test-notebooks:
-    if: github.repository != 'tschm/.config-templates' && needs.list-notebooks.outputs.notebook-list != '[]'
+    if: needs.list-notebooks.outputs.notebook-list != '[]'
     runs-on: ubuntu-latest
     needs: list-notebooks
     strategy:
