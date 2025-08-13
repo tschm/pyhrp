@@ -8,6 +8,12 @@ _book
 _tests
 _marimushka
 
+# temp file used by Junie
+.output.txt
+
+# .env file for configuration, e.g. OpenBB
+.env
+
 quantstats.md
 
 # Byte-compiled / optimized / DLL files

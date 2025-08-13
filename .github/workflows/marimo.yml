@@ -31,11 +31,11 @@ jobs:
           fi
           
           # Find notebooks and handle empty results
-          if [ -z "$(find "$NOTEBOOK_DIR" -name "*.py" 2>/dev/null)" ]; then
+          if [ -z "$(find "$NOTEBOOK_DIR" -maxdepth 1 -name "*.py" 2>/dev/null)" ]; then
             echo "No notebooks found in $NOTEBOOK_DIR. Setting empty matrix."
             echo "matrix=[]" >> "$GITHUB_OUTPUT"
           else
-            notebooks=$(find "$NOTEBOOK_DIR" -name "*.py" -print0 | xargs -0 -n1 echo | jq -R -s -c 'split("\n")[:-1]')
+            notebooks=$(find "$NOTEBOOK_DIR" -maxdepth 1 -name "*.py" -print0 | xargs -0 -n1 echo | jq -R -s -c 'split("\n")[:-1]')
             echo "matrix=$notebooks" >> "$GITHUB_OUTPUT"
           fi
         shell: bash
