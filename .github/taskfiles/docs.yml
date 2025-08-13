@@ -47,7 +47,7 @@ tasks:
           printf "${YELLOW}[WARN] Directory '{{.MARIMO_FOLDER}}' does not exist. Skipping marimushka.${RESET}\n"
         else
           mkdir -p _marimushka
-          py_files=$(find "{{.MARIMO_FOLDER}}" -name "*.py" | tr '\n' ' ')
+          py_files=$(find "{{.MARIMO_FOLDER}}" -maxdepth 1 -name "*.py" | tr '\n' ' ')
           if [ -z "$py_files" ]; then
             printf "${YELLOW}[WARN] No Python files found in '{{.MARIMO_FOLDER}}'.${RESET}\n"
             echo "<html><head><title>Marimo Notebooks</title></head><body><h1>Marimo Notebooks</h1><p>No notebooks found.</p></body></html>" > _marimushka/index.html

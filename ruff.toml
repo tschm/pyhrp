@@ -6,6 +6,9 @@ line-length = 120
 # Target Python version
 target-version = "py312"
 
+# Exclude directories with Jinja template variables in their names
+exclude = ["**/[{][{]*", "**/*[}][}]*"]
+
 [lint]
 # Available rule sets in Ruff:
 # A: flake8-builtins - Check for python builtins being used as variables or parameters
