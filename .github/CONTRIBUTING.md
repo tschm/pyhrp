@@ -19,7 +19,7 @@ and all tests pass.
 ## Building from source
 
 You'll need to build the project locally in order to start editing code.
-To install from source, clone the Github
+To install from source, clone the GitHub
 repository, navigate to its root, and run the following command:
 
 ```bash
@@ -29,7 +29,7 @@ make install
 ## Contributing code
 
 To contribute to the project, send us pull requests.
-For those new to contributing, check out Github's
+For those new to contributing, check out GitHub's
 [guide](https://help.github.com/articles/using-pull-requests/).
 
 Once you've made your pull request, a member of the
@@ -44,7 +44,7 @@ please
 fix your code and send another commit, which will re-trigger the tests.
 
 If you'd like to add a new feature, please do propose your
-change on a Github issue, to make sure
+change on a GitHub issue, to make sure
 that your priorities align with ours.
 
 If you'd like to contribute code but don't know where to start,
