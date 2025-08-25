@@ -32,8 +32,12 @@ tasks:
           printf "${BLUE}[INFO] Building documentation...${RESET}\n"
           if [ -d "src" ]; then
             SOURCE_FOLDER=$(LC_ALL=C find src -mindepth 1 -maxdepth 1 -type d -not -path '*/\.*' | sort | head -1)
-            uv pip install pdoc
-            uv run pdoc -o _pdoc "$SOURCE_FOLDER"
+            if [ -z "$SOURCE_FOLDER" ]; then
+              printf "${YELLOW}[WARN] src/ exists but contains no top-level packages, skipping docs${RESET}\n"
+            else
+              uv pip install pdoc
+              uv run pdoc -o _pdoc "$SOURCE_FOLDER"
+            fi
           else
             printf "${YELLOW}[WARN] No src/ directory found, skipping docs${RESET}\n"
           fi
@@ -126,7 +130,7 @@ tasks:
         printf "${BLUE}[INFO] Generated links.json:${RESET}\n"
         cat _book/links.json
         
-        uvx minibook@v0.0.16 --title "{{.BOOK_TITLE}}" --subtitle "{{.BOOK_SUBTITLE}}" --links "$(cat _book/links.json)" --output "_book"
+        uvx minibook --title "{{.BOOK_TITLE}}" --subtitle "{{.BOOK_SUBTITLE}}" --links "$(cat _book/links.json)" --output "_book"
         
         touch "_book/.nojekyll"
   

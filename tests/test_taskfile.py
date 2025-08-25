@@ -23,27 +23,32 @@ class Result:
 
     @property
     def stdout(self):
-        """Get the standard output of the process.
+        """Return the process standard output as a str.
 
-        Returns:
-            The standard output as a string, decoded if necessary
+        Ensures the underlying CompletedProcess.stdout is a string and returns it.
+
+        Raises:
+            AssertionError: If the underlying stdout is not a str.
         """
         stdout = self.result.stdout
-        if isinstance(stdout, bytes):
-            stdout = stdout.decode("utf-8", errors="replace")
+        assert isinstance(stdout, str)
+        # if isinstance(stdout, bytes):
+        #    stdout = stdout.decode("utf-8", errors="replace")
 
         return stdout
 
     @property
     def stderr(self):
-        """Get the standard error of the process.
+        """Return the process standard error as a string.
 
         Returns:
-            The standard error output
+            str: The process stderr from the underlying CompletedProcess.
+                An AssertionError is raised if the stored stderr is not a string.
         """
         stderr = self.result.stderr
-        if isinstance(stderr, bytes):
-            stderr = stderr.decode("utf-8", errors="replace")
+        assert isinstance(stderr, str)
+        # if isinstance(stderr, bytes):
+        #    stderr = stderr.decode("utf-8", errors="replace")
         return stderr
 
     @property
@@ -196,33 +201,44 @@ class TestTaskfile:
         return task_map.get(base_name, base_name)
 
     def run_task(self, task_name, check=True, timeout=30):
-        """Run a task and return the process result.
+        """Run the named task via the system `task` command and return its process result.
 
-        Args:
-            task_name: Name of the task to run
-            check: Whether to check for successful exit code
-            timeout: Maximum time to wait for task completion
+        The provided task_name is first mapped through self.get_task_name() (so group-prefixed
+        names like "docs:build" may be returned). The task is executed with stdout/stderr
+        captured as text.
+
+        Parameters:
+            task_name (str): Task identifier to run; may be a base name that is mapped to a grouped name.
+            check (bool): If True, subprocess.run will raise on non-zero exit (behavior forwarded to subprocess).
+            timeout (int | float): Seconds to wait for completion before treating the invocation as timed out.
 
         Returns:
-            Result instance containing the process result
+            Result: A Result wrapping the subprocess.CompletedProcess for the executed task.
+            On timeout, returns a Result containing a CompletedProcess with returncode 0 and a brief
+            placeholder stdout indicating the task is still running.
         """
         # Get the appropriate task name with group prefix if needed
         task_name = self.get_task_name(task_name)
 
         try:
-            result = Result(
-                result=subprocess.run(
-                    f"task {task_name}", shell=True, capture_output=True, text=True, check=check, timeout=timeout
-                )
+            cp = subprocess.run(
+                f"task {task_name}",
+                shell=True,
+                capture_output=True,
+                text=True,
+                check=check,
+                timeout=timeout,
             )
-            return result
+
+            return Result(result=cp)
+
         except subprocess.TimeoutExpired as e:
             # For tasks that might hang (like servers)
-            completed_process = subprocess.CompletedProcess(
+            completed_process = CompletedProcess(
                 args=e.cmd,
                 returncode=0,  # Assume it's working if it's still running
-                stdout=e.stdout if e.stdout else "Task is still running (timeout)",
-                stderr=e.stderr if e.stderr else "",
+                stdout=str(e.stdout) if e.stdout else "Task is still running (timeout)",
+                stderr=str(e.stderr) if e.stderr else "",
             )
             return Result(result=completed_process)
 
