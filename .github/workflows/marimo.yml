@@ -54,6 +54,8 @@ jobs:
     steps:
       # Check out the repository code
       - uses: actions/checkout@v5
+        with:
+          lfs: true
 
       # Use the composite action to set up the project
       - name: Setup the project
