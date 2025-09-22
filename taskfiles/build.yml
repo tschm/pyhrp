@@ -41,9 +41,7 @@ tasks:
     cmds:
       - |
         if [ -f "pyproject.toml" ]; then
-          printf "${BLUE}[INFO] Building package...${RESET}\n"
-          uv pip install hatch
-          uv run hatch build
+          uvx hatch build
         else
           printf "${YELLOW}[WARN] No pyproject.toml found, skipping build${RESET}\n"
         fi
