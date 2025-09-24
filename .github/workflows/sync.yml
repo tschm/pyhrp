@@ -22,29 +22,40 @@ on:
 permissions:
   contents: write  # Needed to create releases
 
+env:
+  TEMPLATE_REPO: 'tschm/.config-templates'
+  TEMPLATE_BRANCH: '77-action-with-explicit-devcontainer-copy'
+  TARGET_BRANCH: 'sync/update'
+
 jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the target repo
         uses: actions/checkout@v5
-
-      - name: Sync config templates
-        uses: tschm/.config-templates@main
         with:
-          branch: sync/update-configs
-          commit-message: sync config files from .config-templates
+          token: ${{ secrets.PAT_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: 'false'
 
-      # Override the token for create-pull-request action using the PAT secret
-      - name: Create Pull Request (override token)
-        uses: peter-evans/create-pull-request@v7
+      - name: Sync Template
+        id: sync
+        uses: jebel-quant/sync_template@main
         with:
-          token: ${{ secrets.PAT_TOKEN }}          # Use PAT token here
-          commit-message:
-            "chore: sync config files from .config-templates"
-          branch: sync/update-configs
-          title:
-            "chore: sync config files from .config-templates"
-          body: |
-            This PR updates config files from [tschm/.config-templates](https://github.com/tschm/.config-templates).
-          delete-branch: true
+          token: ${{ secrets.PAT_TOKEN }}
+          template-repository: ${{ env.TEMPLATE_REPO }}
+          template-branch: ${{ env.TEMPLATE_BRANCH }}
+          branch: ${{ env.TARGET_BRANCH }}
+          commit-message: "chore: sync template files"
+          include: |
+            .github
+            taskfiles
+            tests
+            .editorconfig
+            .gitignore
+            .pre-commit-config.yaml
+            CODE_OF_CONDUCT.md
+            CONTRIBUTING.md
+            Makefile
+            ruff.toml
+            Taskfile.yml
