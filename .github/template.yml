@@ -1,0 +1,14 @@
+template-repository: "tschm/.config-templates"
+template-branch: "77-hot"
+include: |
+    .github
+    taskfiles
+    tests
+    .editorconfig
+    .gitignore
+    .pre-commit-config.yaml
+    CODE_OF_CONDUCT.md
+    CONTRIBUTING.md
+    Makefile
+    ruff.toml
+    Taskfile.yml
