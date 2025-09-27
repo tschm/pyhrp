@@ -1,5 +1,5 @@
 template-repository: "tschm/.config-templates"
-template-branch: "77-hot"
+template-branch: "main"
 include: |
     .github
     taskfiles
