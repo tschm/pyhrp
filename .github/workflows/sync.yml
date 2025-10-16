@@ -10,6 +10,9 @@
 #   - 📝 Create a pull request with the changes
 
 name: SYNC
+permissions:
+  contents: read
+  pull-requests: write
 
 on:
   workflow_dispatch:
