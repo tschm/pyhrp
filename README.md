@@ -1,4 +1,4 @@
-# [pyhrp](https://tschm.github.io/pyhrp/book)
+# [pyhrp](https://tschm.github.io/pyhrp)
 
 [![PyPI version](https://badge.fury.io/py/pyhrp.svg)](https://badge.fury.io/py/pyhrp)
 [![PyPI Status](https://img.shields.io/pypi/status/pyhrp)](https://pypi.org/project/pyhrp/)
