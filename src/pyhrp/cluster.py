@@ -18,23 +18,24 @@ from .treelib import Node
 
 @dataclass
 class Portfolio:
-    """Manages a collection of assets and their weights in a portfolio.
+    """Container for portfolio asset weights.
 
-    This class provides methods to calculate portfolio statistics, retrieve and
-    set asset weights, and visualize the portfolio composition.
+    This lightweight class stores and manipulates a mapping from asset names to
+    their portfolio weights, and provides convenience helpers for analysis and
+    visualization.
 
     Attributes:
-        _weights (dict[Asset, float]): Dictionary mapping assets to their weights in the portfolio
+        _weights (dict[str, float]): Internal mapping from asset symbol to weight.
     """
 
     _weights: dict[str, float] = field(default_factory=dict)
 
     @property
     def assets(self) -> list[str]:
-        """Get all assets in the portfolio.
+        """List of asset names present in the portfolio.
 
         Returns:
-            list[Asset]: List of assets in the portfolio
+            list[str]: Asset identifiers in insertion order (Python 3.7+ dict order).
         """
         return list(self._weights.keys())
 
@@ -52,22 +53,25 @@ class Portfolio:
         return np.linalg.multi_dot((w, c, w))
 
     def __getitem__(self, item: str) -> float:
-        """Get the weight of an asset.
+        """Return the weight for a given asset.
 
         Args:
-            item (str): The asset to get the weight for
+            item (str): Asset name/symbol.
 
         Returns:
-            float: The weight of the asset
+            float: The weight associated with the asset.
+
+        Raises:
+            KeyError: If the asset is not present in the portfolio.
         """
         return self._weights[item]
 
     def __setitem__(self, key: str, value: float) -> None:
-        """Set the weight of an asset.
+        """Set or update the weight for an asset.
 
         Args:
-            key (Asset): The asset to set the weight for
-            value (float): The weight to set
+            key (str): Asset name/symbol.
+            value (float): Portfolio weight for the asset.
         """
         self._weights[key] = value
 
