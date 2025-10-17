@@ -3,8 +3,8 @@
 import pytest
 
 from pyhrp.algos import one_over_n
-from pyhrp.cluster import Asset, Portfolio
 from pyhrp.cluster import Cluster as Node
+from pyhrp.cluster import Portfolio
 from pyhrp.hrp import Dendrogram
 
 
@@ -26,9 +26,9 @@ def test_one_over_n() -> None:
     root.left.right = Node(2)
 
     # Create assets
-    a = Asset(name="A")
-    b = Asset(name="B")
-    c = Asset(name="C")
+    a = "A"
+    b = "B"
+    c = "C"
 
     # Create dendrogram
     dendrogram = Dendrogram(root=root, assets=[a, b, c])
@@ -71,12 +71,6 @@ def test_wrong_number_of_nodes() -> None:
     root.left.left = Node(1)
     root.left.right = Node(2)
 
-    # Create 4 assets (more than the number of leaf nodes)
-    a = Asset(name="A")
-    b = Asset(name="B")
-    c = Asset(name="C")
-    d = Asset(name="D")
-
     # Verify that a ValueError is raised due to the mismatch
     with pytest.raises(ValueError):
-        Dendrogram(root=root, assets=[a, b, c, d])
+        Dendrogram(root=root, assets=["a", "b", "c", "d"])

@@ -17,7 +17,7 @@ import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
 from .algos import risk_parity
-from .cluster import Asset, Cluster
+from .cluster import Cluster
 
 
 def hrp(
@@ -46,7 +46,6 @@ def hrp(
         Cluster: The root cluster with portfolio weights assigned according to HRP
     """
     returns = prices.pct_change().dropna(axis=0, how="all")
-
     cov, cor = returns.cov(), returns.corr()
     node = node or build_tree(cor, method=method, bisection=bisection).root
 
@@ -69,32 +68,36 @@ class Dendrogram:
     """
 
     root: Cluster
-    assets: list[Asset]
+    assets: list[str]
+    distance: pd.DataFrame | None = None
     linkage: np.ndarray | None = None
-    distance: np.ndarray | None = None
     method: str | None = None
 
     def __post_init__(self):
-        """Validate the consistency between the number of assets and the leaves in the root node.
+        """Validate dataclass fields after initialization.
 
-        Raises:
-            ValueError: If the number of leaves in the root node does not match
-                the number of assets.
+        Ensures that the optional distance matrix, when provided, is a pandas
+        DataFrame aligned with the asset order, and verifies that the number of
+        leaves in the cluster tree matches the number of assets.
         """
-        if not len(self.root.leaves) == len(self.assets):
-            raise ValueError("Inconsistent number of assets and leaves")
+        # ---- Optional: validate distance index/columns ----
+        if self.distance is not None:
+            if not isinstance(self.distance, pd.DataFrame):
+                raise TypeError("distance must be a pandas DataFrame.")
 
-        for asset in self.assets:
-            assert isinstance(asset, Asset)
+            # Optionally check if distance matches assets
+            if not self.distance.index.equals(pd.Index(self.assets)) or not self.distance.columns.equals(
+                pd.Index(self.assets)
+            ):
+                raise ValueError("Distance matrix index/columns must align with assets.")
+
+        # Check the number of leaves and assets
+        if len(self.root.leaves) != len(self.assets):
+            raise ValueError("Number of leaves does not match number of assets.")
 
     def plot(self, **kwargs):
         """Plot the dendrogram."""
-        try:
-            labels = [asset.name for asset in self.assets]
-        except AttributeError:
-            labels = [asset for asset in self.assets]
-
-        sch.dendrogram(self.linkage, leaf_rotation=90, leaf_font_size=8, labels=labels, **kwargs)
+        sch.dendrogram(self.linkage, leaf_rotation=90, leaf_font_size=8, labels=self.assets, **kwargs)
 
     @property
     def ids(self):
@@ -104,14 +107,15 @@ class Dendrogram:
     @property
     def names(self):
         """The asset names as induced by the order of ids."""
-        return [self.assets[i].name for i in self.ids]
+        return [self.assets[i] for i in self.ids]
 
 
-def _compute_distance_matrix(corr: np.ndarray) -> np.ndarray:
+def _compute_distance_matrix(corr: pd.DataFrame) -> pd.DataFrame:
     """Convert correlation matrix to distance matrix."""
-    dist = np.sqrt(np.clip((1.0 - corr) / 2.0, a_min=0.0, a_max=1.0))
+    c = corr.values
+    dist = np.sqrt(np.clip((1.0 - c) / 2.0, a_min=0.0, a_max=1.0))
     np.fill_diagonal(dist, 0.0)
-    return dist
+    return pd.DataFrame(data=dist, index=corr.index, columns=corr.index)
 
 
 def build_tree(
@@ -141,7 +145,8 @@ def build_tree(
             - distance: Distance matrix
     """
     # Create distance matrix and linkage
-    dist = _compute_distance_matrix(cor.values)
+    assert isinstance(cor, pd.DataFrame), "Correlation matrix must be a pandas DataFrame."
+    dist = _compute_distance_matrix(cor)
     links = sch.linkage(ssd.squareform(dist), method=method)
 
     # Convert scipy tree to our Cluster format
@@ -223,4 +228,4 @@ def build_tree(
         get_linkage(root)
         links = np.array(links)
 
-    return Dendrogram(root=root, linkage=links, method=method, distance=dist, assets=list(cor.columns))
+    return Dendrogram(root=root, linkage=links, method=method, distance=dist, assets=cor.columns)

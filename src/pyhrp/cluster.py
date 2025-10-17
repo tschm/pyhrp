@@ -1,15 +1,13 @@
 """Data structures for hierarchical risk parity portfolio optimization.
 
 This module defines the core data structures used in the hierarchical risk parity algorithm:
-- Asset: Represents a financial asset in a portfolio
-- Portfolio: Manages a collection of assets and their weights
+- Portfolio: Manages a collection of asset weights (strings identify assets)
 - Cluster: Represents a node in the hierarchical clustering tree
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -17,72 +15,26 @@ import pandas as pd
 from .treelib import Node
 
 
-@dataclass(frozen=True)
-class Asset:
-    """Represents a financial asset in a portfolio.
-
-    Attributes:
-        mu (float, optional): Expected return of the asset
-        name (str, optional): Name of the asset
-    """
-
-    mu: float = None
-    name: str = None
-
-    def __hash__(self) -> int:
-        """Hash function for Asset objects.
-
-        Returns:
-            int: Hash value based on the asset name
-        """
-        return hash(self.name)
-
-    def __eq__(self, other: Any) -> bool:
-        """Equality comparison for Asset objects.
-
-        Args:
-            other (Any): Object to compare with
-
-        Returns:
-            bool: True if other is an Asset with the same name
-        """
-        if not isinstance(other, Asset):
-            return False
-        return self.name == other.name
-
-    def __lt__(self, other: Any) -> bool:
-        """Less than comparison for Asset objects.
-
-        Args:
-            other (Any): Object to compare with
-
-        Returns:
-            bool: True if this asset's name is lexicographically less than other's name
-        """
-        if not isinstance(other, Asset):
-            return False
-        return self.name < other.name
-
-
 @dataclass
 class Portfolio:
-    """Manages a collection of assets and their weights in a portfolio.
+    """Container for portfolio asset weights.
 
-    This class provides methods to calculate portfolio statistics, retrieve and
-    set asset weights, and visualize the portfolio composition.
+    This lightweight class stores and manipulates a mapping from asset names to
+    their portfolio weights, and provides convenience helpers for analysis and
+    visualization.
 
     Attributes:
-        _weights (dict[Asset, float]): Dictionary mapping assets to their weights in the portfolio
+        _weights (dict[str, float]): Internal mapping from asset symbol to weight.
     """
 
-    _weights: dict[Asset, float] = field(default_factory=dict)
+    _weights: dict[str, float] = field(default_factory=dict)
 
     @property
-    def assets(self) -> list[Asset]:
-        """Get all assets in the portfolio.
+    def assets(self) -> list[str]:
+        """List of asset names present in the portfolio.
 
         Returns:
-            list[Asset]: List of assets in the portfolio
+            list[str]: Asset identifiers in insertion order (Python 3.7+ dict order).
         """
         return list(self._weights.keys())
 
@@ -99,23 +51,26 @@ class Portfolio:
         w = self.weights[self.assets].values
         return np.linalg.multi_dot((w, c, w))
 
-    def __getitem__(self, item: Asset) -> float:
-        """Get the weight of an asset.
+    def __getitem__(self, item: str) -> float:
+        """Return the weight for a given asset.
 
         Args:
-            item (Asset): The asset to get the weight for
+            item (str): Asset name/symbol.
 
         Returns:
-            float: The weight of the asset
+            float: The weight associated with the asset.
+
+        Raises:
+            KeyError: If the asset is not present in the portfolio.
         """
         return self._weights[item]
 
-    def __setitem__(self, key: Asset, value: float) -> None:
-        """Set the weight of an asset.
+    def __setitem__(self, key: str, value: float) -> None:
+        """Set or update the weight for an asset.
 
         Args:
-            key (Asset): The asset to set the weight for
-            value (float): The weight to set
+            key (str): Asset name/symbol.
+            value (float): Portfolio weight for the asset.
         """
         self._weights[key] = value
 
@@ -128,18 +83,6 @@ class Portfolio:
         """
         return pd.Series(self._weights, name="Weights").sort_index()
 
-    def weights_by_name(self, names: list[str]) -> pd.Series:
-        """Get weights as a pandas Series indexed by asset names.
-
-        Args:
-            names (list[str]): List of asset names to include
-
-        Returns:
-            pd.Series: Series of weights indexed by asset names
-        """
-        w = {asset.name: weight for asset, weight in self.weights.items()}
-        return pd.Series({name: w[name] for name in names})
-
     def plot(self, names: list[str]):
         """Plot the portfolio weights.
 
@@ -149,7 +92,7 @@ class Portfolio:
         Returns:
             matplotlib.axes.Axes: The plot axes
         """
-        a = self.weights_by_name(names)
+        a = self.weights.loc[names]
 
         ax = a.plot(kind="bar", color="skyblue")
 

@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from pyhrp.algos import risk_parity
-from pyhrp.cluster import Asset, Cluster
+from pyhrp.cluster import Cluster
 
 
 def test_riskparity() -> None:
@@ -18,23 +18,19 @@ def test_riskparity() -> None:
     3. Risk parity calculation with a simple covariance matrix
     4. Resulting portfolio weights and variance calculation
     """
-    # Create assets
-    a = Asset(name="A")
-    b = Asset(name="B")
-
     # Create left cluster with asset A
     left = Cluster(value=1)
-    left.portfolio[a] = 1.0
+    left.portfolio["A"] = 1.0
 
     # Create right cluster with asset B
     right = Cluster(value=0)
-    right.portfolio[b] = 1.0
+    right.portfolio["B"] = 1.0
 
     # Create covariance matrix
     # [[2.0, 1.0],
     #  [1.0, 4.0]]
     cov = np.array([[2.0, 1.0], [1.0, 4.0]])
-    cov = pd.DataFrame(data=cov, index=[b, a], columns=[b, a])
+    cov = pd.DataFrame(data=cov, index=["B", "A"], columns=["B", "A"])
 
     # Create parent cluster
     cl = Cluster(value=2, left=left, right=right)

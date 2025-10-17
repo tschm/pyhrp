@@ -7,7 +7,7 @@ and applies the 1/N strategy level by level, from the root to the leaves.
 
 import marimo
 
-__generated_with = "0.14.16"
+__generated_with = "0.16.5"
 app = marimo.App()
 
 with app.setup:
@@ -15,7 +15,6 @@ with app.setup:
     import matplotlib.pyplot as plt
     import polars as pl
 
-    from pyhrp.cluster import Asset
     from pyhrp.hrp import build_tree
 
 
@@ -45,25 +44,18 @@ def _():
     index_col = prices_pl.columns[0]
     prices = prices_pl.to_pandas().set_index(index_col)
     returns = prices.pct_change().dropna(axis=0, how="all").fillna(0.0)
-    return returns
+    return (returns,)
 
 
 @app.cell
 def _(returns):
-    column_names = returns.columns.tolist()
     cor = returns.corr()
-    cor.columns = [Asset(name=column) for column in column_names]
-    cor.index = [Asset(name=column) for column in column_names]
     cov = returns.cov()
-    cov.columns = [Asset(name=column) for column in column_names]
-    cov.index = [Asset(name=column) for column in column_names]
-    return cor, cov
+    return (cor, cov)
 
 
 @app.cell
 def _(cor):
-    # We first build the tree. This task is very separated from the computations of weights on such a tree.
-    # Convert column names to Asset objects for build_tree
     dendrogram = build_tree(cor, method="ward")
     dendrogram.plot()
     plt.show()

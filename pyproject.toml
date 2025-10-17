@@ -4,7 +4,7 @@ version = "0.0.0"
 description = "Hierarchial risk parity"
 authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
     "numpy>=2",
     "pandas>=2",

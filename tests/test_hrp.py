@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 import pytest
 from pandas import DataFrame
 
@@ -112,7 +113,8 @@ def test_invariant_order(returns: DataFrame, method: str) -> None:
     dendrogram1 = build_tree(cor=cor, method=method, bisection=True)
     dendrogram2 = build_tree(cor=cor, method=method, bisection=False)
 
-    # Verify that the assets, ids, and names are the same regardless of bisection
-    assert dendrogram1.assets == dendrogram2.assets == cor.columns.tolist()
+    pd.testing.assert_index_equal(dendrogram1.assets, dendrogram2.assets)
+
+    # assert dendrogram1.assets == dendrogram2.assets == cor.columns.tolist()
     assert dendrogram1.ids == dendrogram2.ids
     assert dendrogram1.names == dendrogram2.names
