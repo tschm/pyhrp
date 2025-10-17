@@ -1,8 +1,7 @@
 """Data structures for hierarchical risk parity portfolio optimization.
 
 This module defines the core data structures used in the hierarchical risk parity algorithm:
-- Asset: Represents a financial asset in a portfolio
-- Portfolio: Manages a collection of assets and their weights
+- Portfolio: Manages a collection of asset weights (strings identify assets)
 - Cluster: Represents a node in the hierarchical clustering tree
 """
 
