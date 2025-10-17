@@ -26,7 +26,7 @@ def test_hrp(prices: DataFrame, resource_dir: Path) -> None:
 
     # Extract weights and convert asset objects to names for comparison
     w = cluster.portfolio.weights
-    #w.index = [asset for asset in w.index]
+    # w.index = [asset for asset in w.index]
 
     # Load reference weights from file
     # Uncomment this line if you want to generate a new reference file:
@@ -54,7 +54,7 @@ def test_marcos(resource_dir: Path, prices: DataFrame) -> None:
 
     # Extract weights and convert asset objects to names for comparison
     w = cluster.portfolio.weights
-    #w.index = [asset.name for asset in w.index]
+    # w.index = [asset.name for asset in w.index]
 
     # Load reference weights from file
     # Uncomment this line if you want to generate a new reference file:

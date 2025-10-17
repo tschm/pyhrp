@@ -53,4 +53,3 @@ def test_getset_item() -> None:
     # Set and verify weight
     p[a] = 0.4
     assert p[a] == 0.4
-

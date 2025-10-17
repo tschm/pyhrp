@@ -32,7 +32,6 @@ def test_riskparity() -> None:
     cov = np.array([[2.0, 1.0], [1.0, 4.0]])
     cov = pd.DataFrame(data=cov, index=["B", "A"], columns=["B", "A"])
 
-
     # Create parent cluster
     cl = Cluster(value=2, left=left, right=right)
 

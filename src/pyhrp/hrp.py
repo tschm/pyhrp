@@ -9,7 +9,7 @@ This module implements the core HRP algorithm and related functions:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal, Optional
+from typing import Literal
 
 import numpy as np
 import pandas as pd
@@ -69,8 +69,8 @@ class Dendrogram:
 
     root: Cluster
     assets: list[str]
-    distance: Optional[pd.DataFrame] = None
-    linkage: Optional[np.ndarray] = None
+    distance: pd.DataFrame | None = None
+    linkage: np.ndarray | None = None
     method: str | None = None
 
     def __post_init__(self):
@@ -80,10 +80,10 @@ class Dendrogram:
                 raise TypeError("distance must be a pandas DataFrame.")
 
             # Optionally check if distance matches assets
-            if not self.distance.index.equals(pd.Index(self.assets)) or not self.distance.columns.equals(pd.Index(self.assets)):
-                raise ValueError(
-                    "Distance matrix index/columns must align with assets."
-                )
+            if not self.distance.index.equals(pd.Index(self.assets)) or not self.distance.columns.equals(
+                pd.Index(self.assets)
+            ):
+                raise ValueError("Distance matrix index/columns must align with assets.")
 
         # Check the number of leaves and assets
         if len(self.root.leaves) != len(self.assets):

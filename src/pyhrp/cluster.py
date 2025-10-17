@@ -15,7 +15,6 @@ import pandas as pd
 
 from .treelib import Node
 
-
 # @dataclass(frozen=True)
 # class Asset:
 #     """Represents a financial asset in a portfolio.
@@ -137,7 +136,7 @@ class Portfolio:
             pd.Series: Series of weights indexed by asset names
         """
         return self.weights.loc[names]
-        #return pd.Series({name: self.weights[name] for name in names})
+        # return pd.Series({name: self.weights[name] for name in names})
 
     def plot(self, names: list[str]):
         """Plot the portfolio weights.

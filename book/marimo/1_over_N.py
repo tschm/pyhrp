@@ -51,7 +51,7 @@ def _():
 def _(returns):
     cor = returns.corr()
     cov = returns.cov()
-    return (cor,cov)
+    return (cor, cov)
 
 
 @app.cell

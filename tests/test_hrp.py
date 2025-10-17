@@ -115,6 +115,6 @@ def test_invariant_order(returns: DataFrame, method: str) -> None:
 
     pd.testing.assert_index_equal(dendrogram1.assets, dendrogram2.assets)
 
-    #assert dendrogram1.assets == dendrogram2.assets == cor.columns.tolist()
+    # assert dendrogram1.assets == dendrogram2.assets == cor.columns.tolist()
     assert dendrogram1.ids == dendrogram2.ids
     assert dendrogram1.names == dendrogram2.names
