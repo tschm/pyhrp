@@ -74,6 +74,12 @@ class Dendrogram:
     method: str | None = None
 
     def __post_init__(self):
+        """Validate dataclass fields after initialization.
+
+        Ensures that the optional distance matrix, when provided, is a pandas
+        DataFrame aligned with the asset order, and verifies that the number of
+        leaves in the cluster tree matches the number of assets.
+        """
         # ---- Optional: validate distance index/columns ----
         if self.distance is not None:
             if not isinstance(self.distance, pd.DataFrame):
