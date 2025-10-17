@@ -9,7 +9,6 @@ This module defines the core data structures used in the hierarchical risk parit
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -17,51 +16,51 @@ import pandas as pd
 from .treelib import Node
 
 
-@dataclass(frozen=True)
-class Asset:
-    """Represents a financial asset in a portfolio.
-
-    Attributes:
-        mu (float, optional): Expected return of the asset
-        name (str, optional): Name of the asset
-    """
-
-    mu: float = None
-    name: str = None
-
-    def __hash__(self) -> int:
-        """Hash function for Asset objects.
-
-        Returns:
-            int: Hash value based on the asset name
-        """
-        return hash(self.name)
-
-    def __eq__(self, other: Any) -> bool:
-        """Equality comparison for Asset objects.
-
-        Args:
-            other (Any): Object to compare with
-
-        Returns:
-            bool: True if other is an Asset with the same name
-        """
-        if not isinstance(other, Asset):
-            return False
-        return self.name == other.name
-
-    def __lt__(self, other: Any) -> bool:
-        """Less than comparison for Asset objects.
-
-        Args:
-            other (Any): Object to compare with
-
-        Returns:
-            bool: True if this asset's name is lexicographically less than other's name
-        """
-        if not isinstance(other, Asset):
-            return False
-        return self.name < other.name
+# @dataclass(frozen=True)
+# class Asset:
+#     """Represents a financial asset in a portfolio.
+#
+#     Attributes:
+#         mu (float, optional): Expected return of the asset
+#         name (str, optional): Name of the asset
+#     """
+#
+#     mu: float = None
+#     name: str = None
+#
+#     def __hash__(self) -> int:
+#         """Hash function for Asset objects.
+#
+#         Returns:
+#             int: Hash value based on the asset name
+#         """
+#         return hash(self.name)
+#
+#     def __eq__(self, other: Any) -> bool:
+#         """Equality comparison for Asset objects.
+#
+#         Args:
+#             other (Any): Object to compare with
+#
+#         Returns:
+#             bool: True if other is an Asset with the same name
+#         """
+#         if not isinstance(other, Asset):
+#             return False
+#         return self.name == other.name
+#
+#     def __lt__(self, other: Any) -> bool:
+#         """Less than comparison for Asset objects.
+#
+#         Args:
+#             other (Any): Object to compare with
+#
+#         Returns:
+#             bool: True if this asset's name is lexicographically less than other's name
+#         """
+#         if not isinstance(other, Asset):
+#             return False
+#         return self.name < other.name
 
 
 @dataclass
@@ -75,10 +74,10 @@ class Portfolio:
         _weights (dict[Asset, float]): Dictionary mapping assets to their weights in the portfolio
     """
 
-    _weights: dict[Asset, float] = field(default_factory=dict)
+    _weights: dict[str, float] = field(default_factory=dict)
 
     @property
-    def assets(self) -> list[Asset]:
+    def assets(self) -> list[str]:
         """Get all assets in the portfolio.
 
         Returns:
@@ -99,18 +98,18 @@ class Portfolio:
         w = self.weights[self.assets].values
         return np.linalg.multi_dot((w, c, w))
 
-    def __getitem__(self, item: Asset) -> float:
+    def __getitem__(self, item: str) -> float:
         """Get the weight of an asset.
 
         Args:
-            item (Asset): The asset to get the weight for
+            item (str): The asset to get the weight for
 
         Returns:
             float: The weight of the asset
         """
         return self._weights[item]
 
-    def __setitem__(self, key: Asset, value: float) -> None:
+    def __setitem__(self, key: str, value: float) -> None:
         """Set the weight of an asset.
 
         Args:
@@ -137,8 +136,8 @@ class Portfolio:
         Returns:
             pd.Series: Series of weights indexed by asset names
         """
-        w = {asset.name: weight for asset, weight in self.weights.items()}
-        return pd.Series({name: w[name] for name in names})
+        return self.weights.loc[names]
+        #return pd.Series({name: self.weights[name] for name in names})
 
     def plot(self, names: list[str]):
         """Plot the portfolio weights.

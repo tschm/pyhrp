@@ -15,7 +15,6 @@ with app.setup:
     import matplotlib.pyplot as plt
     import polars as pl
 
-    from pyhrp.cluster import Asset
     from pyhrp.hrp import build_tree
 
 
@@ -45,7 +44,6 @@ def _():
     index_col = prices_pl.columns[0]
     prices = prices_pl.to_pandas().set_index(index_col)
     returns = prices.pct_change().dropna(axis=0, how="all").fillna(0.0)
-    returns.columns = [Asset(name=column) for column in returns.columns]
     return (returns,)
 
 

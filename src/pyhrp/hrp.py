@@ -17,7 +17,7 @@ import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
 from .algos import risk_parity
-from .cluster import Asset, Cluster
+from .cluster import Cluster
 
 
 def hrp(
@@ -68,24 +68,19 @@ class Dendrogram:
     """
 
     root: Cluster
-    assets: pd.Index[Asset]
+    assets: list[str]
     distance: Optional[pd.DataFrame] = None
     linkage: Optional[np.ndarray] = None
     method: str | None = None
 
     def __post_init__(self):
-        # ---- Ensure assets is a pd.Index ----
-        if not isinstance(self.assets, pd.Index):
-            # Convert iterable (like list) to Index
-            object.__setattr__(self, "assets", pd.Index(self.assets))
-
         # ---- Optional: validate distance index/columns ----
         if self.distance is not None:
             if not isinstance(self.distance, pd.DataFrame):
                 raise TypeError("distance must be a pandas DataFrame.")
 
             # Optionally check if distance matches assets
-            if not self.distance.index.equals(self.assets) or not self.distance.columns.equals(self.assets):
+            if not self.distance.index.equals(pd.Index(self.assets)) or not self.distance.columns.equals(pd.Index(self.assets)):
                 raise ValueError(
                     "Distance matrix index/columns must align with assets."
                 )
@@ -96,12 +91,7 @@ class Dendrogram:
 
     def plot(self, **kwargs):
         """Plot the dendrogram."""
-        try:
-            labels = [asset.name for asset in self.assets]
-        except AttributeError:
-            labels = [asset for asset in self.assets]
-
-        sch.dendrogram(self.linkage, leaf_rotation=90, leaf_font_size=8, labels=labels, **kwargs)
+        sch.dendrogram(self.linkage, leaf_rotation=90, leaf_font_size=8, labels=self.assets, **kwargs)
 
     @property
     def ids(self):
@@ -111,7 +101,7 @@ class Dendrogram:
     @property
     def names(self):
         """The asset names as induced by the order of ids."""
-        return [self.assets[i].name for i in self.ids]
+        return [self.assets[i] for i in self.ids]
 
 
 def _compute_distance_matrix(corr: pd.DataFrame) -> pd.DataFrame:

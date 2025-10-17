@@ -7,8 +7,6 @@ import pandas as pd
 import pytest
 from pandas import DataFrame
 
-from pyhrp.cluster import Asset
-
 
 @pytest.fixture(scope="session", name="resource_dir")
 def resource_fixture() -> Path:
@@ -53,8 +51,6 @@ def prices(resource_dir: Path) -> DataFrame:
         before="2017-01-01"
     )
 
-    # Convert column names to Asset objects
-    _prices.columns = [Asset(name=column) for column in _prices.columns]
     return _prices
 
 

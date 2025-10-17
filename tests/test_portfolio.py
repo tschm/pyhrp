@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 from matplotlib.axes import Axes
 
-from pyhrp.cluster import Asset, Portfolio
+from pyhrp.cluster import Portfolio
 
 
 def test_portfolio() -> None:
@@ -18,9 +18,9 @@ def test_portfolio() -> None:
     """
     # Create a portfolio with three assets
     p = Portfolio()
-    a = Asset(name="A")
-    b = Asset(name="B")
-    c = Asset(name="C")
+    a = "A"
+    b = "B"
+    c = "C"
 
     # Assign weights
     p[a] = 0.4
@@ -48,26 +48,9 @@ def test_getset_item() -> None:
     """
     # Create a portfolio and an asset
     p = Portfolio()
-    a = Asset(name="A")
+    a = "A"
 
     # Set and verify weight
     p[a] = 0.4
     assert p[a] == 0.4
 
-
-def test_asset_equality() -> None:
-    """Test the equality and comparison operators for Asset class.
-
-    This test verifies:
-    1. Assets with the same name are considered equal
-    2. Assets cannot be compared with non-Asset objects
-    """
-    # Create two assets with the same name
-    a = Asset(name="A")
-    b = Asset(name="A")
-
-    # Verify equality
-    assert a == b
-
-    # Verify comparison with non-Asset objects
-    assert not a < 2

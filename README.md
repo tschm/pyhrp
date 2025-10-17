@@ -27,10 +27,8 @@ Here's a simple example
 >>> import pandas as pd
 >>> from pyhrp.hrp import build_tree
 >>> from pyhrp.algos import risk_parity
->>> from pyhrp.cluster import Asset
 
 >>> prices = pd.read_csv("tests/resources/stock_prices.csv", index_col=0, parse_dates=True)
->>> prices.columns = [Asset(name=column) for column in prices.columns]
 
 >>> returns = prices.pct_change().dropna(axis=0, how="all")
 >>> cov, cor = returns.cov(), returns.corr()

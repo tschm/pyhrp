@@ -18,7 +18,6 @@ with app.setup:
     import polars as pl
 
     from pyhrp.algos import risk_parity
-    from pyhrp.cluster import Asset
     from pyhrp.hrp import build_tree
 
 
@@ -50,18 +49,13 @@ def _():
     # Store original column names for later use
     column_names = returns.columns.tolist()
     # Create a mapping from column names to Asset objects
-    assets_map = {column: Asset(name=column) for column in column_names}
-    return column_names, returns, assets_map
+    return column_names, returns
 
 
 @app.cell
 def _(column_names, returns):
     cor = returns.corr()
-    cor.columns = [Asset(name=column) for column in column_names]
-    cor.index = [Asset(name=column) for column in column_names]
     cov = returns.cov()
-    cov.columns = [Asset(name=column) for column in column_names]
-    cov.index = [Asset(name=column) for column in column_names]
     return cor, cov
 
 
@@ -136,7 +130,7 @@ def _(root_bisection, root_ward):
     weights_df.plot(kind="bar", width=0.8)
 
     # Ensure all possible x-axis labels are shown
-    plt.xticks(ticks=range(len(weights_df)), labels=[asset.name for asset in weights_df.index], rotation=90)
+    plt.xticks(ticks=range(len(weights_df)), labels=weights_df.index, rotation=90)
 
     # Optionally, adjust the layout to avoid label clipping
     plt.tight_layout()
