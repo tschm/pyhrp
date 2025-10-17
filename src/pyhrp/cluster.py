@@ -15,52 +15,6 @@ import pandas as pd
 
 from .treelib import Node
 
-# @dataclass(frozen=True)
-# class Asset:
-#     """Represents a financial asset in a portfolio.
-#
-#     Attributes:
-#         mu (float, optional): Expected return of the asset
-#         name (str, optional): Name of the asset
-#     """
-#
-#     mu: float = None
-#     name: str = None
-#
-#     def __hash__(self) -> int:
-#         """Hash function for Asset objects.
-#
-#         Returns:
-#             int: Hash value based on the asset name
-#         """
-#         return hash(self.name)
-#
-#     def __eq__(self, other: Any) -> bool:
-#         """Equality comparison for Asset objects.
-#
-#         Args:
-#             other (Any): Object to compare with
-#
-#         Returns:
-#             bool: True if other is an Asset with the same name
-#         """
-#         if not isinstance(other, Asset):
-#             return False
-#         return self.name == other.name
-#
-#     def __lt__(self, other: Any) -> bool:
-#         """Less than comparison for Asset objects.
-#
-#         Args:
-#             other (Any): Object to compare with
-#
-#         Returns:
-#             bool: True if this asset's name is lexicographically less than other's name
-#         """
-#         if not isinstance(other, Asset):
-#             return False
-#         return self.name < other.name
-
 
 @dataclass
 class Portfolio:
@@ -126,18 +80,6 @@ class Portfolio:
         """
         return pd.Series(self._weights, name="Weights").sort_index()
 
-    def weights_by_name(self, names: list[str]) -> pd.Series:
-        """Get weights as a pandas Series indexed by asset names.
-
-        Args:
-            names (list[str]): List of asset names to include
-
-        Returns:
-            pd.Series: Series of weights indexed by asset names
-        """
-        return self.weights.loc[names]
-        # return pd.Series({name: self.weights[name] for name in names})
-
     def plot(self, names: list[str]):
         """Plot the portfolio weights.
 
@@ -147,7 +89,7 @@ class Portfolio:
         Returns:
             matplotlib.axes.Axes: The plot axes
         """
-        a = self.weights_by_name(names)
+        a = self.weights.loc[names]
 
         ax = a.plot(kind="bar", color="skyblue")
 
