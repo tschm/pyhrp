@@ -4,12 +4,15 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Downloads](https://static.pepy.tech/personalized-badge/pyhrp?period=month&units=international_system&left_color=black&right_color=orange&left_text=PyPI%20downloads%20per%20month)](https://pepy.tech/project/pyhrp)
 [![CodeFactor](https://www.codefactor.io/repository/github/tschm/pyhrp/badge)](https://www.codefactor.io/repository/github/tschm/pyhrp)
-[![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://github.com/renovatebot/renovate)
+
 [![Python Version](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
 [![CI](https://github.com/tschm/pyhrp/actions/workflows/ci.yml/badge.svg)](https://github.com/tschm/pyhrp/actions/workflows/ci.yml)
 [![pre-commit](https://github.com/tschm/pyhrp/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/tschm/pyhrp/actions/workflows/pre-commit.yml)
 [![Documentation](https://github.com/tschm/pyhrp/actions/workflows/book.yml/badge.svg)](https://github.com/tschm/pyhrp/actions/workflows/book.yml)
+
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+[![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://github.com/renovatebot/renovate)
+
 [![GitHub stars](https://img.shields.io/github/stars/tschm/pyhrp.svg)](https://github.com/tschm/pyhrp/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/tschm/pyhrp.svg)](https://github.com/tschm/pyhrp/network)
 
