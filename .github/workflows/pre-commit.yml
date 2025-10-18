@@ -23,23 +23,24 @@ permissions:
 jobs:
   pre-commit:
     runs-on: ubuntu-latest
+    container:
+      image: pre-commit/mirrors:latest  # Use pre-commit container for the entire job
+
+      # use a dedicated pre-commit container
+
     steps:
       # Check out the repository code
       - uses: actions/checkout@v5
 
-      # Use the composite action to render the project
-      - name: Setup the project
-        uses: ./.github/actions/setup-project
-
       - name: Lint
-        run: |
-          ./bin/task quality:lint
+        run: pre-commit run --all-files  # Run all hooks on all files
+
 
   ruff:
     runs-on: ubuntu-latest
     container:
       # use a dedicated ruff container
-      - image: ghcr.io/astral-sh/ruff:latest
+      image: ghcr.io/astral-sh/ruff:latest
 
     steps:
       - name: Checkout code
@@ -48,5 +49,3 @@ jobs:
       - name: Run Ruff
         run: ruff check .
 
-      #  run: |
-      #    ./bin/task quality:fmt
