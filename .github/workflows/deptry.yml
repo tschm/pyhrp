@@ -9,10 +9,7 @@ name: "DEPTRY"
 
 # Trigger: This workflow runs on every push and on pull requests to the main branch
 on:
-  push:
-  pull_request:
-    # Only run on pull requests targeting the main branch
-    branches: [ main ]
+  push
 
 # Permissions: Only read access to repository contents is needed
 permissions:

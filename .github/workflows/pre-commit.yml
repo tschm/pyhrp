@@ -24,23 +24,27 @@ jobs:
   pre-commit:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/astral-sh/uv:0.8.22-python3.12-trixie
-
-      # use a dedicated pre-commit container
+      image: ghcr.io/astral-sh/uv:0.8.22-python3.12-trixie  # Use uv container with Python 3.12
 
     steps:
-      # Check out the repository code
+      # Step 1: Checkout code from the repository
       - uses: actions/checkout@v5
 
-      # Install Git (necessary for pre-commit)
+      # Step 2: Install Git (necessary for pre-commit)
       - name: Install Git
         run: |
           apt-get update && apt-get install -y git
 
-      # Run pre-commit checks
-      - name: Lint
-        run: uvx pre-commit run --all-files  # Run all hooks on all files
+      # Step 3: Install pre-commit and set up hooks
+      - name: Install pre-commit
+        run: |
+          pip install --upgrade pip
+          pip install pre-commit
+          pre-commit install  # Install hooks defined in .pre-commit-config.yaml
 
+      # Step 4: Run pre-commit hooks on all files
+      - name: Run pre-commit hooks
+        run: pre-commit run --all-files  # Run all hooks on all files
 
   ruff:
     runs-on: ubuntu-latest
