@@ -46,6 +46,7 @@ jobs:
       - name: Run pre-commit hooks
         run: |
           ls -all
+          ls -all .git
           pre-commit run --all-files  # Run all hooks on all files
 
   ruff:
