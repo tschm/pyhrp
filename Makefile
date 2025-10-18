@@ -56,7 +56,6 @@ book: test ## compile the companion book
 	./bin/task docs:book
 
 fmt: install ## check the pre-commit hooks and the linting
-	./bin/task quality:fmt
 	./bin/task quality:lint
 
 deptry: install  ## check deptry
