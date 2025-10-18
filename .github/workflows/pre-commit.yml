@@ -34,13 +34,13 @@ jobs:
       - name: Install Git
         run: |
           apt-get update && apt-get install -y git
+          git --version
 
       # Step 3: Install pre-commit and set up hooks
-      - name: Install pre-commit
-        run: |
-          pip install --upgrade pip
-          pip install pre-commit
-          pre-commit install  # Install hooks defined in .pre-commit-config.yaml
+      #- name: Install pre-commit
+      #  run: |
+      #    pip install pre-commit
+      #    pre-commit install  # Install hooks defined in .pre-commit-config.yaml
 
       # Step 4: Run pre-commit hooks on all files
       - name: Run pre-commit hooks
