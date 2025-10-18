@@ -32,6 +32,12 @@ jobs:
       # Check out the repository code
       - uses: actions/checkout@v5
 
+      # Install Git (necessary for pre-commit)
+      - name: Install Git
+        run: |
+          apt-get update && apt-get install -y git
+
+      # Run pre-commit checks
       - name: Lint
         run: uvx pre-commit run --all-files  # Run all hooks on all files
 
