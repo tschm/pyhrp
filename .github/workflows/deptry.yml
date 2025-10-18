@@ -31,4 +31,7 @@ jobs:
       - name: Run deptry
         run: |
           if [ -f "pyproject.toml" ]; then
-          uvx deptry src
+            uvx deptry src  # Run deptry on the src directory
+          else
+            echo "pyproject.toml not found, skipping deptry analysis"
+          fi
