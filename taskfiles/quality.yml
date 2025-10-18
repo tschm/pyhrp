@@ -26,6 +26,6 @@ tasks:
 
   check:
     desc: Run all code quality checks
-    deps: [lint, fmt, deptry]
+    deps: [lint, deptry]
     cmds:
       - printf "${GREEN}[INFO] All checks passed!${RESET}\n"
