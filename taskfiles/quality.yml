@@ -6,12 +6,6 @@ includes:
     internal: true
 
 tasks:
-  fmt:
-    desc: Format code using Ruff
-    cmds:
-      - ./bin/task build:uv
-      - ./bin/uvx ruff format .
-
   lint:
     desc: Run pre-commit hooks
     cmds:
