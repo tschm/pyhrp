@@ -9,10 +9,7 @@ name: "DEPTRY"
 
 # Trigger: This workflow runs on every push and on pull requests to the main branch
 on:
-  push:
-  pull_request:
-    # Only run on pull requests targeting the main branch
-    branches: [ main ]
+  push
 
 # Permissions: Only read access to repository contents is needed
 permissions:
@@ -22,14 +19,16 @@ jobs:
   deptry_analysis:
     name: Check dependencies with deptry
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/astral-sh/uv:0.8.22-python3.12-trixie
+
     steps:
       - uses: actions/checkout@v5
 
-      # Use the composite action to setup the project and check for pyproject.toml
-      - name: Setup the project
-        id: setup
-        uses: ./.github/actions/setup-project
-
       - name: Run deptry
-        if: steps.setup.outputs.pyproject_exists == 'true'
-        run: ./bin/task quality:deptry
+        run: |
+          if [ -f "pyproject.toml" ]; then
+            uvx deptry src  # Run deptry on the src directory
+          else
+            echo "pyproject.toml not found, skipping deptry analysis"
+          fi
