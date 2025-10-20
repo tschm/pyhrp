@@ -1,3 +1,16 @@
+# This file is part of the tschm/.config-templates repository
+# (https://github.com/tschm/.config-templates).
+#
+# Taskfile: Code quality tasks
+#
+# Purpose: Run automated code quality checks to maintain a healthy codebase.
+#          Uses pre-commit for formatting/linting and deptry for dependency hygiene.
+#
+# Components:
+#   - lint: run pre-commit hooks over the entire repository
+#   - deptry: analyze dependencies and detect issues
+#   - check: aggregate target to run both lint and deptry
+
 version: '3'
 
 includes:
