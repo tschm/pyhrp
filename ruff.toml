@@ -60,6 +60,9 @@ exclude = ["**/[{][{]*/", "**/*[}][}]*/"]
 # UP: pyupgrade - Upgrade syntax for newer Python
 select = ["D", "E", "F", "I", "N", "W", "UP"]
 
+# Resolve incompatible pydocstyle rules: prefer D211 and D212 over D203 and D213
+ignore = ["D203", "D213"]
+
 [lint.pydocstyle]
 convention = "google"
 
