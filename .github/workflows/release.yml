@@ -94,7 +94,8 @@ jobs:
         with:
           name: dist
           path: dist
-        continue-on-error: true
+        # Fail fast if dist artifact is missing; don’t create empty releases.
+        # continue-on-error: true
 
       - name: Create GitHub Release with artifacts
         uses: softprops/action-gh-release@v2.4.1
