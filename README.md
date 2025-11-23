@@ -25,46 +25,54 @@ We take heavily advantage of the scipy.cluster.hierarchy package.
 Here's a simple example
 
 ```python
->>> import pandas as pd
->>> from pyhrp.hrp import build_tree
->>> from pyhrp.algos import risk_parity
+import pandas as pd
+from pyhrp.hrp import build_tree
+from pyhrp.algos import risk_parity
 
->>> prices = pd.read_csv("tests/resources/stock_prices.csv", index_col=0, parse_dates=True)
+prices = pd.read_csv("tests/resources/stock_prices.csv", index_col=0, parse_dates=True)
 
->>> returns = prices.pct_change().dropna(axis=0, how="all")
->>> cov, cor = returns.cov(), returns.corr()
+returns = prices.pct_change().dropna(axis=0, how="all")
+cov, cor = returns.cov(), returns.corr()
 
 # Compute the dendrogram based on the correlation matrix and Ward's metric
->>> dendrogram = build_tree(cor, method='ward')
->>> dendrogram.plot()
+dendrogram = build_tree(cor, method='ward')
+dendrogram.plot()
 
 # Compute the weights on the dendrogram
->>> root = risk_parity(root=dendrogram.root, cov=cov)
->>> ax = root.portfolio.plot(names=dendrogram.names)
+root = risk_parity(root=dendrogram.root, cov=cov)
+ax = root.portfolio.plot(names=dendrogram.names)
 
+```
+
+```result
 ```
 
 For your convenience you can bypass the construction of the covariance and
 correlation matrix, and the construction of the dendrogram.
 
 ```python
->>> from pyhrp.hrp import hrp
+from pyhrp.hrp import hrp
+root = hrp(prices=prices, method="ward", bisection=False)
 
->>> root = hrp(prices=prices, method="ward", bisection=False)
+```
 
+```result
 ```
 
 You may expect a weight series here but instead the `hrp` function returns a
 `Node` object. The `node` simplifies all further post-analysis.
 
 ```python
->>> weights = root.portfolio.weights
->>> variance = root.portfolio.variance(cov)
+weights = root.portfolio.weights
+variance = root.portfolio.variance(cov)
 
 # You can drill deeper into the tree
->>> left = root.left
->>> right = root.right
+left = root.left
+right = root.right
 
+```
+
+```result
 ```
 
 ## uv
