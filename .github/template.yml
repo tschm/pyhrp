@@ -2,7 +2,6 @@ template-repository: "tschm/.config-templates"
 template-branch: "main"
 include: |
     .github
-    taskfiles
     tests
     .editorconfig
     .gitignore
@@ -11,4 +10,6 @@ include: |
     CONTRIBUTING.md
     Makefile
     ruff.toml
-    Taskfile.yml
+exclude:
+    .github/workflows/docker.yml
+    .github/workflows/devcontainer.yml
