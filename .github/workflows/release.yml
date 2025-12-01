@@ -148,7 +148,7 @@ jobs:
         # continue-on-error: true
 
       - name: Create GitHub Release with artifacts
-        uses: softprops/action-gh-release@v2.4.2
+        uses: softprops/action-gh-release@v2.5.0
         with:
           tag_name: ${{ github.event.inputs.tag }}
           name: ${{ github.event.inputs.tag }}
@@ -274,7 +274,7 @@ jobs:
           } >> $GITHUB_OUTPUT
 
       - name: Publish Release
-        uses: softprops/action-gh-release@v2.4.2
+        uses: softprops/action-gh-release@v2.5.0
         with:
           tag_name: ${{ github.event.inputs.tag }}
           draft: false
