@@ -24,6 +24,14 @@ __pycache__/
 # C extensions
 *.so
 
+# Simplify the move of the test scripts
+tests/test_makefile.py
+tests/test_readme.py
+tests/test_release_script.py
+tests/test_sync_script.py
+tests/test_docstrings.py
+tests/test_bump_script.py
+
 # Distribution / packaging
 .Python
 build/

@@ -11,7 +11,7 @@ Contributions are made through
 [pull requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests).
 Before sending a pull request, make sure you do the following:
 
-- Run 'make check' to make sure your code adheres to our [coding style](#code-style)
+- Run `make fmt` to make sure your code adheres to our [coding style](#code-style)
 and all tests pass.
 - [Write unit tests](#writing-unit-tests) for new functionality added.
 
@@ -62,7 +62,7 @@ Before sending us a pull request, navigate to the project
 root and run
 
 ```bash
-make check
+make fmt
 ```
 
 to make sure that your changes abide by our style conventions.

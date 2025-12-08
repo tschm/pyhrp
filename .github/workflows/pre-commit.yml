@@ -29,7 +29,14 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-python@v6
+
+      - name: Get Python version
+        id: get-python
+        run: |
+          echo "python-version=$(python ./.github/workflows/scripts/version_max.py)" >> "$GITHUB_OUTPUT"
+
+      - uses: ./.github/actions/setup-project
         with:
-          python-version: '3.14'
+          python-version: ${{ steps.get-python.outputs.python-version }}
+
       - uses: pre-commit/action@v3.0.1
