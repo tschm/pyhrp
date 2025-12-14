@@ -6,6 +6,20 @@ with and without bisection, and the 'ward' method. The notebook visualizes the r
 and portfolio weights for each approach.
 """
 
+# /// script
+# dependencies = [
+#     "marimo==0.18.4",
+#     "matplotlib",
+#     "pandas",
+#     "polars",
+#     "pyhrp",
+# ]
+#
+# [tool.uv.sources]
+# pyhrp = { path = "../..", editable=true }
+#
+# ///
+
 import marimo
 
 __generated_with = "0.14.16"
