@@ -11,6 +11,7 @@ and applies the 1/N strategy level by level, from the root to the leaves.
 #     "matplotlib",
 #     "polars",
 #     "pyhrp",
+#     "pyarrow",
 # ]
 #
 # [tool.uv.sources]
