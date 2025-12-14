@@ -13,6 +13,7 @@ and portfolio weights for each approach.
 #     "pandas",
 #     "polars",
 #     "pyhrp",
+#     "pyarrow",
 # ]
 #
 # [tool.uv.sources]
