@@ -21,6 +21,11 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Generated presentation files
+presentation.html
+presentation.pdf
+*.pptx
+
 # C extensions
 *.so
 
