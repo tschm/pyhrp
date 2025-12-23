@@ -33,6 +33,9 @@
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
 Makefile
+book/Makefile.book
+book/minibook-templates/custom.html.jinja2
+book/pdoc-templates/module.html.jinja2
 pytest.ini
 ruff.toml
 tests/Makefile.tests
