@@ -11,6 +11,7 @@ include:
     - Makefile
     - ruff.toml
     - pytest.ini
+    - book
 exclude:
     - .github/workflows/docker.yml
     - .github/workflows/devcontainer.yml
