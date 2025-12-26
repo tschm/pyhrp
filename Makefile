@@ -38,8 +38,8 @@ UV_BIN := ${UV_INSTALL_DIR}/uv
 UVX_BIN := ${UV_INSTALL_DIR}/uvx
 MARIMO_FOLDER := book/marimo
 SOURCE_FOLDER := src
-SCRIPTS_FOLDER := .github/rhiza/scripts
-CUSTOM_SCRIPTS_FOLDER := .github/rhiza/scripts/customisations
+SCRIPTS_FOLDER := .rhiza/scripts
+CUSTOM_SCRIPTS_FOLDER := .rhiza/scripts/customisations
 
 export UV_NO_MODIFY_PATH := 1
 export UV_VENV_CLEAR := 1
@@ -102,10 +102,10 @@ install: install-uv install-extras ## install
 	  printf "${YELLOW}[WARN] No pyproject.toml found, skipping install${RESET}\n"; \
 	fi
 
-sync: install-uv ## sync with template repository as defined in .github/rhiza/template.yml
+sync: install-uv ## sync with template repository as defined in .github/template.yml
 	@${UVX_BIN} "rhiza>=0.7.1" materialize --force .
 
-validate: install-uv ## validate project structure against template repository as defined in .github/rhiza/template.yml
+validate: install-uv ## validate project structure against template repository as defined in .github/template.yml
 	@${UVX_BIN} "rhiza>=0.7.1" validate .
 
 clean: ## clean
