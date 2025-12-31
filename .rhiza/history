@@ -19,8 +19,8 @@
 .github/workflows/rhiza_validate.yml
 .gitignore
 .pre-commit-config.yaml
-.rhiza/CONFIG.md
-.rhiza/TOKEN_SETUP.md
+.rhiza/docs/CONFIG.md
+.rhiza/docs/TOKEN_SETUP.md
 .rhiza/scripts/book.sh
 .rhiza/scripts/bump.sh
 .rhiza/scripts/customisations/build-extras.sh
@@ -34,6 +34,7 @@ CODE_OF_CONDUCT.md
 CONTRIBUTING.md
 Makefile
 book/Makefile.book
+book/README.md
 book/marimo/README.md
 book/marimo/rhiza.py
 book/minibook-templates/custom.html.jinja2
@@ -52,6 +53,7 @@ tests/test_rhiza/test_docstrings.py
 tests/test_rhiza/test_git_repo_fixture.py
 tests/test_rhiza/test_makefile.py
 tests/test_rhiza/test_marimushka_script.py
+tests/test_rhiza/test_notebooks.py
 tests/test_rhiza/test_readme.py
 tests/test_rhiza/test_release_script.py
 tests/test_rhiza/test_structure.py
