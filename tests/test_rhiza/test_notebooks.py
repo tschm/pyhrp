@@ -47,7 +47,7 @@ def test_notebook_execution(notebook_path: Path):
     local_uvx = Path("bin/uvx")
 
     if local_uvx.exists() and local_uvx.is_file():
-        uvx_cmd = str(local_uvx)
+        uvx_cmd = str(local_uvx.resolve())  # Use absolute path
     else:
         uvx_cmd = shutil.which("uvx")
         if uvx_cmd is None:
