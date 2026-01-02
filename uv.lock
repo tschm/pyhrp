@@ -1105,6 +1105,7 @@ dependencies = [
 dev = [
     { name = "marimo" },
     { name = "matplotlib" },
+    { name = "plotly" },
     { name = "polars" },
     { name = "pyarrow" },
     { name = "pyportfolioopt" },
@@ -1122,6 +1123,7 @@ requires-dist = [
 dev = [
     { name = "marimo", specifier = ">=0.14.9" },
     { name = "matplotlib", specifier = ">=3.10.3" },
+    { name = "plotly", specifier = "<6.0" },
     { name = "polars", specifier = "==1.36.1" },
     { name = "pyarrow", specifier = ">=22.0.0" },
     { name = "pyportfolioopt", specifier = ">=1.5.6" },
