@@ -15,19 +15,14 @@ dependencies = [
 repository = "https://github.com/tschm/pyhrp"
 homepage = "https://tschm.github.io/pyhrp"
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
-    "pytest-cov>=7.0",
-    "pytest-html>=4.0",
     "matplotlib>=3.10.3",
-    "pytest>=9.0",
-    "pre-commit>=4.2.0",
     "pyportfolioopt>=1.5.6",
     "marimo>=0.14.9",
     "polars==1.36.1",
     "security>=1.3.1",
     "pyarrow>=22.0.0",
-    "python-dotenv>=1.2.1"
 ]
 
 [build-system]
@@ -36,7 +31,3 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pyhrp"]
-
-[tool.deptry]
-# see https://deptry.com/usage/#pep-621-dev-dependency-groups
-pep621_dev_dependency_groups = ["dev"]
