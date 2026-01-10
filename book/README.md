@@ -1,4 +1,4 @@
-se# Project Book and Documentation
+# Project Book and Documentation
 
 This directory contains the source and templates for generating the Rhiza companion book and API documentation.
 
