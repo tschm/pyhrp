@@ -13,16 +13,6 @@ RED := \033[31m
 YELLOW := \033[33m
 RESET := \033[0m
 
-define RHIZA_LOGO
-  ____  _     _
- |  _ \| |__ (_)______ _
- | |_) | '_ \| |_  / _\`|
- |  _ <| | | | |/ / (_| |
- |_| \_\_| |_|_/___\__,_|
-
-endef
-export RHIZA_LOGO
-
 # Default goal when running `make` with no target
 .DEFAULT_GOAL := help
 
@@ -39,7 +29,6 @@ export RHIZA_LOGO
 	install-uv \
 	marimo \
 	post-release \
-	print-logo \
 	release \
 	sync \
 	update-readme \
@@ -51,6 +40,10 @@ UV_BIN ?= $(shell command -v uv 2>/dev/null || echo ${INSTALL_DIR}/uv)
 UVX_BIN ?= $(shell command -v uvx 2>/dev/null || echo ${INSTALL_DIR}/uvx)
 VENV ?= .venv
 
+# Read Python version from .python-version (single source of truth)
+PYTHON_VERSION ?= $(shell cat .python-version 2>/dev/null || echo "3.12")
+export PYTHON_VERSION
+
 export UV_NO_MODIFY_PATH := 1
 export UV_VENV_CLEAR := 1
 
@@ -61,15 +54,11 @@ export UV_VENV_CLEAR := 1
 -include tests/Makefile.tests
 -include book/Makefile.book
 -include presentation/Makefile.presentation
+-include docker/Makefile.docker
 -include .rhiza/customisations/Makefile.customisations
 -include .rhiza/agentic/Makefile.agentic
 -include .rhiza/Makefile.rhiza
 -include .github/Makefile.gh
-
-##@ Meta
-
-print-logo:
-	@printf "${BLUE}$$RHIZA_LOGO${RESET}\n"
 
 ##@ Bootstrap
 install-uv: ## ensure uv/uvx is installed
@@ -144,7 +133,8 @@ clean: ## Clean project artifacts and stale local branches
 		build \
 		*.egg-info \
 		.coverage \
-		.pytest_cache
+		.pytest_cache \
+		.benchmarks
 
 	@printf "%bRemoving local branches with no remote counterpart...%b\n" "$(BLUE)" "$(RESET)"
 

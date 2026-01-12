@@ -1,10 +1,25 @@
 ## Makefile.rhiza - rhiza actions
 # This file is included by the main Makefile
 
+# RHIZA_LOGO definition
+define RHIZA_LOGO
+  ____  _     _
+ |  _ \| |__ (_)______ _
+ | |_) | '_ \| |_  / _\`|
+ |  _ <| | | | |/ / (_| |
+ |_| \_\_| |_|_/___\__,_|
+
+endef
+export RHIZA_LOGO
+
 # Declare phony targets
-.PHONY: sync validate
+.PHONY: print-logo sync validate
 
 ##@ Rhiza Workflows
+
+print-logo:
+	@printf "${BLUE}$$RHIZA_LOGO${RESET}\n"
+
 
 sync: ## sync with template repository as defined in .rhiza/template.yml
 	@if git remote get-url origin 2>/dev/null | grep -iqE 'jebel-quant/rhiza(\.git)?$$'; then \
