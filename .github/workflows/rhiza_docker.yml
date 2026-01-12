@@ -51,6 +51,19 @@ jobs:
         if: ${{ steps.check_dockerfile.outputs.docker_present == 'true' }}
         uses: docker/setup-buildx-action@v3
 
+      - name: Read Python version from .python-version
+        if: ${{ steps.check_dockerfile.outputs.docker_present == 'true' }}
+        id: python_version
+        run: |
+          if [ -f .python-version ]; then
+            PYTHON_VERSION=$(cat .python-version | tr -d '[:space:]')
+            echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+            echo "Using Python version: $PYTHON_VERSION"
+          else
+            echo "version=3.12" >> $GITHUB_OUTPUT
+            echo "::warning::.python-version not found, using default 3.12"
+          fi
+
       - name: Build container image with Docker Buildx (validation only)
         if: ${{ steps.check_dockerfile.outputs.docker_present == 'true' }}
         run: |
@@ -59,6 +72,7 @@ jobs:
           REPO_NAME="${REPO_NAME//[._]/}"
           docker buildx build \
             --file docker/Dockerfile \
+            --build-arg PYTHON_VERSION=${{ steps.python_version.outputs.version }} \
             --tag "${REPO_NAME}:ci" \
             --load \
             .
