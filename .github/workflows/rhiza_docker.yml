@@ -7,7 +7,7 @@
 # Notes:
 #  - The image is built locally for validation only; it is not pushed to any registry.
 #  - Permissions are minimized (read-only) since no repository writes occur.
-name: DOCKER
+name: (RHIZA) DOCKER
 
 permissions:
   contents: read
@@ -56,11 +56,11 @@ jobs:
         id: python_version
         run: |
           if [ -f .python-version ]; then
-            PYTHON_VERSION=$(cat .python-version | tr -d '[:space:]')
-            echo "version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+            PYTHON_VERSION=$(tr -d '[:space:]' < .python-version)
+            echo "version=$PYTHON_VERSION" >> "$GITHUB_OUTPUT"
             echo "Using Python version: $PYTHON_VERSION"
           else
-            echo "version=3.12" >> $GITHUB_OUTPUT
+            echo "version=3.12" >> "$GITHUB_OUTPUT"
             echo "::warning::.python-version not found, using default 3.12"
           fi
 
