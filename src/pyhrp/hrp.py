@@ -83,17 +83,17 @@ class Dendrogram:
         # ---- Optional: validate distance index/columns ----
         if self.distance is not None:
             if not isinstance(self.distance, pd.DataFrame):
-                raise TypeError("distance must be a pandas DataFrame.")
+                raise TypeError("distance must be a pandas DataFrame.")  # noqa: TRY003
 
             # Optionally check if distance matches assets
             if not self.distance.index.equals(pd.Index(self.assets)) or not self.distance.columns.equals(
                 pd.Index(self.assets)
             ):
-                raise ValueError("Distance matrix index/columns must align with assets.")
+                raise ValueError("Distance matrix index/columns must align with assets.")  # noqa: TRY003
 
         # Check the number of leaves and assets
         if len(self.root.leaves) != len(self.assets):
-            raise ValueError("Number of leaves does not match number of assets.")
+            raise ValueError("Number of leaves does not match number of assets.")  # noqa: TRY003
 
     def plot(self, **kwargs):
         """Plot the dendrogram."""

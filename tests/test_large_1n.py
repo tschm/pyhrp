@@ -33,7 +33,7 @@ def test_one_over_n_large(returns: DataFrame) -> None:
     assert len(portfolios) == len(dendrogram.root.levels)
 
     # Check properties of each portfolio
-    for level, portfolio in portfolios:
+    for _level, portfolio in portfolios:
         # Weights should sum to 1
         assert sum(portfolio.weights.values) == pytest.approx(1.0)
 

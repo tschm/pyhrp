@@ -72,5 +72,5 @@ def test_wrong_number_of_nodes() -> None:
     root.left.right = Node(2)
 
     # Verify that a ValueError is raised due to the mismatch
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="does not match number of assets"):
         Dendrogram(root=root, assets=["a", "b", "c", "d"])
