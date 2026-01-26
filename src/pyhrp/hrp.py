@@ -214,7 +214,8 @@ def build_tree(
                 node (Cluster): Current node being processed
             """
             if node.left is not None and node.right is not None:
-                assert isinstance(node.left, Cluster) and isinstance(node.right, Cluster)
+                assert isinstance(node.left, Cluster)
+                assert isinstance(node.right, Cluster)
                 get_linkage(node.left)
                 get_linkage(node.right)
                 links_list.append(

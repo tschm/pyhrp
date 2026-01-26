@@ -148,7 +148,8 @@ class Cluster(Node):
         if self.is_leaf:
             return [self]
         else:
-            assert self.left is not None and self.right is not None
+            assert self.left is not None
+            assert self.right is not None
             left_leaves: list[Cluster] = self.left.leaves  # type: ignore[assignment]
             right_leaves: list[Cluster] = self.right.leaves  # type: ignore[assignment]
             return left_leaves + right_leaves
