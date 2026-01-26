@@ -10,9 +10,9 @@ A comprehensive demonstration of Marimo's most useful features, including:
 
 - **Interactive UI Elements**: Sliders, dropdowns, text inputs, checkboxes, and multiselect
 - **Reactive Programming**: Automatic cell updates when dependencies change
-- **Data Visualization**: Interactive plots using Plotly
+- **Data Visualisation**: Interactive plots using Plotly
 - **DataFrames**: Working with Pandas data
-- **Layout Components**: Columns, tabs, and accordions for organized content
+- **Layout Components**: Columns, tabs, and accordions for organised content
 - **Forms**: Dictionary-based forms for collecting user input
 - **Rich Text**: Markdown and LaTeX support for documentation
 - **Advanced Features**: Callouts, collapsible accordions, and more
