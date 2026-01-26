@@ -32,3 +32,11 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pyhrp"]
+
+[tool.mypy]
+ignore_missing_imports = true
+
+[tool.deptry]
+package_module_name_map = {pyportfolioopt = "pypfopt", numpy = "numpy", pandas = "pandas", scipy = "scipy", matplotlib = "matplotlib", marimo = "marimo", polars = "polars", security = "security", pyarrow = "pyarrow", plotly = "plotly"}
+ignore = ["DEP004"]
+extend_exclude = [".rhiza"]

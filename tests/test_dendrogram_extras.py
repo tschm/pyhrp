@@ -51,7 +51,7 @@ def test_post_init_raises_on_distance_misalignment() -> None:
     assets = ["A", "B"]
     # Distance with reversed order -> misaligned
     dist = pd.DataFrame([[0.0, 1.0], [1.0, 0.0]], index=["B", "A"], columns=["B", "A"])
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="must align with assets"):
         Dendrogram(root=root, assets=assets, distance=dist, linkage=None, method="single")
 
 
@@ -60,7 +60,7 @@ def test_post_init_raises_on_leaf_asset_count_mismatch() -> None:
     # Two-leaf tree but only one asset
     root = Cluster(99, left=Cluster(1), right=Cluster(2))
     assets = ["A"]
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="does not match number of assets"):
         Dendrogram(root=root, assets=assets, distance=None, linkage=None, method="single")
 
 
@@ -404,5 +404,5 @@ def test_dendrogram_distance_index_not_equals_columns() -> None:
     # Create distance with index matching but columns different
     dist = pd.DataFrame([[0.0, 1.0], [1.0, 0.0]], index=["A", "B"], columns=["C", "D"])
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="must align with assets"):
         Dendrogram(root=root, assets=assets, distance=dist, linkage=None, method="single")

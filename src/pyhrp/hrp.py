@@ -22,7 +22,7 @@ from .cluster import Cluster
 
 def hrp(
     prices: pd.DataFrame,
-    node: Cluster = None,
+    node: Cluster | None = None,
     method: Literal["single", "complete", "average", "ward"] = "ward",
     bisection: bool = False,
 ) -> Cluster:
@@ -73,7 +73,7 @@ class Dendrogram:
     linkage: np.ndarray | None = None
     method: str | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Validate dataclass fields after initialization.
 
         Ensures that the optional distance matrix, when provided, is a pandas
@@ -83,29 +83,29 @@ class Dendrogram:
         # ---- Optional: validate distance index/columns ----
         if self.distance is not None:
             if not isinstance(self.distance, pd.DataFrame):
-                raise TypeError("distance must be a pandas DataFrame.")
+                raise TypeError("distance must be a pandas DataFrame.")  # noqa: TRY003
 
             # Optionally check if distance matches assets
             if not self.distance.index.equals(pd.Index(self.assets)) or not self.distance.columns.equals(
                 pd.Index(self.assets)
             ):
-                raise ValueError("Distance matrix index/columns must align with assets.")
+                raise ValueError("Distance matrix index/columns must align with assets.")  # noqa: TRY003
 
         # Check the number of leaves and assets
         if len(self.root.leaves) != len(self.assets):
-            raise ValueError("Number of leaves does not match number of assets.")
+            raise ValueError("Number of leaves does not match number of assets.")  # noqa: TRY003
 
-    def plot(self, **kwargs):
+    def plot(self, **kwargs: object) -> None:
         """Plot the dendrogram."""
         sch.dendrogram(self.linkage, leaf_rotation=90, leaf_font_size=8, labels=self.assets, **kwargs)
 
     @property
-    def ids(self):
+    def ids(self) -> list[int]:
         """Node values in the order left -> right as they appear in the dendrogram."""
-        return [node.value for node in self.root.leaves]
+        return [node.value for node in self.root.leaves]  # type: ignore[misc]
 
     @property
-    def names(self):
+    def names(self) -> list[str]:
         """The asset names as induced by the order of ids."""
         return [self.assets[i] for i in self.ids]
 
@@ -169,6 +169,9 @@ def build_tree(
 
     # Apply bisection if requested
     if bisection:
+        # Rebuild tree using bisection
+        leaf_ids: list[int] = [int(node.value) for node in root.leaves]
+        nnn: int = max(leaf_ids)
 
         def bisect_tree(ids: list[int]) -> Cluster:
             """Build tree by recursive bisection.
@@ -196,13 +199,10 @@ def build_tree(
             nnn += 1
             return Cluster(value=nnn, left=left, right=right)
 
-        # Rebuild tree using bisection
-        leaf_ids = [node.value for node in root.leaves]
-        nnn = max(leaf_ids)
         root = bisect_tree(leaf_ids)
 
         # Convert back to linkage format for plotting
-        links = []
+        links_list: list[list[float]] = []
 
         def get_linkage(node: Cluster) -> None:
             """Convert tree structure back to linkage matrix format.
@@ -213,19 +213,21 @@ def build_tree(
             Args:
                 node (Cluster): Current node being processed
             """
-            if node.left is not None:
+            if node.left is not None and node.right is not None:
+                assert isinstance(node.left, Cluster)
+                assert isinstance(node.right, Cluster)
                 get_linkage(node.left)
                 get_linkage(node.right)
-                links.append(
+                links_list.append(
                     [
-                        node.left.value,
-                        node.right.value,
+                        float(node.left.value),
+                        float(node.right.value),
                         float(node.size),
-                        len(node.left.leaves) + len(node.right.leaves),
+                        float(len(node.left.leaves) + len(node.right.leaves)),
                     ]
                 )
 
         get_linkage(root)
-        links = np.array(links)
+        links = np.array(links_list)
 
     return Dendrogram(root=root, linkage=links, method=method, distance=dist, assets=cor.columns)

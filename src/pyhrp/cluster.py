@@ -8,9 +8,11 @@ This module defines the core data structures used in the hierarchical risk parit
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import Any
 
 import numpy as np
 import pandas as pd
+from matplotlib.axes import Axes
 
 from .treelib import Node
 
@@ -49,7 +51,7 @@ class Portfolio:
         """
         c = cov[self.assets].loc[self.assets].values
         w = self.weights[self.assets].values
-        return np.linalg.multi_dot((w, c, w))
+        return float(np.linalg.multi_dot((w, c, w)))
 
     def __getitem__(self, item: str) -> float:
         """Return the weight for a given asset.
@@ -83,7 +85,7 @@ class Portfolio:
         """
         return pd.Series(self._weights, name="Weights").sort_index()
 
-    def plot(self, names: list[str]):
+    def plot(self, names: list[str]) -> Axes:
         """Plot the portfolio weights.
 
         Args:
@@ -112,7 +114,7 @@ class Cluster(Node):
         portfolio (Portfolio): The portfolio associated with this cluster
     """
 
-    def __init__(self, value: int, left: Cluster | None = None, right: Cluster | None = None, **kwargs):
+    def __init__(self, value: int, left: Cluster | None = None, right: Cluster | None = None, **kwargs: Any) -> None:
         """Initialize a new Cluster.
 
         Args:
@@ -134,7 +136,7 @@ class Cluster(Node):
         return self.left is None and self.right is None
 
     @property
-    def leaves(self) -> list[Cluster]:
+    def leaves(self) -> list[Cluster]:  # type: ignore[override]
         """Get all reachable leaf nodes in the correct order.
 
         Note that the leaves method of the Node class implemented in BinaryTree
@@ -146,4 +148,8 @@ class Cluster(Node):
         if self.is_leaf:
             return [self]
         else:
-            return self.left.leaves + self.right.leaves
+            assert self.left is not None
+            assert self.right is not None
+            left_leaves: list[Cluster] = self.left.leaves  # type: ignore[assignment]
+            right_leaves: list[Cluster] = self.right.leaves  # type: ignore[assignment]
+            return left_leaves + right_leaves
