@@ -8,7 +8,7 @@ Provides test fixtures for testing git-based workflows and version management.
 
 import os
 import shutil
-import subprocess
+import subprocess  # nosec
 
 import pytest
 
@@ -59,7 +59,7 @@ def test_marimushka_target_success(git_repo):
     # Override UVX_BIN to use our mock marimushka CLI
     env["UVX_BIN"] = str(git_repo / "bin" / "marimushka")
 
-    result = subprocess.run([MAKE, "marimushka"], env=env, cwd=git_repo, capture_output=True, text=True)
+    result = subprocess.run([MAKE, "marimushka"], env=env, cwd=git_repo, capture_output=True, text=True)  # nosec
 
     assert result.returncode == 0
     assert "Exporting notebooks" in result.stdout
@@ -87,7 +87,7 @@ def test_marimushka_no_python_files(git_repo):
     env["MARIMO_FOLDER"] = "book/marimo/notebooks"
     env["MARIMUSHKA_OUTPUT"] = "_marimushka"
 
-    result = subprocess.run([MAKE, "marimushka"], env=env, cwd=git_repo, capture_output=True, text=True)
+    result = subprocess.run([MAKE, "marimushka"], env=env, cwd=git_repo, capture_output=True, text=True)  # nosec
 
     assert result.returncode == 0
     assert (output_folder / "index.html").exists()

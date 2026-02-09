@@ -4,14 +4,7 @@ Tests cover version parsing, specifier validation, and edge cases
 for malformed inputs.
 """
 
-import sys
-from pathlib import Path
-
 import pytest
-
-# Add the utils directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / ".rhiza" / "utils"))
-
 from version_matrix import (
     CANDIDATES,
     PyProjectError,

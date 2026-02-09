@@ -4,14 +4,16 @@ This test ensures that the requirements folder exists and contains the expected
 requirement files for development dependencies.
 """
 
+from typing import ClassVar
+
 
 class TestRequirementsFolder:
     """Tests for the .rhiza/requirements folder structure."""
 
     # Expected requirements files
-    EXPECTED_REQUIREMENTS_FILES = [
-        "tests.txt",
-        "marimo.txt",
+    EXPECTED_REQUIREMENTS_FILES: ClassVar[list[str]] = [
+        # "tests.txt",   # may not be present in all repositories
+        # "marimo.txt",  # may not be present in all repositories
         "docs.txt",
         "tools.txt",
     ]

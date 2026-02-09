@@ -4,7 +4,7 @@
 # executing performance benchmarks.
 
 # Declare phony targets (they don't produce files)
-.PHONY: test benchmark typecheck security mutate docs-coverage
+.PHONY: test benchmark typecheck security docs-coverage
 
 # Default directory for tests
 TESTS_FOLDER := tests
@@ -23,25 +23,21 @@ COVERAGE_FAIL_UNDER ?= 90
 test: install ## run all tests
 	@rm -rf _tests;
 
-	@if [ -d ${TESTS_FOLDER} ]; then \
-	  mkdir -p _tests/html-coverage _tests/html-report; \
-	  if [ -d ${SOURCE_FOLDER} ]; then \
-	    ${VENV}/bin/python -m pytest ${TESTS_FOLDER} \
-	    --ignore=${TESTS_FOLDER}/benchmarks \
-	    --cov=${SOURCE_FOLDER} \
-	    --cov-report=term \
-	    --cov-report=html:_tests/html-coverage \
-	    --cov-fail-under=$(COVERAGE_FAIL_UNDER) \
-	    --cov-report=json:_tests/coverage.json \
-	    --html=_tests/html-report/report.html; \
-	  else \
-	    printf "${YELLOW}[WARN] Source folder ${SOURCE_FOLDER} not found, running tests without coverage${RESET}\n"; \
-	    ${VENV}/bin/python -m pytest ${TESTS_FOLDER} \
-	    --ignore=${TESTS_FOLDER}/benchmarks \
-	    --html=_tests/html-report/report.html; \
-	  fi \
+	@mkdir -p _tests/html-coverage _tests/html-report; \
+	if [ -d ${SOURCE_FOLDER} ]; then \
+	  ${VENV}/bin/python -m pytest \
+	  --ignore=${TESTS_FOLDER}/benchmarks \
+	  --cov=${SOURCE_FOLDER} \
+	  --cov-report=term \
+	  --cov-report=html:_tests/html-coverage \
+	  --cov-fail-under=$(COVERAGE_FAIL_UNDER) \
+	  --cov-report=json:_tests/coverage.json \
+	  --html=_tests/html-report/report.html; \
 	else \
-	  printf "${YELLOW}[WARN] Test folder ${TESTS_FOLDER} not found, skipping tests${RESET}\n"; \
+	  printf "${YELLOW}[WARN] Source folder ${SOURCE_FOLDER} not found, running tests without coverage${RESET}\n"; \
+	  ${VENV}/bin/python -m pytest \
+	  --ignore=${TESTS_FOLDER}/benchmarks \
+	  --html=_tests/html-report/report.html; \
 	fi
 
 # The 'typecheck' target runs static type analysis using mypy.
@@ -63,15 +59,6 @@ security: install ## run security scans (pip-audit and bandit)
 	@${UVX_BIN} pip-audit
 	@printf "${BLUE}[INFO] Running bandit security scan...${RESET}\n"
 	@${UVX_BIN} bandit -r ${SOURCE_FOLDER} -ll -q
-
-# The 'mutate' target performs mutation testing using mutmut.
-# 1. Runs mutmut to apply mutations to the source code and check if tests fail.
-# 2. Displays the results of the mutation testing.
-mutate: install ## run mutation testing with mutmut (slow, for CI or thorough testing)
-	@printf "${BLUE}[INFO] Running mutation testing with mutmut...${RESET}\n"
-	@printf "${YELLOW}[WARN] This may take a while...${RESET}\n"
-	@${UVX_BIN} mutmut run --paths-to-mutate=${SOURCE_FOLDER}
-	@${UVX_BIN} mutmut results
 
 # The 'benchmark' target runs performance benchmarks using pytest-benchmark.
 # 1. Installs benchmarking dependencies (pytest-benchmark, pygal).

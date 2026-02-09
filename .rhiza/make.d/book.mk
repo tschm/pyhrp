@@ -1,11 +1,10 @@
-## book.mk - Documentation and book-building targets
+## book.mk - Book-building targets
 # This file is included by the main Makefile.
-# It provides targets for generating API documentation (pdoc),
-# exporting Marimo notebooks to HTML (marimushka), and compiling
-# a companion book (minibook).
+# It provides targets for exporting Marimo notebooks to HTML (marimushka)
+# and compiling a companion book (minibook).
 
 # Declare phony targets (they don't produce files)
-.PHONY: docs marimushka book
+.PHONY: marimushka mkdocs-build book
 
 # Define a default no-op marimushka target that will be used
 # when book/marimo/marimo.mk doesn't exist or doesn't define marimushka
@@ -18,8 +17,18 @@ marimushka:: install-uv
 	    > "${MARIMUSHKA_OUTPUT}/index.html"; \
 	fi
 
+# Define a default no-op mkdocs-build target that will be used
+# when .rhiza/make.d/08-docs.mk doesn't exist or doesn't define mkdocs-build
+mkdocs-build:: install-uv
+	@if [ ! -f "docs/mkdocs.yml" ]; then \
+	  printf "${BLUE}[INFO] No mkdocs.yml found, skipping MkDocs${RESET}\n"; \
+	fi
+
 # Default output directory for Marimushka (HTML exports of notebooks)
 MARIMUSHKA_OUTPUT ?= _marimushka
+
+# Default output directory for MkDocs
+MKDOCS_OUTPUT ?= _mkdocs
 
 # ----------------------------
 # Book sections (declarative)
@@ -31,64 +40,16 @@ BOOK_SECTIONS := \
   "API|_pdoc/index.html|pdoc/index.html|_pdoc|pdoc" \
   "Coverage|_tests/html-coverage/index.html|tests/html-coverage/index.html|_tests/html-coverage|tests/html-coverage" \
   "Test Report|_tests/html-report/report.html|tests/html-report/report.html|_tests/html-report|tests/html-report" \
-  "Notebooks|_marimushka/index.html|marimushka/index.html|_marimushka|marimushka"
+  "Notebooks|_marimushka/index.html|marimushka/index.html|_marimushka|marimushka" \
+  "Official Documentation|_mkdocs/index.html|docs/index.html|_mkdocs|docs"
 
-
-##@ Documentation
-
-# The 'docs' target generates API documentation using pdoc.
-# 1. Identifies Python packages within the source folder.
-# 2. Detects the docformat (google, numpy, or sphinx) from ruff.toml or defaults to google.
-# 3. Installs pdoc and generates HTML documentation in _pdoc.
-docs:: install ## create documentation with pdoc
-	# Clean up previous docs
-	rm -rf _pdoc;
-
-	@if [ -d "${SOURCE_FOLDER}" ]; then \
-	  PKGS=""; for d in "${SOURCE_FOLDER}"/*; do [ -d "$$d" ] && PKGS="$$PKGS $$(basename "$$d")"; done; \
-	  if [ -z "$$PKGS" ]; then \
-	    printf "${YELLOW}[WARN] No packages found under ${SOURCE_FOLDER}, skipping docs${RESET}\n"; \
-	  else \
-	    TEMPLATE_ARG=""; \
-	    if [ -d "$(PDOC_TEMPLATE_DIR)" ]; then \
-	      TEMPLATE_ARG="-t $(PDOC_TEMPLATE_DIR)"; \
-	      printf "$(BLUE)[INFO] Using pdoc templates from $(PDOC_TEMPLATE_DIR)$(RESET)\n"; \
-	    fi; \
-	    DOCFORMAT="$(DOCFORMAT)"; \
-	    if [ -z "$$DOCFORMAT" ]; then \
-	      if [ -f "ruff.toml" ]; then \
-	        DOCFORMAT=$$(${UV_BIN} run python -c "import tomllib; print(tomllib.load(open('ruff.toml', 'rb')).get('lint', {}).get('pydocstyle', {}).get('convention', ''))"); \
-	      fi; \
-	      if [ -z "$$DOCFORMAT" ]; then \
-	        DOCFORMAT="google"; \
-	      fi; \
-	      printf "${BLUE}[INFO] Detected docformat: $$DOCFORMAT${RESET}\n"; \
-	    else \
-	      printf "${BLUE}[INFO] Using provided docformat: $$DOCFORMAT${RESET}\n"; \
-	    fi; \
-	    LOGO_ARG=""; \
-	    if [ -n "$(LOGO_FILE)" ]; then \
-	      if [ -f "$(LOGO_FILE)" ]; then \
-	        MIME=$$(file --mime-type -b "$(LOGO_FILE)"); \
-	        DATA=$$(base64 < "$(LOGO_FILE)" | tr -d '\n'); \
-	        LOGO_ARG="--logo data:$$MIME;base64,$$DATA"; \
-	        printf "${BLUE}[INFO] Embedding logo: $(LOGO_FILE)${RESET}\n"; \
-	      else \
-	        printf "${YELLOW}[WARN] Logo file $(LOGO_FILE) not found, skipping${RESET}\n"; \
-	      fi; \
-	    fi; \
-	    ${UV_BIN} pip install pdoc && \
-	    PYTHONPATH="${SOURCE_FOLDER}" ${UV_BIN} run pdoc --docformat $$DOCFORMAT --output-dir _pdoc $$TEMPLATE_ARG $$LOGO_ARG $$PKGS; \
-	  fi; \
-	else \
-	  printf "${YELLOW}[WARN] Source folder ${SOURCE_FOLDER} not found, skipping docs${RESET}\n"; \
-	fi
+##@ Book
 
 # The 'book' target assembles the final documentation book.
-# 1. Aggregates API docs, coverage, test reports, and notebooks into _book.
+# 1. Aggregates API docs, coverage, test reports, notebooks, and MkDocs site into _book.
 # 2. Generates links.json to define the book structure.
 # 3. Uses 'minibook' to compile the final HTML site.
-book:: test docs marimushka ## compile the companion book
+book:: test docs marimushka mkdocs-build ## compile the companion book
 	@printf "${BLUE}[INFO] Building combined documentation...${RESET}\n"
 	@rm -rf _book && mkdir -p _book
 

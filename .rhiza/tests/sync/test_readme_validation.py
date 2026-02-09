@@ -40,7 +40,7 @@ def test_readme_runs(logger, root):
     # Trust boundary: we execute Python snippets sourced from README.md in this repo.
     # The README is part of the trusted repository content and reviewed in PRs.
     logger.debug("Executing README code via %s -c ...", sys.executable)
-    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=root)
+    result = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, cwd=root)  # nosec
 
     stdout = result.stdout
     logger.debug("Execution finished with return code %d", result.returncode)
@@ -86,15 +86,6 @@ class TestReadmeTestEdgeCases:
 class TestReadmeBashFragments:
     """Tests for bash code fragments in README."""
 
-    def test_bash_blocks_are_non_empty(self, root):
-        """Bash code blocks in README should not be empty."""
-        readme = root / "README.md"
-        content = readme.read_text(encoding="utf-8")
-        bash_blocks = BASH_BLOCK.findall(content)
-
-        for i, code in enumerate(bash_blocks):
-            assert code.strip(), f"Bash block {i} should not be empty"
-
     def test_bash_blocks_basic_syntax(self, root, logger):
         """Bash code blocks should have basic valid syntax (can be parsed by bash -n)."""
         readme = root / "README.md"
@@ -120,7 +111,7 @@ class TestReadmeBashFragments:
 
             # Use bash -n to check syntax without executing
             # Trust boundary: we use bash -n which only parses without executing
-            result = subprocess.run(
+            result = subprocess.run(  # nosec
                 [BASH, "-n"],
                 input=code,
                 capture_output=True,

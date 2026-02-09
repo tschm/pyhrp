@@ -14,6 +14,10 @@ import warnings
 from pathlib import Path
 
 import pytest
+from dotenv import dotenv_values
+
+# Read .rhiza/.env at collection time (no environment side-effects).
+RHIZA_ENV_PATH = Path(".rhiza/.env")
 
 
 def _iter_modules_from_path(logger, package_path: Path, src_path: Path):
@@ -47,7 +51,9 @@ def _find_packages(src_path: Path):
 
 def test_doctests(logger, root, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]):
     """Run doctests for each package directory."""
-    src_path = root / "src"
+    values = dotenv_values(root / RHIZA_ENV_PATH) if (root / RHIZA_ENV_PATH).exists() else {}
+    source_folder = values.get("SOURCE_FOLDER", "src")
+    src_path = root / source_folder
 
     logger.info("Starting doctest discovery in: %s", src_path)
     if not src_path.exists():

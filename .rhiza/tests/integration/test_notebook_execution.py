@@ -1,7 +1,7 @@
 """Tests for Marimo notebooks."""
 
 import shutil
-import subprocess
+import subprocess  # nosec
 from pathlib import Path
 
 import pytest
@@ -36,6 +36,12 @@ def collect_marimo_notebooks(env_path: Path = RHIZA_ENV_PATH):
 NOTEBOOK_PATHS = collect_marimo_notebooks()
 
 
+def test_notebooks_discovered():
+    """At least one notebook should be discovered for parametrized tests to run."""
+    if not NOTEBOOK_PATHS:
+        pytest.skip("No Marimo notebooks found — check MARIMO_FOLDER in .rhiza/.env")
+
+
 @pytest.mark.parametrize("notebook_path", NOTEBOOK_PATHS, ids=lambda p: p.name)
 def test_notebook_execution(notebook_path: Path):
     """Test if a Marimo notebook can be executed without errors.
@@ -66,7 +72,7 @@ def test_notebook_execution(notebook_path: Path):
         "/dev/null",  # We don't need the actual HTML output
     ]
 
-    result = subprocess.run(cmd, capture_output=True, text=True, cwd=notebook_path.parent)
+    result = subprocess.run(cmd, capture_output=True, text=True, cwd=notebook_path.parent)  # nosec
 
     # Ensure process exit code indicates success
     assert result.returncode == 0, (

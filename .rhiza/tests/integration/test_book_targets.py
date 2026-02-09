@@ -1,7 +1,7 @@
 """Tests for book-related Makefile targets and their resilience."""
 
 import shutil
-import subprocess
+import subprocess  # nosec
 
 import pytest
 
@@ -15,6 +15,10 @@ def test_no_book_folder(git_repo):
     available but check internally for the existence of the book folder.
     Using dry-run (-n) to test the target logic without actually executing.
     """
+    # Skip if book.mk is not present in the repository
+    if not (git_repo / ".rhiza" / "make.d" / "book.mk").exists():
+        pytest.skip("book.mk not found, skipping test")
+
     if (git_repo / "book").exists():
         shutil.rmtree(git_repo / "book")
     assert not (git_repo / "book").exists()
@@ -22,7 +26,7 @@ def test_no_book_folder(git_repo):
     # Targets are now always defined via .rhiza/make.d/
     # Use dry-run to verify they exist and can be parsed
     for target in ["book", "docs", "marimushka"]:
-        result = subprocess.run([MAKE, "-n", target], cwd=git_repo, capture_output=True, text=True)
+        result = subprocess.run([MAKE, "-n", target], cwd=git_repo, capture_output=True, text=True)  # nosec
         # Target should exist (not "no rule to make target")
         assert "no rule to make target" not in result.stderr.lower(), (
             f"Target {target} should be defined in .rhiza/make.d/"
@@ -32,9 +36,13 @@ def test_no_book_folder(git_repo):
 def test_book_folder_but_no_mk(git_repo):
     """Test behavior when book folder exists but is empty.
 
-    With the new architecture, targets are always defined in .rhiza/make.d/02-book.mk,
+    With the new architecture, targets are always defined in .rhiza/make.d/book.mk,
     so they should exist regardless of the book folder contents.
     """
+    # Skip if book.mk is not present in the repository
+    if not (git_repo / ".rhiza" / "make.d" / "book.mk").exists():
+        pytest.skip("book.mk not found, skipping test")
+
     # ensure book folder exists but is empty
     if (git_repo / "book").exists():
         shutil.rmtree(git_repo / "book")
@@ -49,7 +57,7 @@ def test_book_folder_but_no_mk(git_repo):
     # Targets are now always defined via .rhiza/make.d/
     # Use dry-run to verify they exist and can be parsed
     for target in ["book", "docs", "marimushka"]:
-        result = subprocess.run([MAKE, "-n", target], cwd=git_repo, capture_output=True, text=True)
+        result = subprocess.run([MAKE, "-n", target], cwd=git_repo, capture_output=True, text=True)  # nosec
         # Target should exist (not "no rule to make target")
         assert "no rule to make target" not in result.stderr.lower(), (
             f"Target {target} should be defined in .rhiza/make.d/"
@@ -57,18 +65,18 @@ def test_book_folder_but_no_mk(git_repo):
 
 
 def test_book_folder(git_repo):
-    """Test that .rhiza/make.d/02-book.mk defines the expected phony targets."""
+    """Test that .rhiza/make.d/book.mk defines the expected phony targets."""
     # Check for the new location of book targets
-    makefile = git_repo / ".rhiza" / "make.d" / "02-book.mk"
+    makefile = git_repo / ".rhiza" / "make.d" / "book.mk"
     if not makefile.exists():
-        pytest.skip("02-book.mk not found, skipping test")
+        pytest.skip("book.mk not found, skipping test")
 
     content = makefile.read_text()
 
     # get the list of phony targets from the Makefile
     phony_targets = [line.strip() for line in content.splitlines() if line.startswith(".PHONY:")]
     if not phony_targets:
-        pytest.skip("No .PHONY targets found in 02-book.mk")
+        pytest.skip("No .PHONY targets found in book.mk")
 
     # Collect all targets from all .PHONY lines
     all_targets = set()
@@ -76,7 +84,7 @@ def test_book_folder(git_repo):
         targets = phony_line.split(":")[1].strip().split()
         all_targets.update(targets)
 
-    expected_targets = {"book", "docs", "marimushka"}
+    expected_targets = {"book", "marimushka", "mkdocs-build"}
     assert expected_targets.issubset(all_targets), (
         f"Expected phony targets to include {expected_targets}, got {all_targets}"
     )
@@ -88,6 +96,10 @@ def test_book_without_logo_file(git_repo):
     The build should succeed gracefully without a logo, and the generated
     HTML template should hide the logo element via onerror handler.
     """
+    # Skip if book.mk is not present in the repository
+    if not (git_repo / ".rhiza" / "make.d" / "book.mk").exists():
+        pytest.skip("book.mk not found, skipping test")
+
     makefile = git_repo / "Makefile"
     if not makefile.exists():
         pytest.skip("Makefile not found")
@@ -107,7 +119,7 @@ def test_book_without_logo_file(git_repo):
     makefile.write_text("\n".join(new_lines))
 
     # Dry-run the book target - it should still be valid
-    result = subprocess.run([MAKE, "-n", "book"], cwd=git_repo, capture_output=True, text=True)
+    result = subprocess.run([MAKE, "-n", "book"], cwd=git_repo, capture_output=True, text=True)  # nosec
     assert "no rule to make target" not in result.stderr.lower(), "book target should work without LOGO_FILE"
     # Should not have errors about missing logo variable
     assert result.returncode == 0, f"Dry-run failed: {result.stderr}"
@@ -118,6 +130,10 @@ def test_book_with_missing_logo_file(git_repo):
 
     The build should succeed but emit a warning about the missing logo.
     """
+    # Skip if book.mk is not present in the repository
+    if not (git_repo / ".rhiza" / "make.d" / "book.mk").exists():
+        pytest.skip("book.mk not found, skipping test")
+
     makefile = git_repo / "Makefile"
     if not makefile.exists():
         pytest.skip("Makefile not found")
@@ -142,5 +158,5 @@ def test_book_with_missing_logo_file(git_repo):
     makefile.write_text("\n".join(new_lines))
 
     # Dry-run should still succeed
-    result = subprocess.run([MAKE, "-n", "book"], cwd=git_repo, capture_output=True, text=True)
+    result = subprocess.run([MAKE, "-n", "book"], cwd=git_repo, capture_output=True, text=True)  # nosec
     assert result.returncode == 0, f"Dry-run failed with missing logo: {result.stderr}"

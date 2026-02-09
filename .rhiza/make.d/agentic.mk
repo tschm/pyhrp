@@ -5,7 +5,7 @@
 .PHONY: install-copilot install-claude analyse-repo summarise-changes
 
 COPILOT_BIN ?= $(shell command -v copilot 2>/dev/null || echo "$(INSTALL_DIR)/copilot")
-CLAUDE_BIN ?= $(shell command -v claude 2>/dev/null || echo "$(INSTALL_DIR)/claude")
+CLAUDE_BIN ?= $(shell command -v claude 2>/dev/null || echo "$(HOME)/.local/bin/claude")
 DEFAULT_AI_MODEL ?= gpt-4.1
 
 ##@ Agentic Workflows
@@ -52,16 +52,13 @@ install-copilot:  ## checks for copilot and prompts to install
 install-claude:  ## checks for claude and prompts to install
 	@if command -v claude >/dev/null 2>&1; then \
 	  printf "${GREEN}[INFO] claude already installed in PATH, skipping install.${RESET}\n"; \
-	elif [ -x "${INSTALL_DIR}/claude" ]; then \
-	  printf "${SUCCESS}[INFO] claude already installed in ${INSTALL_DIR}, skipping install.${RESET}\n"; \
 	else \
-		printf "${YELLOW}[WARN] Claude Code CLI not found in ${INSTALL_DIR}.${RESET}\n"; \
+		printf "${YELLOW}[WARN] Claude Code CLI not found in PATH.${RESET}\n"; \
 		printf "${BLUE}Do you want to install Claude Code CLI? [y/N] ${RESET}"; \
 		read -r response; \
 		if [ "$$response" = "y" ] || [ "$$response" = "Y" ]; then \
-			printf "${BLUE}[INFO] Installing Claude Code CLI to ${INSTALL_DIR}...${RESET}\n"; \
-			mkdir -p "${INSTALL_DIR}"; \
-			if curl -fsSL https://claude.ai/install.sh | CLAUDE_INSTALL_DIR="${INSTALL_DIR}" bash; then \
+			printf "${BLUE}[INFO] Installing Claude Code CLI to default location (~/.local/bin/claude)...${RESET}\n"; \
+			if curl -fsSL https://claude.ai/install.sh | bash; then \
 				printf "${GREEN}[INFO] Claude Code CLI installed successfully.${RESET}\n"; \
 			else \
 				printf "${RED}[ERROR] Failed to install Claude Code CLI.${RESET}\n"; \
