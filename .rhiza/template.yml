@@ -2,7 +2,6 @@ template-repository: jebel-quant/rhiza
 template-branch: main
 include:
 - .github
-- tests
 - .editorconfig
 - .gitignore
 - .pre-commit-config.yaml
