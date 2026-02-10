@@ -32,6 +32,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6.0.2
 
+      - name: Configure git auth for private packages
+        uses: ./.github/actions/configure-git-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
+
       - name: Run security scans
         env:
           UV_EXTRA_INDEX_URL: ${{ secrets.UV_EXTRA_INDEX_URL }}

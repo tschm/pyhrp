@@ -115,6 +115,11 @@ jobs:
         with:
           version: "0.10.0"
 
+      - name: Configure git auth for private packages
+        uses: ./.github/actions/configure-git-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
+
       - name: Verify version matches tag
         if: hashFiles('pyproject.toml') != ''
         run: |

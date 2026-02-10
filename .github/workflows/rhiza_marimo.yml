@@ -85,6 +85,11 @@ jobs:
         with:
           version: "0.10.0"
 
+      - name: Configure git auth for private packages
+        uses: ./.github/actions/configure-git-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
+
       # Execute the notebook with the appropriate runner based on its content
       - name: Run notebook
         env:

@@ -32,6 +32,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6.0.2
 
+      - name: Configure git auth for private packages
+        uses: ./.github/actions/configure-git-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
+
       - name: Run deptry
         run: make deptry
         # NOTE: make deptry is good style because it encapsulates the folders to check

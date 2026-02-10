@@ -83,6 +83,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v6.0.2
 
+    - name: Configure git auth for private packages
+      uses: ./.github/actions/configure-git-auth
+      with:
+        token: ${{ secrets.GH_PAT }}
     # Add any setup steps before running the `github/codeql-action/init` action.
     # This includes steps like installing compilers or runtimes (`actions/setup-node`
     # or others). This is typically only required for manual builds.
