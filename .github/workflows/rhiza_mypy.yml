@@ -29,6 +29,11 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
+      - name: Configure git auth for private packages
+        uses: ./.github/actions/configure-git-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
+
       # to brutal for now
       # - name: Run mypy
       #   run: make -f .rhiza/rhiza.mk mypy
