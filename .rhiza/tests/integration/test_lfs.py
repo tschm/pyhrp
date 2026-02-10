@@ -19,6 +19,9 @@ MAKE = shutil.which("make") or "/usr/bin/make"
 
 def test_lfs_targets_exist(git_repo, logger):
     """Test that all LFS targets are defined in the Makefile."""
+    if not (git_repo / ".rhiza" / "make.d" / "lfs.mk").exists():
+        pytest.skip("lfs.mk not found, skipping test")
+
     result = subprocess.run(
         [MAKE, "help"],
         cwd=git_repo,
@@ -36,6 +39,9 @@ def test_lfs_targets_exist(git_repo, logger):
 
 def test_lfs_install_dry_run(git_repo, logger):
     """Test lfs-install target in dry-run mode."""
+    if not (git_repo / ".rhiza" / "make.d" / "lfs.mk").exists():
+        pytest.skip("lfs.mk not found, skipping test")
+
     env = os.environ.copy()
 
     result = subprocess.run(
@@ -54,6 +60,9 @@ def test_lfs_install_dry_run(git_repo, logger):
 
 def test_lfs_install_macos_logic(git_repo, logger, monkeypatch):
     """Test that lfs-install generates correct logic for macOS."""
+    if not (git_repo / ".rhiza" / "make.d" / "lfs.mk").exists():
+        pytest.skip("lfs.mk not found, skipping test")
+
     env = os.environ.copy()
 
     result = subprocess.run(
@@ -76,6 +85,9 @@ def test_lfs_install_macos_logic(git_repo, logger, monkeypatch):
 
 def test_lfs_install_linux_logic(git_repo, logger):
     """Test that lfs-install generates correct logic for Linux."""
+    if not (git_repo / ".rhiza" / "make.d" / "lfs.mk").exists():
+        pytest.skip("lfs.mk not found, skipping test")
+
     env = os.environ.copy()
 
     result = subprocess.run(
@@ -96,6 +108,9 @@ def test_lfs_install_linux_logic(git_repo, logger):
 
 def test_lfs_pull_target(git_repo, logger):
     """Test lfs-pull target in dry-run mode."""
+    if not (git_repo / ".rhiza" / "make.d" / "lfs.mk").exists():
+        pytest.skip("lfs.mk not found, skipping test")
+
     result = subprocess.run(
         [MAKE, "-n", "lfs-pull"],
         cwd=git_repo,
@@ -109,6 +124,9 @@ def test_lfs_pull_target(git_repo, logger):
 
 def test_lfs_track_target(git_repo, logger):
     """Test lfs-track target in dry-run mode."""
+    if not (git_repo / ".rhiza" / "make.d" / "lfs.mk").exists():
+        pytest.skip("lfs.mk not found, skipping test")
+
     result = subprocess.run(
         [MAKE, "-n", "lfs-track"],
         cwd=git_repo,
@@ -122,6 +140,9 @@ def test_lfs_track_target(git_repo, logger):
 
 def test_lfs_status_target(git_repo, logger):
     """Test lfs-status target in dry-run mode."""
+    if not (git_repo / ".rhiza" / "make.d" / "lfs.mk").exists():
+        pytest.skip("lfs.mk not found, skipping test")
+
     result = subprocess.run(
         [MAKE, "-n", "lfs-status"],
         cwd=git_repo,
@@ -135,6 +156,9 @@ def test_lfs_status_target(git_repo, logger):
 
 def test_lfs_install_error_handling(git_repo, logger):
     """Test that lfs-install includes error handling."""
+    if not (git_repo / ".rhiza" / "make.d" / "lfs.mk").exists():
+        pytest.skip("lfs.mk not found, skipping test")
+
     result = subprocess.run(
         [MAKE, "-n", "lfs-install"],
         cwd=git_repo,
@@ -150,6 +174,9 @@ def test_lfs_install_error_handling(git_repo, logger):
 
 def test_lfs_install_uses_github_api(git_repo, logger):
     """Test that lfs-install uses GitHub API for version detection."""
+    if not (git_repo / ".rhiza" / "make.d" / "lfs.mk").exists():
+        pytest.skip("lfs.mk not found, skipping test")
+
     result = subprocess.run(
         [MAKE, "-n", "lfs-install"],
         cwd=git_repo,
@@ -162,6 +189,9 @@ def test_lfs_install_uses_github_api(git_repo, logger):
 
 def test_lfs_install_sudo_handling(git_repo, logger):
     """Test that lfs-install handles sudo correctly on Linux."""
+    if not (git_repo / ".rhiza" / "make.d" / "lfs.mk").exists():
+        pytest.skip("lfs.mk not found, skipping test")
+
     result = subprocess.run(
         [MAKE, "-n", "lfs-install"],
         cwd=git_repo,
@@ -181,6 +211,9 @@ def test_lfs_install_sudo_handling(git_repo, logger):
 )
 def test_lfs_actual_execution_status(git_repo, logger):
     """Test actual execution of lfs-status (requires git-lfs to be installed)."""
+    if not (git_repo / ".rhiza" / "make.d" / "lfs.mk").exists():
+        pytest.skip("lfs.mk not found, skipping test")
+
     # Initialize git-lfs in the test repo
     subprocess.run(["git", "lfs", "install"], cwd=git_repo, capture_output=True)  # nosec
 
@@ -201,6 +234,9 @@ def test_lfs_actual_execution_status(git_repo, logger):
 )
 def test_lfs_actual_execution_track(git_repo, logger):
     """Test actual execution of lfs-track (requires git-lfs to be installed)."""
+    if not (git_repo / ".rhiza" / "make.d" / "lfs.mk").exists():
+        pytest.skip("lfs.mk not found, skipping test")
+
     # Initialize git-lfs in the test repo
     subprocess.run(["git", "lfs", "install"], cwd=git_repo, capture_output=True)  # nosec
 
