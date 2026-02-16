@@ -136,7 +136,7 @@ class Cluster(Node):
         return self.left is None and self.right is None
 
     @property
-    def leaves(self) -> list[Cluster]:  # type: ignore[override]
+    def leaves(self) -> list[Cluster]:
         """Get all reachable leaf nodes in the correct order.
 
         Note that the leaves method of the Node class implemented in BinaryTree
@@ -148,8 +148,10 @@ class Cluster(Node):
         if self.is_leaf:
             return [self]
         else:
-            assert self.left is not None
-            assert self.right is not None
+            if self.left is None:
+                raise ValueError("Expected left child to exist for non-leaf cluster")  # noqa: TRY003
+            if self.right is None:
+                raise ValueError("Expected right child to exist for non-leaf cluster")  # noqa: TRY003
             left_leaves: list[Cluster] = self.left.leaves  # type: ignore[assignment]
             right_leaves: list[Cluster] = self.right.leaves  # type: ignore[assignment]
             return left_leaves + right_leaves

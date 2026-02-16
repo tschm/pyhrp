@@ -177,10 +177,10 @@ def test_build_tree_bisection_true(returns: pd.DataFrame) -> None:
 
 
 def test_build_tree_raises_on_non_dataframe() -> None:
-    """Test that build_tree raises AssertionError when cor is not a DataFrame."""
+    """Test that build_tree raises TypeError when cor is not a DataFrame."""
     cor = [[1.0, 0.5], [0.5, 1.0]]  # Not a DataFrame
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(TypeError):
         build_tree(cor=cor, method="single", bisection=False)
 
 

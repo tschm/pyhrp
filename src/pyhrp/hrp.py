@@ -61,14 +61,14 @@ class Dendrogram:
 
     Attributes:
         root (Cluster): The root node of the hierarchical clustering tree
-        assets (list[Asset]): List of assets included in the clustering
+        assets (pd.Index): Index of assets included in the clustering
         linkage (np.ndarray | None): Linkage matrix in scipy format for plotting
         distance (np.ndarray | None): Distance matrix used for clustering
         method (str | None): Linkage method used for clustering
     """
 
     root: Cluster
-    assets: list[str]
+    assets: pd.Index
     distance: pd.DataFrame | None = None
     linkage: np.ndarray | None = None
     method: str | None = None
@@ -145,7 +145,8 @@ def build_tree(
             - distance: Distance matrix
     """
     # Create distance matrix and linkage
-    assert isinstance(cor, pd.DataFrame), "Correlation matrix must be a pandas DataFrame."
+    if not isinstance(cor, pd.DataFrame):
+        raise TypeError("Correlation matrix must be a pandas DataFrame.")  # noqa: TRY003
     dist = _compute_distance_matrix(cor)
     links = sch.linkage(ssd.squareform(dist), method=method)
 
@@ -159,7 +160,7 @@ def build_tree(
         Returns:
             Cluster: Equivalent node in our Cluster format
         """
-        if node.left is not None:
+        if node.left is not None and node.right is not None:
             left = to_cluster(node.left)
             right = to_cluster(node.right)
             return Cluster(value=node.id, left=left, right=right)
@@ -214,8 +215,10 @@ def build_tree(
                 node (Cluster): Current node being processed
             """
             if node.left is not None and node.right is not None:
-                assert isinstance(node.left, Cluster)
-                assert isinstance(node.right, Cluster)
+                if not isinstance(node.left, Cluster):
+                    raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003
+                if not isinstance(node.right, Cluster):
+                    raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003
                 get_linkage(node.left)
                 get_linkage(node.right)
                 links_list.append(
