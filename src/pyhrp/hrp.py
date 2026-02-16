@@ -61,14 +61,14 @@ class Dendrogram:
 
     Attributes:
         root (Cluster): The root node of the hierarchical clustering tree
-        assets (list[Asset]): List of assets included in the clustering
+        assets (pd.Index): Index of assets included in the clustering
         linkage (np.ndarray | None): Linkage matrix in scipy format for plotting
         distance (np.ndarray | None): Distance matrix used for clustering
         method (str | None): Linkage method used for clustering
     """
 
     root: Cluster
-    assets: list[str]
+    assets: pd.Index
     distance: pd.DataFrame | None = None
     linkage: np.ndarray | None = None
     method: str | None = None
@@ -233,4 +233,4 @@ def build_tree(
         get_linkage(root)
         links = np.array(links_list)
 
-    return Dendrogram(root=root, linkage=links, method=method, distance=dist, assets=cor.columns.to_list())
+    return Dendrogram(root=root, linkage=links, method=method, distance=dist, assets=cor.columns)
