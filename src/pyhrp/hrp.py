@@ -160,7 +160,7 @@ def build_tree(
         Returns:
             Cluster: Equivalent node in our Cluster format
         """
-        if node.left is not None:
+        if node.left is not None and node.right is not None:
             left = to_cluster(node.left)
             right = to_cluster(node.right)
             return Cluster(value=node.id, left=left, right=right)
@@ -233,4 +233,4 @@ def build_tree(
         get_linkage(root)
         links = np.array(links_list)
 
-    return Dendrogram(root=root, linkage=links, method=method, distance=dist, assets=cor.columns)
+    return Dendrogram(root=root, linkage=links, method=method, distance=dist, assets=cor.columns.to_list())

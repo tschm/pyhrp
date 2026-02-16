@@ -32,7 +32,7 @@ def risk_parity(root: Cluster, cov: pd.DataFrame) -> Cluster:
     """
     if root.is_leaf:
         # a node is a leaf if has no further relatives downstream.
-        asset = cov.keys().to_list()[root.value]
+        asset = cov.keys().to_list()[int(root.value)]
         root.portfolio[asset] = 1.0
         return root
 
