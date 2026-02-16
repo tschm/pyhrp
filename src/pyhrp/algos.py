@@ -37,8 +37,10 @@ def risk_parity(root: Cluster, cov: pd.DataFrame) -> Cluster:
         return root
 
     # drill down on the left
-    assert isinstance(root.left, Cluster)
-    assert isinstance(root.right, Cluster)
+    if not isinstance(root.left, Cluster):
+        raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003
+    if not isinstance(root.right, Cluster):
+        raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003
     root.left = risk_parity(root.left, cov)
     # drill down on the right
     root.right = risk_parity(root.right, cov)
@@ -62,8 +64,10 @@ def _parity(cluster: Cluster, cov: pd.DataFrame) -> Cluster:
         Cluster: The parent cluster with portfolio weights assigned
     """
     # Calculate variances of left and right sub-portfolios
-    assert isinstance(cluster.left, Cluster)
-    assert isinstance(cluster.right, Cluster)
+    if not isinstance(cluster.left, Cluster):
+        raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003
+    if not isinstance(cluster.right, Cluster):
+        raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003
     v_left = cluster.left.portfolio.variance(cov)
     v_right = cluster.right.portfolio.variance(cov)
 
