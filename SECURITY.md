@@ -72,11 +72,13 @@ This project implements several security measures:
 - **CodeQL**: Automated code scanning for Python and GitHub Actions
 - **Bandit**: Python security linter integrated in CI and pre-commit
 - **pip-audit**: Dependency vulnerability scanning
+- **Secret Scanning**: GitHub secret scanning enabled on this repository
 
 ### Supply Chain Security
 - **SLSA Provenance**: Build attestations for release artifacts (public repositories only)
 - **Locked Dependencies**: `uv.lock` ensures reproducible builds
-- **Renovate**: Automated dependency updates with security patches
+- **Dependabot**: Automated dependency updates with security patches (version and security updates)
+- **Renovate**: Additional automated dependency update management
 
 ### Release Security
 - **OIDC Publishing**: PyPI trusted publishing without stored credentials
@@ -89,7 +91,7 @@ When using Rhiza templates in your projects:
 
 1. **Keep Updated**: Regularly sync with upstream templates
 2. **Review Changes**: Review template sync PRs before merging
-3. **Enable Security Features**: Enable CodeQL and Dependabot in your repositories
+3. **Enable Security Features**: Enable CodeQL, secret scanning, and Dependabot in your repositories
 4. **Use Locked Dependencies**: Always commit `uv.lock` for reproducible builds
 5. **Configure Branch Protection**: Require PR reviews and status checks
 

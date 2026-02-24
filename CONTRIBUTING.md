@@ -55,6 +55,52 @@ following:
 - Browse the open issues,
   and look for the issues tagged "help wanted".
 
+## Commit conventions
+
+We use [Conventional Commits](https://www.conventionalcommits.org/). Every commit message must have a
+structured prefix so tooling can generate changelogs automatically.
+
+### Format
+
+```
+<type>(<scope>): <short summary>
+```
+
+`scope` is optional but encouraged when the change is limited to a specific area.
+
+### Types
+
+| Type       | When to use                                      |
+|------------|--------------------------------------------------|
+| `feat`     | New feature or capability                        |
+| `fix`      | Bug fix                                          |
+| `docs`     | Documentation only                               |
+| `refactor` | Code change that is neither a fix nor a feature  |
+| `test`     | Adding or updating tests                         |
+| `ci`       | CI / build system changes                        |
+| `chore`    | Maintenance tasks (deps, tooling, config)        |
+| `perf`     | Performance improvement                          |
+| `security` | Security fix or hardening                        |
+
+### Examples
+
+```
+feat(templates): add devcontainer template for Python 3.13
+fix: resolve path issue in bootstrap script
+docs: update CONTRIBUTING with commit conventions
+ci: cache uv dependencies in GitHub Actions
+```
+
+### Breaking changes
+
+Append `!` after the type/scope and add a `BREAKING CHANGE:` footer:
+
+```
+feat!: rename make target from `book` to `docs`
+
+BREAKING CHANGE: `make book` no longer exists; use `make docs`.
+```
+
 ## Code style
 
 We use ruff to enforce our Python coding style.
