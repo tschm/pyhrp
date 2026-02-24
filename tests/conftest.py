@@ -1,4 +1,9 @@
-"""Pytest configuration and fixtures for the tests."""
+"""Pytest configuration and fixtures for the tests.
+
+Security note: Test code uses assert statements (S101) which are intentional
+and safe in the pytest context — they are the standard mechanism for test
+assertions and are never executed in optimized production builds.
+"""
 
 import json
 from pathlib import Path
