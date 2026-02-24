@@ -44,9 +44,6 @@ ax = root.portfolio.plot(names=dendrogram.names)
 
 ```
 
-```result
-```
-
 For your convenience you can bypass the construction of the covariance and
 correlation matrix, and the construction of the dendrogram.
 
@@ -54,9 +51,6 @@ correlation matrix, and the construction of the dendrogram.
 from pyhrp.hrp import hrp
 root = hrp(prices=prices, method="ward", bisection=False)
 
-```
-
-```result
 ```
 
 You may expect a weight series here but instead the `hrp` function returns a
@@ -70,9 +64,6 @@ variance = root.portfolio.variance(cov)
 left = root.left
 right = root.right
 
-```
-
-```result
 ```
 
 ## uv
