@@ -1,5 +1,5 @@
 template-repository: "jebel-quant/rhiza"
-template-branch: "v0.8.5"
+template-branch: "v0.8.6"
 
 templates:
   - core
@@ -7,4 +7,3 @@ templates:
   - book
   - marimo
   - tests
-  - legal
