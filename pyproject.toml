@@ -1,6 +1,6 @@
 [project]
 name = "pyhrp"
-version = "1.6.0"
+version = "1.6.1"
 description = "Hierarchial risk parity"
 authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 readme = "README.md"
