@@ -1,7 +1,7 @@
 sha: 68e43ec8805decd8fb4480d51661fdc31e04edf3
 repo: jebel-quant/rhiza
 host: github
-ref: v0.8.6
+ref: v0.8.12
 include: []
 exclude: []
 templates:
