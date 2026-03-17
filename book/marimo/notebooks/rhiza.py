@@ -1,18 +1,3 @@
-"""Marimo Showcase Notebook - Demonstrating Key Features.
-
-This notebook showcases the most useful features of Marimo, including:
-- Interactive UI elements (sliders, dropdowns, text inputs)
-- Reactive programming (automatic cell updates)
-- Data visualisation with popular libraries
-- Markdown and LaTeX support
-- Layout components (columns, tabs, accordions)
-- Forms and user input handling
-- Dynamic content generation
-
-Run this notebook with: marimo edit rhiza.py
-Or in the rhiza project: make marimo
-"""
-
 # /// script
 # requires-python = ">=3.11"
 # dependencies = [
@@ -598,6 +583,49 @@ def cell_37():
 
 @app.cell
 def cell_38():
+    """Introduce the artefacts section."""
+    mo.md(
+        r"""
+        ## 📂 Notebook Artefacts
+
+        When running via `rhiza_marimo`, each notebook gets a dedicated output folder
+        provided via the `NOTEBOOK_OUTPUT_FOLDER` environment variable. You can use this
+        folder to persist intermediate results, plots, CSVs, and any other artefacts so
+        they are available after the notebook run completes.
+
+        The cell below demonstrates writing a sample DataFrame to that folder as a CSV.
+        """
+    )
+
+
+@app.cell
+def cell_39(data):
+    """Write the sample DataFrame to the artefact folder if NOTEBOOK_OUTPUT_FOLDER is set."""
+    import os
+    from pathlib import Path
+
+    output_folder = os.environ.get("NOTEBOOK_OUTPUT_FOLDER")
+    if output_folder:
+        artefact_path = Path(output_folder) / "sales_data.csv"
+        data.to_csv(artefact_path, index=False)
+        _msg = mo.md(f"✅ DataFrame saved to `{artefact_path}`")
+    else:
+        artefact_path = None
+        _msg = mo.md(
+            "ℹ️ `NOTEBOOK_OUTPUT_FOLDER` is not set — artefact saving is skipped "
+            "(this variable is set automatically by `rhiza_marimo`)."
+        )
+    return artefact_path, _msg
+
+
+@app.cell
+def cell_40():
+    """Render a horizontal rule to visually separate sections."""
+    mo.md(r"""---""")
+
+
+@app.cell
+def cell_41():
     """Render the conclusion section of the Marimo showcase notebook."""
     mo.md(
         r"""
