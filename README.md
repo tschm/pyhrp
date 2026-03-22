@@ -6,10 +6,6 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/tschm/pyhrp/badge)](https://www.codefactor.io/repository/github/tschm/pyhrp)
 [![Python Version](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
 
-[![CI](https://github.com/tschm/pyhrp/actions/workflows/ci.yml/badge.svg)](https://github.com/tschm/pyhrp/actions/workflows/ci.yml)
-[![pre-commit](https://github.com/tschm/pyhrp/actions/workflows/pre-commit.yml/badge.svg)](https://github.com/tschm/pyhrp/actions/workflows/pre-commit.yml)
-[![Documentation](https://github.com/tschm/pyhrp/actions/workflows/book.yml/badge.svg)](https://github.com/tschm/pyhrp/actions/workflows/book.yml)
-
 [![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 [![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://github.com/renovatebot/renovate)
 
@@ -18,7 +14,7 @@
 
 A recursive implementation of the Hierarchical Risk Parity (hrp) approach
 by Marcos Lopez de Prado.
-We take heavily advantage of the scipy.cluster.hierarchy package.
+We take advantage of the scipy.cluster.hierarchy package.
 
 ![Comparing 'ward' with 'single' and bisection](https://raw.githubusercontent.com/tschm/pyhrp/main/demo.png)
 
