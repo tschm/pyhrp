@@ -8,6 +8,9 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  schedule:
+    - cron: "0 9 * * 1"  # Every Monday at 09:00 UTC (for pip-audit)
+  workflow_dispatch:
 
 jobs:
   validation:
@@ -22,8 +25,8 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v7.6.0
         with:
-          version: "0.10.12"
-          
+          version: "0.11.2"
+
       - name: Configure git auth for private packages
         uses: ./.github/actions/configure-git-auth
         with:
@@ -33,3 +36,126 @@ jobs:
         shell: bash
         run: |
           make validate
+
+  semgrep:
+    name: Semgrep (numpy)
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule' && github.event_name != 'workflow_dispatch'
+
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7.6.0
+        with:
+          version: "0.11.2"
+
+      - name: Configure git auth for private packages
+        uses: ./.github/actions/configure-git-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Run Semgrep
+        env:
+          UV_EXTRA_INDEX_URL: ${{ secrets.UV_EXTRA_INDEX_URL }}
+        run: make semgrep
+
+  security:
+    name: Security scanning
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule' && github.event_name != 'workflow_dispatch'
+
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7.6.0
+        with:
+          version: "0.11.2"
+
+      - name: Configure git auth for private packages
+        uses: ./.github/actions/configure-git-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Run security scans
+        env:
+          UV_EXTRA_INDEX_URL: ${{ secrets.UV_EXTRA_INDEX_URL }}
+        run: make security
+
+  pip-audit:
+    name: Dependency vulnerability scan
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7.6.0
+        with:
+          version: "0.11.2"
+
+      - name: Run pip-audit
+        run: uvx pip-audit
+
+  typecheck:
+    name: Type checking
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule' && github.event_name != 'workflow_dispatch'
+
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7.6.0
+        with:
+          version: "0.11.2"
+
+      - name: Configure git auth for private packages
+        uses: ./.github/actions/configure-git-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Run ty type checker (make typecheck)
+        # Runs `uv run ty check src/` as defined in .rhiza/make.d/test.mk.
+        # ty is configured via [tool.ty.environment] in pyproject.toml.
+        env:
+          UV_EXTRA_INDEX_URL: ${{ secrets.UV_EXTRA_INDEX_URL }}
+        run: make typecheck
+
+  license:
+    name: License compliance scan
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule' && github.event_name != 'workflow_dispatch'
+
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7.6.0
+        with:
+          version: "0.11.2"
+
+      - name: Configure git auth for private packages
+        uses: ./.github/actions/configure-git-auth
+        with:
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Run license check
+        env:
+          UV_EXTRA_INDEX_URL: ${{ secrets.UV_EXTRA_INDEX_URL }}
+        run: make license
+
+      - name: Generate LICENSES.md
+        env:
+          UV_EXTRA_INDEX_URL: ${{ secrets.UV_EXTRA_INDEX_URL }}
+        run: |
+          uv run --with pip-licenses pip-licenses --format markdown --output-file LICENSES.md
+
+      - name: Upload LICENSES.md
+        uses: actions/upload-artifact@v7
+        with:
+          name: LICENSES.md
+          path: LICENSES.md
+          if-no-files-found: ignore

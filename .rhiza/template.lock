@@ -1,7 +1,7 @@
-sha: bbe56565ed221032435bff43b00598e3efa046ef
+sha: c921325b3e971ebd60f818b48ab3a567f37fb2e4
 repo: jebel-quant/rhiza
 host: github
-ref: v0.8.16
+ref: v0.8.18
 include: []
 exclude: []
 templates:
@@ -30,16 +30,9 @@ files:
 - .github/workflows/rhiza_ci.yml
 - .github/workflows/rhiza_codeql.yml
 - .github/workflows/rhiza_dep_compat_test.yml
-- .github/workflows/rhiza_deptry.yml
-- .github/workflows/rhiza_license.yml
 - .github/workflows/rhiza_marimo.yml
-- .github/workflows/rhiza_pip_audit.yml
-- .github/workflows/rhiza_pre-commit.yml
 - .github/workflows/rhiza_release.yml
-- .github/workflows/rhiza_security.yml
-- .github/workflows/rhiza_semgrep.yml
 - .github/workflows/rhiza_sync.yml
-- .github/workflows/rhiza_typecheck.yml
 - .github/workflows/rhiza_validate.yml
 - .gitignore
 - .pre-commit-config.yaml
@@ -86,7 +79,6 @@ files:
 - .rhiza/tests/deps/test_dependency_health.py
 - .rhiza/tests/integration/test_book_targets.py
 - .rhiza/tests/integration/test_lfs.py
-- .rhiza/tests/integration/test_marimushka.py
 - .rhiza/tests/integration/test_sbom.py
 - .rhiza/tests/integration/test_test_mk.py
 - .rhiza/tests/integration/test_virtual_env_unexport.py
@@ -107,7 +99,6 @@ files:
 - .rhiza/tests/sync/test_rhiza_version.py
 - .rhiza/tests/test_utils.py
 - .rhiza/tests/utils/test_git_repo_fixture.py
-- .semgrep.yml
 - CODE_OF_CONDUCT.md
 - CONTRIBUTING.md
 - LICENSE
@@ -125,5 +116,5 @@ files:
 - docs/TESTS.md
 - pytest.ini
 - ruff.toml
-synced_at: '2026-03-22T07:52:42Z'
+synced_at: '2026-04-01T04:13:39Z'
 strategy: merge
