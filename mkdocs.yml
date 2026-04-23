@@ -1,0 +1,32 @@
+INHERIT: docs/mkdocs-base.yml
+
+site_name: pyhrp
+site_description: Hierarchical risk parity
+site_author: Thomas Schmelzer
+site_url: https://tschm.github.io/pyhrp/
+repo_url: https://github.com/tschm/pyhrp
+repo_name: tschm/pyhrp
+copyright: Copyright &copy; 2024–2026 Thomas Schmelzer
+
+docs_dir: docs
+
+nav:
+  - Home: index.md
+  - Development:
+    - Tests: development/TESTS.md
+    - Marimo: development/MARIMO.md
+  - Notebooks:
+    - HRP: notebooks/hrp.html
+    - 1/N: notebooks/1_over_N.html
+  - Reports:
+    - Test Report: reports/html-report/report.html
+    - Coverage Report: reports/html-coverage/index.html
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/tschm/pyhrp
+
+theme:
+  icon:
+    logo: material/chart-line
