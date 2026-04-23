@@ -216,9 +216,9 @@ def build_tree(
             """
             if node.left is not None and node.right is not None:
                 if not isinstance(node.left, Cluster):
-                    raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003
+                    raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003  # pragma: no cover
                 if not isinstance(node.right, Cluster):
-                    raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003
+                    raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003  # pragma: no cover
                 get_linkage(node.left)
                 get_linkage(node.right)
                 links_list.append(

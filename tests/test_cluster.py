@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import pytest
 
-from pyhrp.algos import risk_parity
+from pyhrp.algos import _parity, risk_parity
 from pyhrp.cluster import Cluster
+from pyhrp.treelib import Node
 
 
 def test_riskparity() -> None:
@@ -44,3 +46,59 @@ def test_riskparity() -> None:
 
     # Verify the resulting portfolio variance
     np.testing.assert_almost_equal(cluster.portfolio.variance(cov), 1.7777777777777777)
+
+
+def test_risk_parity_non_cluster_left() -> None:
+    """TypeError is raised when risk_parity encounters a non-Cluster left child."""
+    root = Cluster(value=10)
+    root.left = Node(1)
+    root.right = Cluster(value=2)
+    cov = pd.DataFrame([[1.0]], index=["A"], columns=["A"])
+    with pytest.raises(TypeError, match="Expected left child to be a Cluster"):
+        risk_parity(root, cov)
+
+
+def test_risk_parity_non_cluster_right() -> None:
+    """TypeError is raised when risk_parity encounters a non-Cluster right child."""
+    root = Cluster(value=10)
+    root.left = Cluster(value=1)
+    root.right = Node(2)
+    cov = pd.DataFrame([[1.0]], index=["A"], columns=["A"])
+    with pytest.raises(TypeError, match="Expected right child to be a Cluster"):
+        risk_parity(root, cov)
+
+
+def test_parity_non_cluster_left() -> None:
+    """TypeError is raised when _parity encounters a non-Cluster left child."""
+    cluster = Cluster(value=10)
+    cluster.left = Node(1)
+    cluster.right = Cluster(value=2)
+    cov = pd.DataFrame([[1.0]], index=["A"], columns=["A"])
+    with pytest.raises(TypeError, match="Expected left child to be a Cluster"):
+        _parity(cluster, cov)
+
+
+def test_parity_non_cluster_right() -> None:
+    """TypeError is raised when _parity encounters a non-Cluster right child."""
+    cluster = Cluster(value=10)
+    cluster.left = Cluster(value=1)
+    cluster.right = Node(2)
+    cov = pd.DataFrame([[1.0]], index=["A"], columns=["A"])
+    with pytest.raises(TypeError, match="Expected right child to be a Cluster"):
+        _parity(cluster, cov)
+
+
+def test_leaves_only_right_child() -> None:
+    """ValueError is raised when a non-leaf Cluster has only a right child."""
+    c = Cluster(value=10)
+    c.right = Cluster(value=1)
+    with pytest.raises(ValueError, match="Expected left child to exist for non-leaf cluster"):
+        _ = c.leaves
+
+
+def test_leaves_only_left_child() -> None:
+    """ValueError is raised when a non-leaf Cluster has only a left child."""
+    c = Cluster(value=10)
+    c.left = Cluster(value=1)
+    with pytest.raises(ValueError, match="Expected right child to exist for non-leaf cluster"):
+        _ = c.leaves
