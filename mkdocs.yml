@@ -12,6 +12,7 @@ docs_dir: docs
 
 nav:
   - Home: index.md
+  - API Reference: api.md
   - Development:
     - Tests: development/TESTS.md
     - Marimo: development/MARIMO.md
