@@ -60,7 +60,12 @@ def hrp(
     Returns:
         Cluster: The root cluster with portfolio weights assigned according to HRP
     """
-    returns = prices.select(pl.all().pct_change()).filter(pl.any_horizontal(pl.all().is_not_null())).fill_null(0.0)
+    returns = (
+        prices.select(pl.all().pct_change())
+        .filter(pl.any_horizontal(pl.all().is_not_null()))
+        .fill_null(0.0)
+        .fill_nan(0.0)
+    )
     cov = _compute_cov(returns)
     cor = _compute_corr(returns)
     node = node or build_tree(cor, method=method, bisection=bisection).root
