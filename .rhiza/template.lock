@@ -1,7 +1,7 @@
-sha: ea7baa29f491ef74b76882bd75c1ae0551ccad0d
+sha: 3bd82a03c3c94be644aa9ce81c6d1a1838731136
 repo: jebel-quant/rhiza
 host: github
-ref: v0.10.2
+ref: v0.10.3
 include: []
 exclude: []
 templates:
@@ -83,6 +83,8 @@ files:
 - .rhiza/tests/sync/test_rhiza_version.py
 - .rhiza/tests/test_utils.py
 - .rhiza/tests/utils/test_git_repo_fixture.py
+- .rhiza/utils/pip_audit_policy.py
+- .rhiza/utils/suppression_audit.py
 - LICENSE
 - Makefile
 - SECURITY.md

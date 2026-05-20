@@ -10,8 +10,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-import numpy as np
 import pandas as pd
+from cvx.linalg import a_norm
 from matplotlib.axes import Axes
 
 from .treelib import Node
@@ -51,7 +51,7 @@ class Portfolio:
         """
         c = cov[self.assets].loc[self.assets].values
         w = self.weights[self.assets].values
-        return float(np.linalg.multi_dot((w, c, w)))
+        return float(a_norm(w, c) ** 2)
 
     def __getitem__(self, item: str) -> float:
         """Return the weight for a given asset.

@@ -6,6 +6,7 @@ authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "cvx-linalg>=0.5.1",
     "numpy>=2.3",
     "pandas>=2",
     "scipy>=1.14.1",
@@ -39,6 +40,6 @@ packages = ["src/pyhrp"]
 ignore_missing_imports = true
 
 [tool.deptry]
-package_module_name_map = {pyportfolioopt = "pypfopt", numpy = "numpy", pandas = "pandas", scipy = "scipy", matplotlib = "matplotlib", marimo = "marimo", polars = "polars", security = "security", pyarrow = "pyarrow", plotly = "plotly"}
+package_module_name_map = {"cvx-linalg" = "cvx", pyportfolioopt = "pypfopt", numpy = "numpy", pandas = "pandas", scipy = "scipy", matplotlib = "matplotlib", marimo = "marimo", polars = "polars", security = "security", pyarrow = "pyarrow", plotly = "plotly"}
 ignore = ["DEP004"]
 extend_exclude = [".rhiza"]
