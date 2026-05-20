@@ -8,9 +8,9 @@ assertions and are never executed in optimized production builds.
 import json
 from pathlib import Path
 
-import pandas as pd
+import polars as pl
 import pytest
-from pandas import DataFrame
+from polars import DataFrame
 
 
 @pytest.fixture(scope="session", name="resource_dir")
@@ -43,20 +43,16 @@ def prices(resource_dir: Path) -> DataFrame:
     """Fixture that provides a DataFrame of stock prices.
 
     This fixture is session-scoped, meaning it's created once per test session.
-    It loads stock price data from a CSV file and converts column names to Asset objects.
+    It loads stock price data from a CSV file.
 
     Args:
         resource_dir: Path to the test resources directory.
 
     Returns:
-        DataFrame: A DataFrame containing stock prices with Asset objects as column names.
+        DataFrame: A polars DataFrame containing stock prices (asset columns only).
     """
-    # Load price data from CSV file
-    _prices = pd.read_csv(resource_dir / "stock_prices.csv", parse_dates=True, index_col="date").truncate(
-        before="2017-01-01"
-    )
-
-    return _prices
+    _prices = pl.read_csv(resource_dir / "stock_prices.csv", try_parse_dates=True)
+    return _prices.filter(pl.col("date") >= pl.date(2017, 1, 1)).drop("date")
 
 
 @pytest.fixture(scope="session")
@@ -70,10 +66,9 @@ def returns(prices: DataFrame) -> DataFrame:
         prices: DataFrame of stock prices.
 
     Returns:
-        DataFrame: A DataFrame containing stock returns.
+        DataFrame: A polars DataFrame containing stock returns.
     """
-    # Calculate returns from prices and handle missing values
-    return prices.pct_change().dropna(axis=0, how="all").fillna(0.0)
+    return prices.select(pl.all().pct_change()).drop_nulls().fill_null(0.0)
 
 
 @pytest.fixture(scope="session")

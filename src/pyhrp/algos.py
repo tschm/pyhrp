@@ -11,12 +11,12 @@ from collections.abc import Generator
 from copy import deepcopy
 from typing import Any
 
-import pandas as pd
+import polars as pl
 
 from .cluster import Cluster, Portfolio
 
 
-def risk_parity(root: Cluster, cov: pd.DataFrame) -> Cluster:
+def risk_parity(root: Cluster, cov: pl.DataFrame) -> Cluster:
     """Compute hierarchical risk parity weights for a cluster tree.
 
     This is the main algorithm for hierarchical risk parity. It recursively
@@ -25,14 +25,14 @@ def risk_parity(root: Cluster, cov: pd.DataFrame) -> Cluster:
 
     Args:
         root (Cluster): The root node of the cluster tree
-        cov (pd.DataFrame): Covariance matrix of asset returns
+        cov (pl.DataFrame): Covariance matrix of asset returns
 
     Returns:
         Cluster: The root node with portfolio weights assigned
     """
     if root.is_leaf:
         # a node is a leaf if has no further relatives downstream.
-        asset = cov.keys().to_list()[int(root.value)]
+        asset = cov.columns[int(root.value)]
         root.portfolio[asset] = 1.0
         return root
 
@@ -49,7 +49,7 @@ def risk_parity(root: Cluster, cov: pd.DataFrame) -> Cluster:
     return _parity(root, cov=cov)
 
 
-def _parity(cluster: Cluster, cov: pd.DataFrame) -> Cluster:
+def _parity(cluster: Cluster, cov: pl.DataFrame) -> Cluster:
     """Compute risk parity weights for a parent cluster from its children.
 
     This function implements the core risk parity principle: allocating weights
@@ -58,7 +58,7 @@ def _parity(cluster: Cluster, cov: pd.DataFrame) -> Cluster:
 
     Args:
         cluster (Cluster): The parent cluster with left and right children
-        cov (pd.DataFrame): Covariance matrix of asset returns
+        cov (pl.DataFrame): Covariance matrix of asset returns
 
     Returns:
         Cluster: The parent cluster with portfolio weights assigned
@@ -78,8 +78,8 @@ def _parity(cluster: Cluster, cov: pd.DataFrame) -> Cluster:
 
     # Combine assets from left and right clusters with their adjusted weights
     assets = {
-        **(alpha_left * cluster.left.portfolio.weights).to_dict(),
-        **(alpha_right * cluster.right.portfolio.weights).to_dict(),
+        **{k: alpha_left * v for k, v in cluster.left.portfolio.weights.items()},
+        **{k: alpha_right * v for k, v in cluster.right.portfolio.weights.items()},
     }
 
     # Assign the combined weights to the parent cluster's portfolio
