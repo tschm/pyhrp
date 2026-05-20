@@ -3,7 +3,7 @@
 #
 # Workflow: Continuous Integration
 #
-# Purpose: Run tests on multiple Python versions, check dependencies, run
+# Purpose: Run tests on multiple Python versions and OSes, check dependencies, run
 #          pre-commit hooks, verify documentation coverage, validate the
 #          project, run security scans, and check license compliance.
 #
@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.versions.outputs.list }}
+      os_matrix: ${{ steps.os.outputs.list }}
     steps:
       - uses: actions/checkout@v6.0.2
         with:
@@ -43,13 +44,18 @@ jobs:
         env:
           UV_EXTRA_INDEX_URL: ${{ secrets.UV_EXTRA_INDEX_URL }}
         run: |
-          # Generate Python versions JSON from the script
           JSON=$(make -f .rhiza/rhiza.mk -s version-matrix)
+          echo "list=$JSON" >> "$GITHUB_OUTPUT"
+
+      - id: os
+        run: |
+          JSON=$(make -f .rhiza/rhiza.mk -s ci-os-matrix)
           echo "list=$JSON" >> "$GITHUB_OUTPUT"
 
       - name: Debug matrix
         run: |
           echo "Python versions: ${{ steps.versions.outputs.list }}"
+          echo "OS matrix: ${{ steps.os.outputs.list }}"
 
   test:
     needs: generate-matrix
@@ -57,7 +63,7 @@ jobs:
     strategy:
       matrix:
         python-version: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: ${{ fromJson(needs.generate-matrix.outputs.os_matrix) }}
       fail-fast: false
 
     steps:
@@ -110,8 +116,6 @@ jobs:
           token: ${{ secrets.GH_PAT }}
 
       - name: Run ty type checker (make typecheck)
-        # Runs `uv run ty check src/` as defined in .rhiza/make.d/test.mk.
-        # ty is configured via [tool.ty.environment] in pyproject.toml.
         env:
           UV_EXTRA_INDEX_URL: ${{ secrets.UV_EXTRA_INDEX_URL }}
         run: make typecheck
