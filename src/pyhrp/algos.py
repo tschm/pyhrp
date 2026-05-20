@@ -78,8 +78,8 @@ def _parity(cluster: Cluster, cov: pl.DataFrame) -> Cluster:
 
     # Combine assets from left and right clusters with their adjusted weights
     assets = {
-        **{k: alpha_left * v for k, v in cluster.left.portfolio.weights_dict.items()},
-        **{k: alpha_right * v for k, v in cluster.right.portfolio.weights_dict.items()},
+        **{k: alpha_left * v for k, v in cluster.left.portfolio.weights.items()},
+        **{k: alpha_right * v for k, v in cluster.right.portfolio.weights.items()},
     }
 
     # Assign the combined weights to the parent cluster's portfolio

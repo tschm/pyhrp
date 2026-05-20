@@ -267,7 +267,7 @@ def test_hrp_weights_sum_to_one(prices: pl.DataFrame) -> None:
     """Test that HRP weights sum to approximately 1."""
     result = hrp(prices=prices, node=None, method="ward", bisection=False)
 
-    weights_sum = sum(result.portfolio.weights_dict.values())
+    weights_sum = sum(result.portfolio.weights.values())
     assert weights_sum == pytest.approx(1.0, rel=1e-6)
 
 
@@ -281,7 +281,7 @@ def test_hrp_with_small_dataset() -> None:
 
     assert result is not None
     assert len(result.portfolio.assets) == 2
-    weights_sum = sum(result.portfolio.weights_dict.values())
+    weights_sum = sum(result.portfolio.weights.values())
     assert weights_sum == pytest.approx(1.0, rel=1e-6)
 
 
@@ -343,7 +343,7 @@ def test_hrp_handles_missing_data_in_prices() -> None:
     result = hrp(prices=prices, node=None, method="ward", bisection=False)
 
     assert result is not None
-    weights_sum = sum(result.portfolio.weights_dict.values())
+    weights_sum = sum(result.portfolio.weights.values())
     assert weights_sum == pytest.approx(1.0, rel=1e-6)
 
 

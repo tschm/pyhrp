@@ -82,16 +82,7 @@ class Portfolio:
         self._weights[key] = value
 
     @property
-    def weights(self) -> pl.Series:
-        """Get all weights as a series sorted alphabetically by asset name.
-
-        Returns:
-            pl.Series: Portfolio weights sorted by asset name.
-        """
-        return pl.Series(values=[weight for _, weight in sorted(self._weights.items())])
-
-    @property
-    def weights_dict(self) -> dict[str, float]:
+    def weights(self) -> dict[str, float]:
         """Get all weights as a dict sorted alphabetically by asset name.
 
         Returns:
@@ -108,7 +99,7 @@ class Portfolio:
         Returns:
             go.Figure: The plotly figure
         """
-        w = self.weights_dict
+        w = self.weights
         values = [w[n] for n in names]
         fig = go.Figure(go.Bar(x=names, y=values, marker_color="steelblue"))
         fig.update_layout(xaxis={"tickangle": -90})

@@ -41,7 +41,7 @@ def test_riskparity() -> None:
     # Verify the resulting portfolio weights (alphabetically sorted: A, B)
     # Expected weights: [1/3, 2/3]
     np.testing.assert_allclose(
-        np.array(list(cluster.portfolio.weights_dict.values())),
+        np.array(list(cluster.portfolio.weights.values())),
         np.array([1.0, 2.0]) / 3.0,
     )
 
