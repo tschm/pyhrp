@@ -29,7 +29,7 @@ with app.setup:
     import polars as pl
 
     from pyhrp.algos import risk_parity
-    from pyhrp.hrp import _compute_corr, _compute_cov, build_tree
+    from pyhrp.hrp import build_tree
 
 
 @app.cell
@@ -59,6 +59,8 @@ def _():
 
 @app.cell
 def _(returns):
+    from pyhrp.hrp import _compute_corr, _compute_cov
+
     cor = _compute_corr(returns)
     cov = _compute_cov(returns)
     return cor, cov
