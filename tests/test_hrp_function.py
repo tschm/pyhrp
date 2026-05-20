@@ -23,7 +23,7 @@ def test_hrp(prices: DataFrame, resource_dir: Path) -> None:
         resource_dir: Path to test resources directory
     """
     cluster = hrp(prices=prices, method="ward", bisection=False)
-    w = cluster.portfolio.weights  # dict[str, float], sorted alphabetically
+    w = cluster.portfolio.weights_dict  # dict[str, float], sorted alphabetically
 
     ref = pl.read_csv(resource_dir / "weights_hrp.csv")
     ref = ref.rename({ref.columns[0]: "asset"})
@@ -44,7 +44,7 @@ def test_marcos(resource_dir: Path, prices: DataFrame) -> None:
         prices: DataFrame of asset prices
     """
     cluster = hrp(prices=prices, method="ward", bisection=True)
-    w = cluster.portfolio.weights  # dict[str, float], sorted alphabetically
+    w = cluster.portfolio.weights_dict  # dict[str, float], sorted alphabetically
 
     ref = pl.read_csv(resource_dir / "weights_marcos.csv")
     ref = ref.rename({ref.columns[0]: "asset"})

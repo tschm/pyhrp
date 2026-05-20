@@ -38,9 +38,12 @@ def test_riskparity() -> None:
     # Apply risk parity algorithm
     cluster = risk_parity(cl, cov=cov)
 
-    # var(A)=4, var(B)=2 → alpha_A=1/3, alpha_B=2/3
-    np.testing.assert_allclose(cluster.portfolio.weights["A"], 1.0 / 3.0)
-    np.testing.assert_allclose(cluster.portfolio.weights["B"], 2.0 / 3.0)
+    # Verify the resulting portfolio weights (alphabetically sorted: A, B)
+    # Expected weights: [1/3, 2/3]
+    np.testing.assert_allclose(
+        np.array(list(cluster.portfolio.weights_dict.values())),
+        np.array([1.0, 2.0]) / 3.0,
+    )
 
     # Verify the resulting portfolio variance
     np.testing.assert_almost_equal(cluster.portfolio.variance(cov), 1.7777777777777777)
