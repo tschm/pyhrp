@@ -53,7 +53,8 @@ class Portfolio:
         """
         assets = self.assets
         row_indices = [cov.columns.index(a) for a in assets]
-        c = cov.select(assets)[row_indices].to_numpy()
+        cov_matrix = cov.to_numpy()
+        c = cov_matrix[np.ix_(row_indices, row_indices)]
         w = np.array([self._weights[a] for a in assets])
         return float(a_norm(w, c) ** 2)
 
