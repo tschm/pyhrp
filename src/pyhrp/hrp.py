@@ -12,7 +12,8 @@ from dataclasses import dataclass
 from typing import Literal
 
 import numpy as np
-import pandas as pd
+import plotly.graph_objects as go
+import polars as pl
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
@@ -20,8 +21,22 @@ from .algos import risk_parity
 from .cluster import Cluster
 
 
+def _compute_cov(df: pl.DataFrame) -> pl.DataFrame:
+    """Compute covariance matrix from a DataFrame of returns."""
+    cols = df.columns
+    cov = np.cov(df.to_numpy().T)
+    return pl.DataFrame(dict(zip(cols, cov, strict=False)))
+
+
+def _compute_corr(df: pl.DataFrame) -> pl.DataFrame:
+    """Compute correlation matrix from a DataFrame of returns."""
+    cols = df.columns
+    corr = np.corrcoef(df.to_numpy().T)
+    return pl.DataFrame(dict(zip(cols, corr, strict=False)))
+
+
 def hrp(
-    prices: pd.DataFrame,
+    prices: pl.DataFrame,
     node: Cluster | None = None,
     method: Literal["single", "complete", "average", "ward"] = "ward",
     bisection: bool = False,
@@ -32,7 +47,7 @@ def hrp(
     builds a hierarchical clustering tree if not provided, and applies risk parity weights.
 
     Args:
-        prices (pd.DataFrame): Asset price time series
+        prices (pl.DataFrame): Asset price time series (columns are assets, rows are dates)
         node (Cluster, optional): Root node of the hierarchical clustering tree.
             If None, a tree will be built from the correlation matrix.
         method (Literal["single", "complete", "average", "ward"]): Linkage method to use for distance calculation
@@ -45,8 +60,14 @@ def hrp(
     Returns:
         Cluster: The root cluster with portfolio weights assigned according to HRP
     """
-    returns = prices.pct_change().dropna(axis=0, how="all")
-    cov, cor = returns.cov(), returns.corr()
+    returns = (
+        prices.select(pl.all().pct_change())
+        .filter(pl.any_horizontal(pl.all().is_not_null()))
+        .fill_null(0.0)
+        .fill_nan(0.0)
+    )
+    cov = _compute_cov(returns)
+    cor = _compute_corr(returns)
     node = node or build_tree(cor, method=method, bisection=bisection).root
 
     return risk_parity(root=node, cov=cov)
@@ -61,43 +82,51 @@ class Dendrogram:
 
     Attributes:
         root (Cluster): The root node of the hierarchical clustering tree
-        assets (pd.Index): Index of assets included in the clustering
+        assets (list[str]): Names of assets included in the clustering
         linkage (np.ndarray | None): Linkage matrix in scipy format for plotting
-        distance (np.ndarray | None): Distance matrix used for clustering
+        distance (pl.DataFrame | None): Distance matrix used for clustering
         method (str | None): Linkage method used for clustering
     """
 
     root: Cluster
-    assets: pd.Index
-    distance: pd.DataFrame | None = None
+    assets: list[str]
+    distance: pl.DataFrame | None = None
     linkage: np.ndarray | None = None
     method: str | None = None
 
     def __post_init__(self) -> None:
         """Validate dataclass fields after initialization.
 
-        Ensures that the optional distance matrix, when provided, is a pandas
-        DataFrame aligned with the asset order, and verifies that the number of
-        leaves in the cluster tree matches the number of assets.
+        Ensures that the optional distance matrix, when provided, is a polars
+        DataFrame with columns aligned to the asset list, and verifies that the
+        number of leaves in the cluster tree matches the number of assets.
         """
-        # ---- Optional: validate distance index/columns ----
         if self.distance is not None:
-            if not isinstance(self.distance, pd.DataFrame):
-                raise TypeError("distance must be a pandas DataFrame.")  # noqa: TRY003
+            if not isinstance(self.distance, pl.DataFrame):
+                raise TypeError("distance must be a polars DataFrame.")  # noqa: TRY003
 
-            # Optionally check if distance matches assets
-            if not self.distance.index.equals(pd.Index(self.assets)) or not self.distance.columns.equals(
-                pd.Index(self.assets)
-            ):
+            if self.distance.columns != list(self.assets):
                 raise ValueError("Distance matrix index/columns must align with assets.")  # noqa: TRY003
 
-        # Check the number of leaves and assets
         if len(self.root.leaves) != len(self.assets):
             raise ValueError("Number of leaves does not match number of assets.")  # noqa: TRY003
 
-    def plot(self, **kwargs: object) -> None:
-        """Plot the dendrogram."""
-        sch.dendrogram(self.linkage, leaf_rotation=90, leaf_font_size=8, labels=self.assets, **kwargs)
+    def plot(self, **kwargs: object) -> go.Figure:
+        """Build and return a plotly dendrogram figure."""
+        ddata = sch.dendrogram(self.linkage, labels=self.assets, no_plot=True, **kwargs)
+        fig = go.Figure()
+        for xs, ys in zip(ddata["icoord"], ddata["dcoord"], strict=False):
+            fig.add_trace(go.Scatter(x=xs, y=ys, mode="lines", line={"color": "steelblue"}, showlegend=False))
+        n = len(self.assets)
+        fig.update_layout(
+            xaxis={
+                "tickmode": "array",
+                "tickvals": [5 + 10 * i for i in range(n)],
+                "ticktext": ddata["ivl"],
+                "tickangle": -90,
+            },
+        )
+        return fig
 
     @property
     def ids(self) -> list[int]:
@@ -110,16 +139,17 @@ class Dendrogram:
         return [self.assets[i] for i in self.ids]
 
 
-def _compute_distance_matrix(corr: pd.DataFrame) -> pd.DataFrame:
+def _compute_distance_matrix(corr: pl.DataFrame) -> pl.DataFrame:
     """Convert correlation matrix to distance matrix."""
-    c = corr.values
+    c = corr.to_numpy()
     dist = np.sqrt(np.clip((1.0 - c) / 2.0, a_min=0.0, a_max=1.0))
     np.fill_diagonal(dist, 0.0)
-    return pd.DataFrame(data=dist, index=corr.index, columns=corr.index)
+    cols = corr.columns
+    return pl.DataFrame(dict(zip(cols, dist, strict=False)))
 
 
 def build_tree(
-    cor: pd.DataFrame, method: Literal["single", "complete", "average", "ward"] = "ward", bisection: bool = False
+    cor: pl.DataFrame, method: Literal["single", "complete", "average", "ward"] = "ward", bisection: bool = False
 ) -> Dendrogram:
     """Build hierarchical cluster tree from correlation matrix.
 
@@ -128,7 +158,7 @@ def build_tree(
     resulting tree structure.
 
     Args:
-        cor (pd.DataFrame): Correlation matrix of asset returns
+        cor (pl.DataFrame): Correlation matrix of asset returns (columns are assets)
         method (Literal["single", "complete", "average", "ward"]): Linkage method for hierarchical clustering
             - "single": minimum distance between points (nearest neighbor)
             - "complete": maximum distance between points (furthest neighbor)
@@ -144,11 +174,10 @@ def build_tree(
             - method: Clustering method used
             - distance: Distance matrix
     """
-    # Create distance matrix and linkage
-    if not isinstance(cor, pd.DataFrame):
-        raise TypeError("Correlation matrix must be a pandas DataFrame.")  # noqa: TRY003
+    if not isinstance(cor, pl.DataFrame):
+        raise TypeError("Correlation matrix must be a polars DataFrame.")  # noqa: TRY003
     dist = _compute_distance_matrix(cor)
-    links = sch.linkage(ssd.squareform(dist), method=method)
+    links = sch.linkage(ssd.squareform(dist.to_numpy(), checks=False), method=method)
 
     # Convert scipy tree to our Cluster format
     def to_cluster(node: sch.ClusterNode) -> Cluster:

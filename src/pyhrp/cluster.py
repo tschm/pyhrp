@@ -10,9 +10,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+import polars as pl
 from cvx.linalg import a_norm
-from matplotlib.axes import Axes
 
 from .treelib import Node
 
@@ -40,17 +41,21 @@ class Portfolio:
         """
         return list(self._weights.keys())
 
-    def variance(self, cov: pd.DataFrame) -> float:
+    def variance(self, cov: pl.DataFrame) -> float:
         """Calculate the variance of the portfolio.
 
         Args:
-            cov (pd.DataFrame): Covariance matrix
+            cov (pl.DataFrame): Covariance matrix where columns and rows correspond
+                to assets in the same order as columns list.
 
         Returns:
             float: Portfolio variance
         """
-        c = cov[self.assets].loc[self.assets].values
-        w = self.weights[self.assets].values
+        assets = self.assets
+        row_indices = [cov.columns.index(a) for a in assets]
+        cov_matrix = cov.to_numpy()
+        c = cov_matrix[np.ix_(row_indices, row_indices)]
+        w = np.array([self._weights[a] for a in assets])
         return float(a_norm(w, c) ** 2)
 
     def __getitem__(self, item: str) -> float:
@@ -77,30 +82,28 @@ class Portfolio:
         self._weights[key] = value
 
     @property
-    def weights(self) -> pd.Series:
-        """Get all weights as a pandas Series.
+    def weights(self) -> dict[str, float]:
+        """Get all weights as a dict sorted alphabetically by asset name.
 
         Returns:
-            pd.Series: Series of weights indexed by assets
+            dict[str, float]: Mapping from asset name to weight, sorted by name.
         """
-        return pd.Series(self._weights, name="Weights").sort_index()
+        return dict(sorted(self._weights.items()))
 
-    def plot(self, names: list[str]) -> Axes:
-        """Plot the portfolio weights.
+    def plot(self, names: list[str]) -> go.Figure:
+        """Plot the portfolio weights as a bar chart.
 
         Args:
             names (list[str]): List of asset names to include in the plot
 
         Returns:
-            matplotlib.axes.Axes: The plot axes
+            go.Figure: The plotly figure
         """
-        a = self.weights.loc[names]
-
-        ax = a.plot(kind="bar", color="skyblue")
-
-        # Set x-axis labels and rotations
-        ax.set_xticklabels(names, rotation=90, fontsize=8)
-        return ax
+        w = self.weights
+        values = [w[n] for n in names]
+        fig = go.Figure(go.Bar(x=names, y=values, marker_color="steelblue"))
+        fig.update_layout(xaxis={"tickangle": -90})
+        return fig
 
 
 class Cluster(Node):

@@ -9,11 +9,9 @@ and portfolio weights for each approach.
 # /// script
 # dependencies = [
 #     "marimo==0.18.4",
-#     "matplotlib",
-#     "pandas",
+#     "plotly",
 #     "polars",
 #     "pyhrp",
-#     "pyarrow",
 # ]
 #
 # [tool.uv.sources]
@@ -28,8 +26,6 @@ app = marimo.App()
 
 with app.setup:
     import marimo as mo
-    import matplotlib.pyplot as plt
-    import pandas as pd
     import polars as pl
 
     from pyhrp.algos import risk_parity
@@ -55,103 +51,78 @@ def _():
 
 @app.cell
 def _():
-    # Read CSV with Polars
-    prices_pl = pl.read_csv(str(mo.notebook_location() / "public" / "stock_prices.csv"))
-    # Convert to pandas DataFrame with the first column as index
-    index_col = prices_pl.columns[0]
-    prices = prices_pl.to_pandas().set_index(index_col)
-    returns = prices.pct_change().dropna(axis=0, how="all").fillna(0.0)
-    # Store original column names for later use
-    column_names = returns.columns.tolist()
-    # Create a mapping from column names to Asset objects
+    _prices = pl.read_csv(str(mo.notebook_location() / "public" / "stock_prices.csv"))
+    returns = _prices.drop(_prices.columns[0]).select(pl.all().pct_change()).drop_nulls().fill_null(0.0)
+    column_names = returns.columns
     return column_names, returns
 
 
 @app.cell
-def _(column_names, returns):
-    cor = returns.corr()
-    cov = returns.cov()
+def _(returns):
+    from pyhrp.hrp import _compute_corr, _compute_cov
+
+    cor = _compute_corr(returns)
+    cov = _compute_cov(returns)
     return cor, cov
 
 
 @app.cell
 def _(cor):
-    # The first dendrogram is suffering. We observe the chaining effect
-    # Convert column names to Asset objects for build_tree
-    print(cor)
-
     dendrogram_before = build_tree(cor, method="single")
-    dendrogram_before.plot()
-    plt.show()
+    dendrogram_before.plot().show()
     return (dendrogram_before,)
 
 
 @app.cell
 def _(cov, dendrogram_before):
-    # The weights are not well balanced
-    # No surprise given exposure of nodes like 11, 12 or 15
     root_before = risk_parity(dendrogram_before.root, cov)
-    root_before.portfolio.plot(names=dendrogram_before.names)
-    plt.show()
+    root_before.portfolio.plot(names=dendrogram_before.names).show()
     return
 
 
 @app.cell
 def _(cor):
-    # The dendrogram suffers because of the 'chaining' effect. LdP is using
-    # now only the order of the leaves (e.g. the assets) and
-    # constructs a second Dendrogram.
-    # Convert column names to Asset objects for build_tree
     dendrogram_bisection = build_tree(cor, method="single", bisection=True)
-    dendrogram_bisection.plot()
-    plt.show()
+    dendrogram_bisection.plot().show()
     return (dendrogram_bisection,)
 
 
 @app.cell
 def _(cov, dendrogram_bisection):
     root_bisection = risk_parity(dendrogram_bisection.root, cov)
-    root_bisection.portfolio.plot(names=dendrogram_bisection.names)
-    plt.show()
+    root_bisection.portfolio.plot(names=dendrogram_bisection.names).show()
     return (root_bisection,)
 
 
 @app.cell
 def _(cor):
     dendrogram_ward = build_tree(cor, method="ward")
-    dendrogram_ward.plot()
-    plt.show()
+    dendrogram_ward.plot().show()
     return (dendrogram_ward,)
 
 
 @app.cell
 def _(cov, dendrogram_ward):
     root_ward = risk_parity(dendrogram_ward.root, cov)
-    root_ward.portfolio.plot(names=dendrogram_ward.names)
-    plt.show()
+    root_ward.portfolio.plot(names=dendrogram_ward.names).show()
     return (root_ward,)
 
 
 @app.cell
 def _(root_bisection, root_ward):
-    # Assuming root_before.portfolio.weights1 and root_before.portfolio.weights2 are two weight series
+    import plotly.graph_objects as go
+
     _weights_ward = root_ward.portfolio.weights
     _weights_bisection = root_bisection.portfolio.weights
-
-    # Create a DataFrame from both weight series to align them on the same index (assuming they have the same index)
-    weights_df = pd.DataFrame({"ward": _weights_ward, "single/bisection": _weights_bisection})
-
-    # Plot both weight series
-    weights_df.plot(kind="bar", width=0.8)
-
-    # Ensure all possible x-axis labels are shown
-    plt.xticks(ticks=range(len(weights_df)), labels=weights_df.index, rotation=90)
-
-    # Optionally, adjust the layout to avoid label clipping
-    plt.tight_layout()
-
-    # Show the plot
-    plt.show()
+    _assets = list(_weights_ward.keys())
+    _fig = go.Figure(
+        [
+            go.Bar(name="ward", x=_assets, y=[_weights_ward[a] for a in _assets]),
+            go.Bar(name="single/bisection", x=_assets, y=[_weights_bisection[a] for a in _assets]),
+        ]
+    )
+    _fig.update_layout(barmode="group", xaxis={"tickangle": -90})
+    _fig.show()
     return
 
 

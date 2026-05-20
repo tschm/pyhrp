@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import pandas as pd
-from pandas import DataFrame
+import polars as pl
+import pytest
+from polars import DataFrame
 
 from pyhrp.hrp import hrp
 
@@ -21,21 +22,14 @@ def test_hrp(prices: DataFrame, resource_dir: Path) -> None:
         prices: DataFrame of asset prices
         resource_dir: Path to test resources directory
     """
-    # Calculate HRP portfolio weights using ward linkage without bisection
     cluster = hrp(prices=prices, method="ward", bisection=False)
+    w = cluster.portfolio.weights  # dict[str, float], sorted alphabetically
 
-    # Extract weights and convert asset objects to names for comparison
-    w = cluster.portfolio.weights
-    # w.index = [asset for asset in w.index]
+    ref = pl.read_csv(resource_dir / "weights_hrp.csv")
+    ref = ref.rename({ref.columns[0]: "asset"})
 
-    # Load reference weights from file
-    # Uncomment this line if you want to generate a new reference file:
-    # w.to_csv(resource_dir / "weights_hrp.csv", header=False)
-    x = pd.read_csv(resource_dir / "weights_hrp.csv", index_col=0, header=0).squeeze()
-    x.index.name = None
-
-    # Verify the calculated weights match the reference weights
-    pd.testing.assert_series_equal(x, w, check_exact=False)
+    for row in ref.iter_rows(named=True):
+        assert w[row["asset"]] == pytest.approx(row["Weights"], rel=1e-5)
 
 
 def test_marcos(resource_dir: Path, prices: DataFrame) -> None:
@@ -49,18 +43,11 @@ def test_marcos(resource_dir: Path, prices: DataFrame) -> None:
         resource_dir: Path to test resources directory
         prices: DataFrame of asset prices
     """
-    # Calculate HRP portfolio weights using ward linkage with bisection
     cluster = hrp(prices=prices, method="ward", bisection=True)
+    w = cluster.portfolio.weights  # dict[str, float], sorted alphabetically
 
-    # Extract weights and convert asset objects to names for comparison
-    w = cluster.portfolio.weights
-    # w.index = [asset.name for asset in w.index]
+    ref = pl.read_csv(resource_dir / "weights_marcos.csv")
+    ref = ref.rename({ref.columns[0]: "asset"})
 
-    # Load reference weights from file
-    # Uncomment this line if you want to generate a new reference file:
-    # w.to_csv(resource_dir / "weights_marcos.csv", header=False)
-    x = pd.read_csv(resource_dir / "weights_marcos.csv", index_col=0, header=0).squeeze()
-    x.index.name = None
-
-    # Verify the calculated weights match the reference weights
-    pd.testing.assert_series_equal(x, w, check_exact=False)
+    for row in ref.iter_rows(named=True):
+        assert w[row["asset"]] == pytest.approx(row["Weights"], rel=1e-5)
