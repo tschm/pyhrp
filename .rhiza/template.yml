@@ -3,6 +3,8 @@ template-branch: "v0.10.7"
 
 templates:
   - github
+  - github-book
+  - github-marimo
   - marimo
   - tests
   - legal
