@@ -7,7 +7,7 @@ and portfolio weights for each approach.
 """
 
 # /// script
-# requires-python = ">=3.12"
+# requires-python = ">=3.11"
 # dependencies = [
 #     "marimo==0.18.4",
 #     "plotly",
