@@ -13,7 +13,7 @@ A recursive implementation of the Hierarchical Risk Parity (HRP) approach
 by Marcos Lopez de Prado.
 We take advantage of the scipy.cluster.hierarchy package.
 
-![Comparing 'ward' with 'single' and bisection](demo.png)
+![Comparing 'ward' with 'single' and bisection](https://raw.githubusercontent.com/tschm/pyhrp/main/demo.png)
 
 ## Motivation
 
