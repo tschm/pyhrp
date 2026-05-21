@@ -22,6 +22,7 @@ Changelog = "https://github.com/tschm/pyhrp/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 dev = [
+    "kaleido>=1.3.0",
     "marimo>=0.14.9",
 ]
 
