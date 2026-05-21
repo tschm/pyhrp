@@ -8,7 +8,6 @@ This module defines the core data structures used in the hierarchical risk parit
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
 
 import numpy as np
 import plotly.graph_objects as go
@@ -119,16 +118,15 @@ class Cluster(Node[int]):
         portfolio (Portfolio): The portfolio associated with this cluster
     """
 
-    def __init__(self, value: int, left: Cluster | None = None, right: Cluster | None = None, **kwargs: Any) -> None:
+    def __init__(self, value: int, left: Cluster | None = None, right: Cluster | None = None) -> None:
         """Initialize a new Cluster.
 
         Args:
             value (int): The identifier for this cluster
             left (Cluster, optional): The left child cluster
             right (Cluster, optional): The right child cluster
-            **kwargs: Additional arguments to pass to the parent class
         """
-        super().__init__(value=value, left=left, right=right, **kwargs)
+        super().__init__(value=value, left=left, right=right)
         self.portfolio = Portfolio()
 
     @property
