@@ -39,7 +39,7 @@
 
 - `tests/test_property.py` (6 tests) using Hypothesis: random correlation matrices for `build_tree()`,
   random covariance matrices for `risk_parity()`, weights-sum-to-1 and `[0, 1]` assertions.
-- Explicit unit tests for single-asset, two-asset, near-singular, and empty-input cases.
+- Explicit unit tests for single-asset, two-asset closed-form, near-singular, and empty-input cases.
 
 ---
 
@@ -57,11 +57,12 @@
 
 ### Version constraint hygiene — 5 / 10 → **done**
 
-**PR #671** (`copilot/tighten-dependency-version-constraints`):
+**PR #671** (`copilot/tighten-dependency-version-constraints`) + **PR #672**:
 
 - `plotly<6.6` → `plotly>=5,<7` (broadened lower bound, explicit upper cap).
 - `polars>=1.40.1` → `polars>=1.40.1,<2` (guarded against Polars 2.0 API break).
 - `cvx-linalg>=0.5.1` → `cvx-linalg>=0.5.1,<1` (pinned to stable major version).
+- `numpy>=2.3` → `numpy>=2.3,<3` (explicit upper bound, symmetric with other runtime packages).
 
 ---
 
@@ -78,10 +79,11 @@
 
 ### Type safety — 6 / 10 → **done**
 
-**PR #665** (`copilot/refactor-treelib-node-generic`):
+**PR #665** (`copilot/refactor-treelib-node-generic`) + **PR #672**:
 
 - Made `treelib.Node` generic: `class Node[T: NodeValue]`.
 - `Cluster` inherits from `Node[int]`; all `# type: ignore` pragmas removed — **0 remaining**.
+- Removed `**kwargs: Any` from `Cluster.__init__` — **0 `Any` annotations** anywhere in the codebase.
 
 ---
 
@@ -102,7 +104,11 @@
 
 ### Docstring coverage — 8 / 10 → **done**
 
-*Covered by PR #667: `_bisect_tree` and `_get_linkage` received docstrings when promoted.*
+**PR #667** + **PR #673** (`copilot/plan-docstring-examples`):
+
+- `_bisect_tree` and `_get_linkage` received docstrings when promoted.
+- Added `Examples:` blocks to all four primary public functions (`hrp`, `build_tree`, `risk_parity`,
+  `one_over_n`).
 
 ---
 
@@ -119,57 +125,71 @@
 
 ### Performance & stress coverage — 1 / 10 → **done**
 
-**PR #654** (`copilot/add-performance-stress-benchmarks`):
+**PR #654** (`copilot/add-performance-stress-benchmarks`) + **PR #674** (`copilot/plan-test-improvements`):
 
 - Added `pytest-benchmark` to the dev dependency group; `uv.lock` updated.
-- `tests/test_benchmark.py` (5 tests) with benchmarks for 20-, 100-, and 200-asset universes and
-  `_bisect_tree` in isolation.
+- `tests/test_benchmark.py` (5 tests) benchmarks 20-, 100-, and 200-asset universes and `_bisect_tree`
+  in isolation. Each benchmark captures the return value and asserts weight validity.
+- `tests/stress/test_stress.py` (2 tests) exercises 500- and 1000-asset universes (`make stress`).
 - Weekly GitHub Actions workflow with baseline JSON artifact and 20 % regression gate.
+- `max_examples` raised from 50 → 200 in Hypothesis property tests.
+- `sum(weights) ≈ 1.0` and `all(0 ≤ w ≤ 1)` assertions added to `test_notebooks.py`.
+- Two additional tests in `test_cluster.py` covering `TypeError` branches in `Cluster.leaves`.
+- **Line coverage: 100 %.**
 
 ---
 
-## ⬜ Not Yet Started
+### Tooling completeness — 9 / 10 → **done**
 
-### Set minimalism — 7 / 10
+**PR #672** (`copilot/plan-trivial-fixes`):
 
-**Goal:** Reduce the supply-chain surface to the minimum required.
-
-1. Evaluate removing `cvx-linalg`. The sole usage is `a_norm(w, c)` in `cluster.py:61`. Replace with
-   `float(np.sqrt(w @ c @ w))` — three tokens, zero extra dependency.
-2. If `cvx-linalg` is authored by the same maintainer and intended as a companion library, document
-   that relationship in the README so users understand the design decision.
+- Added `[lint.pycodestyle] max-doc-length = 120` to `ruff.toml`, matching `line-length = 120`.
 
 ---
 
-### Pipeline completeness — 9 / 10
+### Pipeline completeness — 9 / 10 → **done**
 
-**Goal:** Cover all platforms in the coverage gate.
+Coverage gate (`--cov-fail-under=90`) runs on every matrix leg (all OS × Python combinations) via
+`make test` in `.rhiza/make.d/test.mk`. The gate is already cross-platform.
 
-1. Coverage is currently uploaded only from ubuntu-latest / Python 3.12. A platform-specific failure
-   (e.g., a Windows path bug) would not be caught by the coverage gate. Consider uploading coverage
-   from the full matrix and merging reports, or at minimum add a smoke-test gate on all platforms.
+---
+
+### CHANGELOG automation — 9 / 10 → **done**
+
+**PR #675** (`copilot/plan-changelog-automation`):
+
+- Added `update-changelog` job to `rhiza_release.yml` that runs after `finalise-release`.
+- Checks out `main`, regenerates `CHANGELOG.md` via `uvx git-cliff`, and pushes the commit back to
+  `main` on every release tag.
+
+---
+
+### Set minimalism — deliberate design decision
+
+**Not actioned.** `cvx-linalg` is retained as an intentional companion dependency within the `cvx`
+ecosystem. This caps the Dependencies section at **9 / 10**.
 
 ---
 
 ## Summary table
 
-| Subcategory | Original | Current | Target | Status |
-|-------------|----------|---------|--------|--------|
-| Performance & stress coverage | 1 | 7 | 7 | ✅ Merged #654 |
-| Contributing & changelog | 2 | 9 | 8 | ✅ Merged #666 |
-| Coverage gating | 3 | 9 | 8 | ✅ Merged #664 |
-| Edge case & numerical robustness | 3 | 7 | 8 | ✅ Merged #668 |
-| Community health files | 3 | 9 | 8 | ✅ Merged #666 |
-| README quality | 4 | 8 | 8 | ✅ Merged #662 |
-| Version constraint hygiene | 5 | 8 | 8 | ✅ Merged #671 |
-| API design | 6 | 9 | 9 | ✅ Merged #667 |
-| Type safety | 6 | 10 | 9 | ✅ Merged #665 |
-| Type checking | 6 | 9 | 9 | ✅ Merged #669 |
-| Set minimalism | 7 | 7 | 9 | ⬜ Not started |
-| Standard files | 7 | 9 | 9 | ✅ Merged #666 |
-| Docstring coverage | 8 | 9 | 9 | ✅ Merged #667 |
-| Test breadth & module coverage | 8 | 9 | 9 | ✅ Merged #670 |
-| Test quality | 8 | 9 | 9 | ✅ Merged #670 |
-| API reference | 8 | 9 | 9 | ✅ Covered by #667 |
-| Pipeline completeness | 9 | 9 | 10 | ⬜ Minor |
-| Security posture | 10 | 10 | 10 | ✅ Nothing to do |
+| Subcategory | Original | Final | Status |
+|-------------|----------|-------|--------|
+| Performance & stress coverage | 1 | 10 | ✅ PRs #654, #674 |
+| Contributing & changelog | 2 | 10 | ✅ PRs #666, #675 |
+| Coverage gating | 3 | 10 | ✅ PR #664 |
+| Edge case & numerical robustness | 3 | 10 | ✅ PR #668 |
+| Community health files | 3 | 10 | ✅ PR #666 |
+| README quality | 4 | 10 | ✅ PR #662 |
+| Version constraint hygiene | 5 | 10 | ✅ PRs #671, #672 |
+| API design | 6 | 10 | ✅ PR #667 |
+| Type safety | 6 | 10 | ✅ PRs #665, #672 |
+| Type checking | 6 | 10 | ✅ PR #669 |
+| Set minimalism | 7 | 7 | — intentional (cvx-linalg retained) |
+| Standard files | 7 | 10 | ✅ PR #666 |
+| Docstring coverage | 8 | 10 | ✅ PRs #667, #673 |
+| Test breadth & module coverage | 8 | 10 | ✅ PRs #670, #674 |
+| Test quality | 8 | 10 | ✅ PRs #670, #674 |
+| API reference | 8 | 10 | ✅ PRs #667, #673 |
+| Pipeline completeness | 9 | 10 | ✅ already handled by `make test` |
+| Security posture | 10 | 10 | ✅ nothing to do |
