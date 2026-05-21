@@ -61,6 +61,14 @@ def hrp(
 
     Returns:
         Cluster: The root cluster with portfolio weights assigned according to HRP
+
+    Examples:
+        >>> import polars as pl
+        >>> from pyhrp.hrp import hrp
+        >>> prices = pl.DataFrame({"A": [100.0, 101.0, 99.0, 102.0], "B": [50.0, 51.0, 49.0, 52.0]})
+        >>> root = hrp(prices, method="ward")
+        >>> round(sum(root.portfolio.weights.values()), 6)
+        1.0
     """
     returns = (
         prices.select(pl.all().pct_change())
@@ -211,6 +219,14 @@ def build_tree(
             - assets: List of assets
             - method: Clustering method used
             - distance: Distance matrix
+
+    Examples:
+        >>> import polars as pl
+        >>> from pyhrp.hrp import build_tree
+        >>> cor = pl.DataFrame({"A": [1.0, 0.5], "B": [0.5, 1.0]})
+        >>> dg = build_tree(cor, method="ward")
+        >>> dg.root.leaf_count
+        2
     """
     if not isinstance(cor, pl.DataFrame):
         raise TypeError("Correlation matrix must be a polars DataFrame.")  # noqa: TRY003
