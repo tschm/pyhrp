@@ -43,7 +43,7 @@ def correlation_matrices(draw: st.DrawFn) -> pl.DataFrame:
 
 
 @pytest.mark.property
-@settings(deadline=None, max_examples=50)
+@settings(deadline=None, max_examples=200)
 @given(cor=correlation_matrices())
 def test_build_tree_property_valid_corr_matrix(cor: pl.DataFrame) -> None:
     """build_tree should accept valid random correlation matrices."""
@@ -55,7 +55,7 @@ def test_build_tree_property_valid_corr_matrix(cor: pl.DataFrame) -> None:
 
 
 @pytest.mark.property
-@settings(deadline=None, max_examples=50)
+@settings(deadline=None, max_examples=200)
 @given(cov=covariance_matrices())
 def test_risk_parity_property_weights(cov: pl.DataFrame) -> None:
     """risk_parity should produce normalized long-only weights."""

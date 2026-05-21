@@ -90,6 +90,9 @@ ignore = [
 [lint.pydocstyle]
 convention = "google"
 
+[lint.pycodestyle]
+max-doc-length = 120
+
 # Formatting configuration
 [format]
 # Use double quotes for strings
