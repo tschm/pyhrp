@@ -140,9 +140,9 @@ class Cluster(Node[int]):
         """
         return self.left is None and self.right is None
 
+    # Preserve left-to-right dendrogram order required by HRP (not default post-order traversal).
     @property
     def leaves(self) -> list[Cluster]:
-        # Preserve left-to-right dendrogram order required by HRP (not default post-order traversal).
         """Get all reachable leaf nodes in the correct order.
 
         Note that the leaves method of the Node class implemented in BinaryTree
