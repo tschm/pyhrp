@@ -18,6 +18,7 @@ license-files = ["LICENSE"]
 [project.urls]
 repository = "https://github.com/tschm/pyhrp"
 homepage = "https://tschm.github.io/pyhrp"
+Changelog = "https://github.com/tschm/pyhrp/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 dev = [
