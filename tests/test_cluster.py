@@ -103,3 +103,21 @@ def test_leaves_only_left_child() -> None:
     c.left = Cluster(value=1)
     with pytest.raises(ValueError, match="Expected right child to exist for non-leaf cluster"):
         _ = c.leaves
+
+
+def test_leaves_non_cluster_left() -> None:
+    """TypeError is raised when leaves encounters a non-Cluster left child."""
+    cluster = Cluster(2)
+    cluster.left = Node(0)  # type: ignore[assignment]
+    cluster.right = Cluster(1)
+    with pytest.raises(TypeError, match="Expected left child to be a Cluster"):
+        _ = cluster.leaves
+
+
+def test_leaves_non_cluster_right() -> None:
+    """TypeError is raised when leaves encounters a non-Cluster right child."""
+    cluster = Cluster(2)
+    cluster.left = Cluster(0)
+    cluster.right = Node(1)  # type: ignore[assignment]
+    with pytest.raises(TypeError, match="Expected right child to be a Cluster"):
+        _ = cluster.leaves
