@@ -106,7 +106,7 @@ class Portfolio:
         return fig
 
 
-class Cluster(Node):
+class Cluster(Node[int]):
     """Represents a cluster in the hierarchical clustering tree.
 
     Clusters are the nodes of the graphs we build.
@@ -155,6 +155,8 @@ class Cluster(Node):
                 raise ValueError("Expected left child to exist for non-leaf cluster")  # noqa: TRY003
             if self.right is None:
                 raise ValueError("Expected right child to exist for non-leaf cluster")  # noqa: TRY003
-            left_leaves: list[Cluster] = self.left.leaves  # type: ignore[assignment]
-            right_leaves: list[Cluster] = self.right.leaves  # type: ignore[assignment]
-            return left_leaves + right_leaves
+            if not isinstance(self.left, Cluster):
+                raise TypeError(f"Expected left child to be a Cluster for node {self.value}")  # noqa: TRY003
+            if not isinstance(self.right, Cluster):
+                raise TypeError(f"Expected right child to be a Cluster for node {self.value}")  # noqa: TRY003
+            return self.left.leaves + self.right.leaves
