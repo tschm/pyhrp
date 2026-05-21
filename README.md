@@ -46,14 +46,14 @@ Here's a simple example
 
 ```python
 import polars as pl
-from pyhrp.hrp import build_tree, _compute_cov, _compute_corr
+from pyhrp.hrp import build_tree, compute_cov, compute_corr
 from pyhrp.algos import risk_parity
 
 prices = pl.read_csv("tests/resources/stock_prices.csv", try_parse_dates=True).drop("date")
 
 returns = prices.select(pl.all().pct_change()).drop_nulls().fill_null(0.0)
-cov = _compute_cov(returns)
-cor = _compute_corr(returns)
+cov = compute_cov(returns)
+cor = compute_corr(returns)
 
 # Compute the dendrogram based on the correlation matrix and Ward's metric
 dendrogram = build_tree(cor, method='ward')
