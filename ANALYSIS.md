@@ -4,7 +4,29 @@
 
 ---
 
-## 1. Source Code
+## Scorecard
+
+| Section | Score |
+|---------|-------|
+| 1. Source Code | **7 / 10** |
+| 2. Tests | **6 / 10** |
+| 3. Dependencies | **7 / 10** |
+| 4. CI/CD | **8 / 10** |
+| 5. Tooling | **8 / 10** |
+| 6. Documentation | **5 / 10** |
+| 7. Project Hygiene | **7 / 10** |
+
+---
+
+## 1. Source Code — 7 / 10
+
+| Subcategory | Score |
+|-------------|-------|
+| Structure & separation of concerns | 9 / 10 |
+| Algorithm correctness | 9 / 10 |
+| Docstring coverage | 8 / 10 |
+| API design | 6 / 10 |
+| Type safety | 6 / 10 |
 
 ### Structure
 
@@ -36,7 +58,14 @@ Five focused modules totalling **687 lines** under `src/pyhrp/`:
 
 ---
 
-## 2. Tests
+## 2. Tests — 6 / 10
+
+| Subcategory | Score |
+|-------------|-------|
+| Test quality (assertions, fixtures) | 8 / 10 |
+| Breadth & module coverage | 8 / 10 |
+| Edge case & numerical robustness | 3 / 10 |
+| Performance & stress coverage | 1 / 10 |
 
 ### Overview
 
@@ -74,7 +103,13 @@ Five focused modules totalling **687 lines** under `src/pyhrp/`:
 
 ---
 
-## 3. Dependencies
+## 3. Dependencies — 7 / 10
+
+| Subcategory | Score |
+|-------------|-------|
+| Security (pip-audit, deptry, lock file) | 9 / 10 |
+| Set minimalism | 7 / 10 |
+| Version constraint hygiene | 5 / 10 |
 
 ### Runtime (5 packages)
 
@@ -102,7 +137,13 @@ Five focused modules totalling **687 lines** under `src/pyhrp/`:
 
 ---
 
-## 4. CI/CD
+## 4. CI/CD — 8 / 10
+
+| Subcategory | Score |
+|-------------|-------|
+| Security posture (SBOM, SLSA, OIDC) | 10 / 10 |
+| Pipeline completeness (matrix, jobs) | 9 / 10 |
+| Coverage gating | 3 / 10 |
 
 ### Workflows
 
@@ -133,7 +174,13 @@ Five focused modules totalling **687 lines** under `src/pyhrp/`:
 
 ---
 
-## 5. Tooling
+## 5. Tooling — 8 / 10
+
+| Subcategory | Score |
+|-------------|-------|
+| Linting & formatting (ruff) | 9 / 10 |
+| Pre-commit hooks | 9 / 10 |
+| Type checking | 6 / 10 |
 
 ### Strengths
 
@@ -150,7 +197,14 @@ Five focused modules totalling **687 lines** under `src/pyhrp/`:
 
 ---
 
-## 6. Documentation
+## 6. Documentation — 5 / 10
+
+| Subcategory | Score |
+|-------------|-------|
+| API reference (mkdocstrings) | 8 / 10 |
+| Interactive notebooks | 8 / 10 |
+| README quality | 4 / 10 |
+| Contributing & changelog | 2 / 10 |
 
 ### Strengths
 
@@ -167,7 +221,13 @@ Five focused modules totalling **687 lines** under `src/pyhrp/`:
 
 ---
 
-## 7. Project Hygiene
+## 7. Project Hygiene — 7 / 10
+
+| Subcategory | Score |
+|-------------|-------|
+| Reproducibility (lock file, SBOM, OIDC) | 9 / 10 |
+| Standard files | 7 / 10 |
+| Community health files | 3 / 10 |
 
 | File | Status | Note |
 |------|--------|------|
