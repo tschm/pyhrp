@@ -131,7 +131,7 @@ class Dendrogram:
     @property
     def ids(self) -> list[int]:
         """Node values in the order left -> right as they appear in the dendrogram."""
-        return [node.value for node in self.root.leaves]  # type: ignore[misc]
+        return [node.value for node in self.root.leaves]
 
     @property
     def names(self) -> list[str]:
