@@ -9,11 +9,38 @@
 
 [![Coverage](https://tschm.github.io/pyhrp/coverage-badge.svg)](https://tschm.github.io/pyhrp/reports/html-coverage/)
 
-A recursive implementation of the Hierarchical Risk Parity (hrp) approach
+A recursive implementation of the Hierarchical Risk Parity (HRP) approach
 by Marcos Lopez de Prado.
 We take advantage of the scipy.cluster.hierarchy package.
 
 ![Comparing 'ward' with 'single' and bisection](https://raw.githubusercontent.com/tschm/pyhrp/main/demo.png)
+
+## Motivation
+
+Mean-variance optimisation is often unstable in practice because small estimation
+errors in expected returns can lead to large and concentrated weight shifts.
+Hierarchical Risk Parity avoids explicit return forecasting and instead allocates
+risk recursively along a clustering tree built from asset co-movement.
+By grouping correlated assets before sizing positions, HRP tends to distribute
+risk across more independent sources, which can improve diversification.
+In short, HRP keeps the intuition of risk budgeting while adding structure from
+correlation-based clustering.
+
+## Method comparison
+
+The `method` argument controls how the first clustering tree is built:
+
+| Linkage method | When to use it |
+| --- | --- |
+| `ward` | Default choice when you want compact, variance-minimizing clusters and generally stable, balanced trees. |
+| `single` | Useful when preserving nearest-neighbour chains matters (can create long, unbalanced trees on noisy data). |
+| `average` | Middle ground between `single` and `complete` when you want moderate sensitivity to pairwise distances. |
+| `complete` | Prefer when you want tighter, diameter-controlled clusters and to avoid chaining effects from `single`. |
+
+Setting `bisection=True` keeps the leaf order induced by the chosen linkage
+method, then rebuilds the tree by repeatedly splitting that ordered list in half.
+This often produces a more balanced hierarchy than the raw linkage tree and
+matches the bisection-style construction discussed in HRP literature.
 
 Here's a simple example
 
@@ -47,8 +74,12 @@ root = hrp(prices=prices, method="ward", bisection=False)
 
 ```
 
-You may expect a weight series here but instead the `hrp` function returns a
-`Node` object. The `node` simplifies all further post-analysis.
+## Interpreting results
+
+The `hrp()` function returns a `Cluster` node (the tree root), not a plain weight
+series. You can navigate the hierarchy directly via `root.left` and `root.right`
+to inspect how the recursive allocation split risk at each branch. To get a flat
+asset-to-weight mapping for downstream use, access `root.portfolio.weights`.
 
 ```python
 weights = root.portfolio.weights
@@ -58,6 +89,13 @@ variance = root.portfolio.variance(cov)
 left = root.left
 right = root.right
 
+```
+
+The comparison image above is generated from code in
+`book/marimo/demo.py`. Regenerate it with:
+
+```bash
+uv run --with kaleido book/marimo/demo.py
 ```
 
 ## uv
