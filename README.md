@@ -1,18 +1,13 @@
 # [pyhrp](https://tschm.github.io/pyhrp)
 
 [![PyPI version](https://badge.fury.io/py/pyhrp.svg)](https://badge.fury.io/py/pyhrp)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.12%2B-blue)](https://pypi.org/project/pyhrp/)
 [![Downloads](https://static.pepy.tech/personalized-badge/pyhrp?period=month&units=international_system&left_color=black&right_color=orange&left_text=PyPI%20downloads%20per%20month)](https://pepy.tech/project/pyhrp)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/tschm/pyhrp/blob/main/LICENSE)
 [![CodeFactor](https://www.codefactor.io/repository/github/tschm/pyhrp/badge)](https://www.codefactor.io/repository/github/tschm/pyhrp)
-[![Python Version](https://img.shields.io/badge/python-3.12%2B-blue)](https://www.python.org/)
+[![Rhiza](https://img.shields.io/badge/dynamic/yaml?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftschm%2Fpyhrp%2Fmain%2F.rhiza%2Ftemplate.yml&query=%24%5B'template-branch'%5D&label=rhiza)](https://github.com/jebel-quant/rhiza)
 
-[![Coverage](https://tschm.github.io/pyhrp/coverage-badge.svg)](https://github.com/tschm/pyhrp/actions/workflows/rhiza_ci.yml)
-
-[![Ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
-[![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://github.com/renovatebot/renovate)
-
-[![GitHub stars](https://img.shields.io/github/stars/tschm/pyhrp.svg)](https://github.com/tschm/pyhrp/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/tschm/pyhrp.svg)](https://github.com/tschm/pyhrp/network)
+[![Coverage](https://tschm.github.io/pyhrp/coverage-badge.svg)](https://tschm.github.io/pyhrp/reports/html-coverage/)
 
 A recursive implementation of the Hierarchical Risk Parity (hrp) approach
 by Marcos Lopez de Prado.

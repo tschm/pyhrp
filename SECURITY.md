@@ -1,102 +1,72 @@
 # Security Policy
 
-Overwrite this file using Claude and adjust for the Rhiza dependant.
-
 ## Supported Versions
-
-We actively support the following versions with security updates:
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 0.9.x   | :white_check_mark: |
-| 0.8.x   | :white_check_mark: |
-| < 0.8   | :x:                |
+| 2.0.x   | :white_check_mark: |
+| < 2.0   | :x:                |
 
 ## Reporting a Vulnerability
 
-We take security vulnerabilities seriously. If you discover a security issue, please report it responsibly.
-
-### How to Report
-
 **Do NOT report security vulnerabilities through public GitHub issues.**
 
-Instead, please report them via one of the following methods:
+Please use one of the following methods:
 
-1. **GitHub Security Advisories** (Preferred)
-   - Go to the [Security Advisories](https://github.com/jebel-quant/rhiza/security/advisories) page
-   - Click "New draft security advisory"
-   - Fill in the details and submit
+1. **GitHub Security Advisories** (preferred)
+   - Go to the [Security Advisories](https://github.com/tschm/pyhrp/security/advisories) page
+   - Click "New draft security advisory" and fill in the details
 
 2. **Email**
-   - Send details to the repository maintainers
+   - Contact the maintainer at `thomas.schmelzer@gmail.com`
    - Include "SECURITY" in the subject line
 
-### What to Include
-
-Please include the following information in your report:
+### What to include
 
 - **Description**: A clear description of the vulnerability
-- **Impact**: The potential impact of the vulnerability
-- **Steps to Reproduce**: Detailed steps to reproduce the issue
+- **Impact**: Potential impact
+- **Steps to Reproduce**: Detailed reproduction steps
 - **Affected Versions**: Which versions are affected
 - **Suggested Fix**: If you have one (optional)
 
-### What to Expect
+### What to expect
 
-- **Acknowledgment**: We will acknowledge receipt within 48 hours
-- **Initial Assessment**: We will provide an initial assessment within 7 days
-- **Resolution Timeline**: We aim to resolve critical issues within 30 days
-- **Credit**: We will credit reporters in the security advisory (unless you prefer to remain anonymous)
-
-### Scope
-
-This security policy applies to:
-
-- The Rhiza template system and configuration files
-- GitHub Actions workflows provided by this repository
-- Shell scripts in `.rhiza/scripts/`
-- Python utilities in `.rhiza/utils/`
-
-### Out of Scope
-
-The following are generally out of scope:
-
-- Vulnerabilities in upstream dependencies (report these to the respective projects)
-- Issues that require physical access to a user's machine
-- Social engineering attacks
-- Denial of service attacks that require significant resources
+- **Acknowledgment**: Within 48 hours
+- **Initial Assessment**: Within 7 days
+- **Resolution**: Critical issues within 30 days
+- **Credit**: Reporters credited in the security advisory unless anonymity is requested
 
 ## Security Measures
 
-This project implements several security measures:
+### CI Security Scanning
 
-### Code Scanning
-- **CodeQL**: Automated code scanning for Python and GitHub Actions
-- **Bandit**: Python security linter integrated in CI and pre-commit
-- **pip-audit**: Dependency vulnerability scanning
-- **Secret Scanning**: GitHub secret scanning enabled on this repository
+- **Security scans**: `make security` runs on every push and pull request
+- **License compliance**: `pip-licenses` verifies all dependency licenses
+- **Dependency checks**: `deptry` validates declared vs. actual dependencies
+- **Pre-commit hooks**: Enforced on all commits via CI
 
 ### Supply Chain Security
-- **SLSA Provenance**: Build attestations for release artifacts (public repositories only)
-- **Locked Dependencies**: `uv.lock` ensures reproducible builds
-- **Dependabot**: Automated dependency updates with security patches (version and security updates)
-- **Renovate**: Additional automated dependency update management
+
+- **Locked dependencies**: `uv.lock` ensures reproducible builds
+- **SBOM**: CycloneDX Software Bill of Materials (JSON and XML) generated and attached to every release
+- **SBOM attestations**: Stored on GitHub for supply chain transparency (public repo)
 
 ### Release Security
-- **OIDC Publishing**: PyPI trusted publishing without stored credentials
-- **Signed Commits**: GPG signing supported for releases
-- **Tag Protection**: Releases require version tag validation
 
-## Security Best Practices for Users
+- **OIDC publishing**: PyPI trusted publishing — no stored PyPI credentials
+- **SLSA provenance**: Build attestations generated for all release artifacts (public repo)
+- **Tag validation**: Version in `pyproject.toml` must match the release tag before publishing proceeds
 
-When using Rhiza templates in your projects:
+## Scope
 
-1. **Keep Updated**: Regularly sync with upstream templates
-2. **Review Changes**: Review template sync PRs before merging
-3. **Enable Security Features**: Enable CodeQL, secret scanning, and Dependabot in your repositories
-4. **Use Locked Dependencies**: Always commit `uv.lock` for reproducible builds
-5. **Configure Branch Protection**: Require PR reviews and status checks
+This policy covers:
 
-## Acknowledgments
+- The `pyhrp` Python library (`src/pyhrp/`)
+- GitHub Actions workflows in `.github/workflows/`
 
-We thank the security researchers and community members who help keep Rhiza secure.
+**Out of scope:**
+
+- Vulnerabilities in upstream dependencies (report these to their respective projects)
+- Issues requiring physical machine access
+- Social engineering
+- Denial of service attacks requiring significant resources
