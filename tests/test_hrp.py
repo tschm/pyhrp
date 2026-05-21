@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from polars import DataFrame
 
-from pyhrp.hrp import _bisect_tree, _compute_corr, _get_linkage, build_tree
+from pyhrp.hrp import _bisect_tree, _get_linkage, build_tree, compute_corr
 
 
 def test_linkage(returns: DataFrame, resource_dir: Path) -> None:
@@ -20,7 +20,7 @@ def test_linkage(returns: DataFrame, resource_dir: Path) -> None:
         returns: DataFrame of asset returns
         resource_dir: Path to test resources directory
     """
-    dendrogram = build_tree(cor=_compute_corr(returns), method="single", bisection=False)
+    dendrogram = build_tree(cor=compute_corr(returns), method="single", bisection=False)
 
     assert dendrogram.ids == [11, 7, 19, 6, 14, 5, 10, 13, 3, 1, 4, 16, 0, 2, 17, 9, 8, 18, 12, 15]
 
@@ -37,7 +37,7 @@ def test_bisection(returns: DataFrame, resource_dir: Path) -> None:
         returns: DataFrame of asset returns
         resource_dir: Path to test resources directory
     """
-    dendrogram = build_tree(cor=_compute_corr(returns), method="single", bisection=True)
+    dendrogram = build_tree(cor=compute_corr(returns), method="single", bisection=True)
 
     assert dendrogram.ids == [11, 7, 19, 6, 14, 5, 10, 13, 3, 1, 4, 16, 0, 2, 17, 9, 8, 18, 12, 15]
 
@@ -53,7 +53,7 @@ def test_plot_bisection(returns: DataFrame) -> None:
     Args:
         returns: DataFrame of asset returns
     """
-    cor = _compute_corr(returns)
+    cor = compute_corr(returns)
     dendrogram = build_tree(cor=cor, method="single", bisection=True)
 
     assert dendrogram.root is not None
@@ -95,7 +95,7 @@ def test_invariant_order(returns: DataFrame, method: str) -> None:
         returns: DataFrame of asset returns
         method: Clustering method to use (single, ward, average, or complete)
     """
-    cor = _compute_corr(returns)
+    cor = compute_corr(returns)
     dendrogram1 = build_tree(cor=cor, method=method, bisection=True)
     dendrogram2 = build_tree(cor=cor, method=method, bisection=False)
 

@@ -20,17 +20,17 @@ import scipy.spatial.distance as ssd
 from .algos import risk_parity
 from .cluster import Cluster
 
-__all__ = ["Dendrogram", "build_tree", "hrp"]
+__all__ = ["Dendrogram", "build_tree", "compute_corr", "compute_cov", "hrp"]
 
 
-def _compute_cov(df: pl.DataFrame) -> pl.DataFrame:
+def compute_cov(df: pl.DataFrame) -> pl.DataFrame:
     """Compute covariance matrix from a DataFrame of returns."""
     cols = df.columns
     cov = np.cov(df.to_numpy().T)
     return pl.DataFrame(dict(zip(cols, cov, strict=False)))
 
 
-def _compute_corr(df: pl.DataFrame) -> pl.DataFrame:
+def compute_corr(df: pl.DataFrame) -> pl.DataFrame:
     """Compute correlation matrix from a DataFrame of returns."""
     cols = df.columns
     corr = np.corrcoef(df.to_numpy().T)
@@ -76,8 +76,8 @@ def hrp(
         .fill_null(0.0)
         .fill_nan(0.0)
     )
-    cov = _compute_cov(returns)
-    cor = _compute_corr(returns)
+    cov = compute_cov(returns)
+    cor = compute_corr(returns)
     node = node or build_tree(cor, method=method, bisection=bisection).root
 
     return risk_parity(root=node, cov=cov)

@@ -5,7 +5,7 @@ from polars import DataFrame
 
 from pyhrp.algos import one_over_n
 from pyhrp.cluster import Portfolio
-from pyhrp.hrp import _compute_corr, build_tree
+from pyhrp.hrp import build_tree, compute_corr
 
 
 def test_one_over_n_large(returns: DataFrame) -> None:
@@ -21,7 +21,7 @@ def test_one_over_n_large(returns: DataFrame) -> None:
     Args:
         returns: DataFrame of asset returns
     """
-    cor = _compute_corr(returns)
+    cor = compute_corr(returns)
     dendrogram = build_tree(cor=cor, method="ward")
 
     portfolios: list[tuple[int, Portfolio]] = list(one_over_n(dendrogram))

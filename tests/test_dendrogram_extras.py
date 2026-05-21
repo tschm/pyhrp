@@ -13,7 +13,7 @@ import polars as pl
 import pytest
 
 from pyhrp.cluster import Cluster
-from pyhrp.hrp import Dendrogram, _compute_corr, _compute_distance_matrix, build_tree, hrp
+from pyhrp.hrp import Dendrogram, _compute_distance_matrix, build_tree, compute_corr, hrp
 
 
 def test_dendrogram_plot_executes(returns: pl.DataFrame) -> None:
@@ -22,14 +22,14 @@ def test_dendrogram_plot_executes(returns: pl.DataFrame) -> None:
     We build a dendrogram from a correlation matrix and call plot.
     No figure is shown; we just ensure the function runs.
     """
-    cor = _compute_corr(returns)
+    cor = compute_corr(returns)
     dendrogram = build_tree(cor=cor, method="single", bisection=False)
     dendrogram.plot()
 
 
 def test_dendrogram_plot_with_kwargs(returns: pl.DataFrame) -> None:
     """Test Dendrogram.plot with custom kwargs."""
-    cor = _compute_corr(returns)
+    cor = compute_corr(returns)
     dendrogram = build_tree(cor=cor, method="single", bisection=False)
     dendrogram.plot(color_threshold=0.5, above_threshold_color="red")
 
@@ -140,7 +140,7 @@ def test_build_tree_with_three_assets() -> None:
 @pytest.mark.parametrize("method", ["single", "complete", "average", "ward"])
 def test_build_tree_with_different_methods(returns: pl.DataFrame, method: str) -> None:
     """Test build_tree with all supported linkage methods."""
-    cor = _compute_corr(returns)
+    cor = compute_corr(returns)
     dendrogram = build_tree(cor=cor, method=method, bisection=False)
 
     assert dendrogram.root is not None
@@ -151,7 +151,7 @@ def test_build_tree_with_different_methods(returns: pl.DataFrame, method: str) -
 
 def test_build_tree_bisection_true(returns: pl.DataFrame) -> None:
     """Test build_tree with bisection enabled."""
-    cor = _compute_corr(returns)
+    cor = compute_corr(returns)
     dendrogram = build_tree(cor=cor, method="single", bisection=True)
 
     assert dendrogram.root is not None
@@ -237,7 +237,7 @@ def test_hrp_without_node(prices: pl.DataFrame) -> None:
 
 def test_hrp_with_node(prices: pl.DataFrame, returns: pl.DataFrame) -> None:
     """Test hrp function with a pre-built node."""
-    cor = _compute_corr(returns)
+    cor = compute_corr(returns)
     dendrogram = build_tree(cor=cor, method="ward", bisection=False)
 
     result = hrp(prices=prices, node=dendrogram.root, method="ward", bisection=False)

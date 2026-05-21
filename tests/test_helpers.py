@@ -6,12 +6,12 @@ import numpy as np
 import pytest
 from polars import DataFrame
 
-from pyhrp.hrp import _compute_corr, _compute_cov
+from pyhrp.hrp import compute_corr, compute_cov
 
 
 def test_compute_cov_matrix_properties(returns: DataFrame) -> None:
     """Test covariance helper returns a symmetric square matrix with matching columns."""
-    cov = _compute_cov(returns)
+    cov = compute_cov(returns)
     n_assets = len(returns.columns)
 
     assert cov.shape == (n_assets, n_assets)
@@ -21,7 +21,7 @@ def test_compute_cov_matrix_properties(returns: DataFrame) -> None:
 
 def test_compute_corr_matrix_properties(returns: DataFrame) -> None:
     """Test correlation helper returns a square matrix with unit diagonal and matching columns."""
-    corr = _compute_corr(returns)
+    corr = compute_corr(returns)
     n_assets = len(returns.columns)
 
     assert corr.shape == (n_assets, n_assets)
