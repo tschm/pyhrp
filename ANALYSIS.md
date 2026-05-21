@@ -50,10 +50,9 @@ Five focused modules totalling **687 lines** under `src/pyhrp/`:
 
 ### Weaknesses
 
-- **16 `# type: ignore` pragmas** across the codebase (`hrp.py`: 7, `algos.py`: 4, `cluster.py`: 5). Several are structural — for example, `cluster.py:155–159` suppresses inference on leaf assignment because the generic `Node` type is not parameterised. These point to a design gap where `treelib.Node` is untyped at the generic level.
+- **3 `# type: ignore` pragmas** across the codebase (`hrp.py`: 1, `cluster.py`: 2). Both cluster.py pragmas suppress inference on leaf assignment (`cluster.py:158–159`) because the generic `Node` type is not parameterised — pointing to a design gap where `treelib.Node` is untyped at the generic level.
 - **`one_over_n` accepts `dendrogram: Any`** (`algos.py:92`) instead of `Dendrogram`. This is inconsistent with the rest of the API and silently accepts bad inputs.
 - **`bisect_tree` and `get_linkage` are nested functions** inside `hrp.py`. They are long (25+ lines each), non-trivial, and untestable in isolation. Promoting them to module-level private functions would improve testability and readability.
-- **`cluster.py` overrides `treelib.Node.leaves`** for ordering reasons (lines 142–160). The comment explaining why is absent; a future reader will not understand why the parent implementation is bypassed.
 - **No explicit `__all__`** in any module, so `from pyhrp.hrp import *` exposes private helpers like `_compute_cov` and `_compute_corr`.
 
 ---
@@ -73,15 +72,15 @@ Five focused modules totalling **687 lines** under `src/pyhrp/`:
 
 | File | Tests | Focus |
 |------|-------|-------|
-| `test_dendrogram_extras.py` | ~20 | Dendrogram validation, distance matrix, edge cases |
-| `test_hrp.py` | 8 | Linkage matrix, bisection, node ordering |
-| `test_treelib.py` | ~15 | Full `Node` class coverage |
-| `test_cluster.py` | ~10 | Risk parity, type errors |
-| `test_hrp_function.py` | 5 | Weights vs. reference CSV files |
-| `test_one_over_n.py` | 6 | 1/N algorithm |
-| `test_large_1n.py` | 3 | 1/N on 20-stock real data |
-| `test_portfolio.py` | 5 | Portfolio creation, plotting, variance |
-| `test_node.py` | 4 | `Cluster` basics |
+| `test_dendrogram_extras.py` | 32 | Dendrogram validation, distance matrix, edge cases |
+| `test_hrp.py` | 4 | Linkage matrix, bisection, node ordering |
+| `test_treelib.py` | 7 | Full `Node` class coverage |
+| `test_cluster.py` | 7 | Risk parity, type errors |
+| `test_hrp_function.py` | 2 | Weights vs. reference CSV files |
+| `test_one_over_n.py` | 2 | 1/N algorithm |
+| `test_large_1n.py` | 1 | 1/N on 20-stock real data |
+| `test_portfolio.py` | 2 | Portfolio creation, plotting, variance |
+| `test_node.py` | 1 | `Cluster` basics |
 | `test_notebooks.py` | 1 | Marimo notebook execution |
 
 ### Strengths
@@ -254,7 +253,7 @@ Five focused modules totalling **687 lines** under `src/pyhrp/`:
 
 ### Weaknesses
 
-1. **16 `# type: ignore` pragmas** point to an unparameterised generic base class (`treelib.Node`) that leaks complexity into every subclass.
+1. **3 `# type: ignore` pragmas** (`hrp.py`: 1, `cluster.py`: 2) point to an unparameterised generic base class (`treelib.Node`) that leaks complexity into every subclass.
 2. **`one_over_n` accepts `Any`** — a type-safety gap in the public API.
 3. **No property-based or edge-case numerical tests** despite `stress`/`property` markers being registered. Near-singular matrices and degenerate inputs are untested.
 4. **No coverage threshold gate in CI** — a PR that removes tests passes undetected.
