@@ -60,10 +60,10 @@ def _():
 
 @app.cell
 def _(returns):
-    from pyhrp.hrp import _compute_corr, _compute_cov
+    from pyhrp.hrp import compute_corr, compute_cov
 
-    cor = _compute_corr(returns)
-    cov = _compute_cov(returns)
+    cor = compute_corr(returns)
+    cov = compute_cov(returns)
     return cor, cov
 
 

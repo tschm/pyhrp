@@ -50,12 +50,12 @@ def _():
 
 @app.cell
 def _():
-    from pyhrp.hrp import _compute_corr, _compute_cov
+    from pyhrp.hrp import compute_corr, compute_cov
 
     _prices = pl.read_csv(str(mo.notebook_location() / "public" / "stock_prices.csv"))
     returns = _prices.drop(_prices.columns[0]).select(pl.all().pct_change()).drop_nulls().fill_null(0.0)
-    cor = _compute_corr(returns)
-    cov = _compute_cov(returns)
+    cor = compute_corr(returns)
+    cov = compute_cov(returns)
     return (cor, cov, returns)
 
 
