@@ -21,6 +21,8 @@ homepage = "https://tschm.github.io/pyhrp"
 
 [dependency-groups]
 dev = [
+    "hypothesis>=6.150.0",
+    "hypothesis[numpy]>=6.150.0",
     "marimo>=0.14.9",
 ]
 
