@@ -14,6 +14,8 @@ from typing import Generic, TypeVar
 NodeValue = int | float | str
 T = TypeVar("T", bound=NodeValue)
 
+__all__ = ["Node"]
+
 
 class Node(Generic[T]):
     """A binary tree node with left and right children.
