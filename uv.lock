@@ -619,10 +619,10 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cvx-linalg", specifier = ">=0.5.1" },
+    { name = "cvx-linalg", specifier = ">=0.5.1,<1" },
     { name = "numpy", specifier = ">=2.3" },
-    { name = "plotly", specifier = "<6.6" },
-    { name = "polars", specifier = ">=1.40.1" },
+    { name = "plotly", specifier = ">=5,<7" },
+    { name = "polars", specifier = ">=1.40.1,<2" },
     { name = "scipy", specifier = ">=1.14.1" },
 ]
 
