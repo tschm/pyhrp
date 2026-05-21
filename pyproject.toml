@@ -6,10 +6,10 @@ authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "cvx-linalg>=0.5.1",
+    "cvx-linalg>=0.5.1,<1",
     "numpy>=2.3",
-    "plotly<6.6",
-    "polars>=1.40.1",
+    "plotly>=5,<7",
+    "polars>=1.40.1,<2",
     "scipy>=1.14.1",
 ]
 license = "MIT"
