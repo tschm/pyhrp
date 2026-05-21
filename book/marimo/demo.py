@@ -24,7 +24,7 @@ def generate_demo_image(output: Path) -> Path:
     prices_path = repo_root / "tests" / "resources" / "stock_prices.csv"
 
     prices = _load_prices(prices_path)
-    returns = prices.select(pl.all().pct_change()).drop_nulls().fill_null(0.0)
+    returns = prices.select(pl.all().pct_change()).drop_nulls()
     cov = _compute_cov(returns)
     cor = _compute_corr(returns)
 

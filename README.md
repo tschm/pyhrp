@@ -32,7 +32,7 @@ The `method` argument controls how the first clustering tree is built:
 
 | Linkage method | When to use it |
 | --- | --- |
-| `ward` | Default choice when you want compact, variance-minimising clusters and generally stable, balanced trees. |
+| `ward` | Default choice when you want compact, variance-minimizing clusters and generally stable, balanced trees. |
 | `single` | Useful when preserving nearest-neighbour chains matters (can create long, unbalanced trees on noisy data). |
 | `average` | Middle ground between `single` and `complete` when you want moderate sensitivity to pairwise distances. |
 | `complete` | Prefer when you want tighter, diameter-controlled clusters and to avoid chaining effects from `single`. |
