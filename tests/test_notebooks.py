@@ -26,5 +26,8 @@ def test_notebooks() -> None:
             assert isinstance(root, Cluster)
             assert isinstance(root.portfolio.weights, dict)
             assert root.portfolio.weights
+            weights = list(root.portfolio.weights.values())
+            assert abs(sum(weights) - 1.0) < 1e-9, "HRP weights must sum to 1.0"
+            assert all(0.0 <= w <= 1.0 for w in weights), "All HRP weights must be in [0, 1]"
         else:
             assert "app" in namespace
