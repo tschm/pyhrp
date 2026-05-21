@@ -29,6 +29,7 @@ def _compute_cov_and_corr(returns: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataF
 
 
 def generate_demo_image(output: Path) -> Path:
+    """Generate a bar chart comparing HRP weight allocations and save it to output."""
     repo_root = Path(__file__).resolve().parents[2]
     prices_path = repo_root / "tests" / "resources" / "stock_prices.csv"
 
@@ -58,6 +59,7 @@ def generate_demo_image(output: Path) -> Path:
 
 
 def main() -> None:
+    """Parse CLI arguments and generate the demo image."""
     repo_root = Path(__file__).resolve().parents[2]
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
