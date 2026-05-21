@@ -27,7 +27,7 @@ def covariance_matrices(draw: st.DrawFn) -> pl.DataFrame:
     )
     cov = base @ base.T + np.eye(n_assets) * 1e-6
     assets = [f"A{i}" for i in range(n_assets)]
-    return pl.DataFrame(dict(zip(assets, cov, strict=False)))
+    return pl.DataFrame(dict(zip(assets, cov, strict=True)))
 
 
 @st.composite
@@ -39,7 +39,7 @@ def correlation_matrices(draw: st.DrawFn) -> pl.DataFrame:
     corr = cov_np / np.outer(std, std)
     np.fill_diagonal(corr, 1.0)
     assets = cov.columns
-    return pl.DataFrame(dict(zip(assets, corr, strict=False)))
+    return pl.DataFrame(dict(zip(assets, corr, strict=True)))
 
 
 @pytest.mark.property
@@ -63,7 +63,7 @@ def test_risk_parity_property_weights(cov: pl.DataFrame) -> None:
     std = np.sqrt(np.diag(cov_np))
     corr = cov_np / np.outer(std, std)
     np.fill_diagonal(corr, 1.0)
-    cor = pl.DataFrame(dict(zip(cov.columns, corr, strict=False)))
+    cor = pl.DataFrame(dict(zip(cov.columns, corr, strict=True)))
     root = build_tree(cor=cor, method="single", bisection=False).root
 
     cluster = risk_parity(root=root, cov=cov)
