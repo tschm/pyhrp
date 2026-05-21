@@ -152,6 +152,8 @@ def _compute_distance_matrix(corr: pl.DataFrame) -> pl.DataFrame:
 
 def _bisect_tree(ids: list[int], next_id: int) -> tuple[Cluster, int]:
     """Build tree by recursive bisection."""
+    if not ids:
+        raise ValueError("ids must contain at least one node id.")  # noqa: TRY003
     if len(ids) == 1:
         return Cluster(value=ids[0]), next_id
 

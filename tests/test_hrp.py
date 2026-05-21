@@ -113,6 +113,12 @@ def test_bisect_tree_helper() -> None:
     assert [leaf.value for leaf in root.leaves] == [0, 1, 2, 3]
 
 
+def test_bisect_tree_helper_empty_ids() -> None:
+    """Test _bisect_tree rejects empty ids input."""
+    with pytest.raises(ValueError, match="at least one node id"):
+        _bisect_tree(ids=[], next_id=0)
+
+
 def test_get_linkage_helper() -> None:
     """Test the module-level _get_linkage helper."""
     root, _ = _bisect_tree(ids=[0, 1, 2, 3], next_id=3)
