@@ -2,39 +2,23 @@
 
 > Derived from ANALYSIS.md (version 2.0.0, 2026-05-21).
 > Current average: **8.7 / 10** across 18 subcategories.
-> Target: all seven sections at **10 / 10**.
+> Target: six sections at **10 / 10**; Dependencies capped at **9 / 10** (cvx-linalg retained).
 
 Items are ordered by effort — smallest changes first.
 
 ---
 
-## Section 3 · Dependencies (8 → 10)
+## Section 3 · Dependencies (8 → 9)
+
+> `cvx-linalg` is kept as an intentional dependency. **Set minimalism** is therefore capped at 7 / 10,
+> and the section ceiling is **9 / 10** rather than 10.
 
 ### 3a. Add `numpy` upper bound — *trivial*
 
 **File:** `pyproject.toml`
 
 Change `"numpy>=2.3"` → `"numpy>=2.3,<3"`. Explicit intent, symmetric with the other runtime bounds.
-
----
-
-### 3b. Remove `cvx-linalg` — *small*
-
-**File:** `src/pyhrp/cluster.py`
-
-The sole usage is `a_norm(w, c)` at line 61. Replace with:
-
-```python
-float(np.sqrt(w @ c @ w))
-```
-
-Then:
-- Remove `from cvx.linalg import a_norm` from imports.
-- Remove `"cvx-linalg>=0.5.1,<1"` from `pyproject.toml` dependencies.
-- Remove `cvx-linalg` entry from `[tool.deptry] package_module_name_map`.
-- Run `uv lock` to regenerate `uv.lock`.
-
-This brings **set minimalism** from 7 → 10 and eliminates the last non-essential supply-chain dependency.
+Brings **version constraint hygiene** from 8 → 10.
 
 ---
 
@@ -170,7 +154,6 @@ This automates changelog maintenance, lifting both **contributing & changelog** 
 | # | Task | Section(s) affected | Subcategory lift | Effort |
 |---|------|---------------------|-----------------|--------|
 | 3a | `numpy` upper bound | Dependencies | version constraint hygiene 8 → 10 | trivial |
-| 3b | Remove `cvx-linalg` | Dependencies | set minimalism 7 → 10 | small |
 | 1a | Tighten `**kwargs: Any` | Source Code | type safety 10 → 10 (clean) | small |
 | 1b | Add `Examples:` to docstrings | Source Code, Documentation | docstring coverage 9 → 10; API reference 9 → 10 | small |
 | 2a | Raise `max_examples` | Tests | edge case robustness 7 → 8 | trivial |
