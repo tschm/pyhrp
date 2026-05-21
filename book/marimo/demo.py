@@ -1,5 +1,20 @@
 """Generate the README demo image comparing HRP methods."""
 
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#     "kaleido",
+#     "numpy",
+#     "plotly",
+#     "polars",
+#     "pyhrp",
+# ]
+#
+# [tool.uv.sources]
+# pyhrp = { path = "../..", editable=true }
+#
+# ///
+
 from __future__ import annotations
 
 import argparse
