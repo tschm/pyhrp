@@ -5,11 +5,12 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+import numpy as np
 import plotly.graph_objects as go
 import polars as pl
 
 from pyhrp.algos import risk_parity
-from pyhrp.hrp import _compute_corr, _compute_cov, build_tree
+from pyhrp.hrp import build_tree
 
 
 def _load_prices(path: Path) -> pl.DataFrame:
@@ -19,14 +20,21 @@ def _load_prices(path: Path) -> pl.DataFrame:
     return prices
 
 
+def _compute_cov_and_corr(returns: pl.DataFrame) -> tuple[pl.DataFrame, pl.DataFrame]:
+    matrix = returns.to_numpy().T
+    cols = returns.columns
+    cov = pl.DataFrame(dict(zip(cols, np.cov(matrix), strict=False)))
+    cor = pl.DataFrame(dict(zip(cols, np.corrcoef(matrix), strict=False)))
+    return cov, cor
+
+
 def generate_demo_image(output: Path) -> Path:
     repo_root = Path(__file__).resolve().parents[2]
     prices_path = repo_root / "tests" / "resources" / "stock_prices.csv"
 
     prices = _load_prices(prices_path)
     returns = prices.select(pl.all().pct_change()).drop_nulls()
-    cov = _compute_cov(returns)
-    cor = _compute_corr(returns)
+    cov, cor = _compute_cov_and_corr(returns)
 
     dendrogram_ward = build_tree(cor, method="ward")
     root_ward = risk_parity(dendrogram_ward.root, cov)
