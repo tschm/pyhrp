@@ -20,6 +20,8 @@ import scipy.spatial.distance as ssd
 from .algos import risk_parity
 from .cluster import Cluster
 
+__all__ = ["Dendrogram", "build_tree", "hrp"]
+
 
 def _compute_cov(df: pl.DataFrame) -> pl.DataFrame:
     """Compute covariance matrix from a DataFrame of returns."""
@@ -148,6 +150,42 @@ def _compute_distance_matrix(corr: pl.DataFrame) -> pl.DataFrame:
     return pl.DataFrame(dict(zip(cols, dist, strict=False)))
 
 
+def _bisect_tree(ids: list[int], next_id: int) -> tuple[Cluster, int]:
+    """Build tree by recursive bisection."""
+    if not ids:
+        raise ValueError("ids must contain at least one node id.")  # noqa: TRY003
+    if len(ids) == 1:
+        return Cluster(value=ids[0]), next_id
+
+    mid = len(ids) // 2
+    left_ids, right_ids = ids[:mid], ids[mid:]
+    left, next_id = _bisect_tree(left_ids, next_id)
+    right, next_id = _bisect_tree(right_ids, next_id)
+    next_id += 1
+    return Cluster(value=next_id, left=left, right=right), next_id
+
+
+def _get_linkage(node: Cluster) -> list[list[float]]:
+    """Convert tree structure back to linkage matrix format."""
+    links_list: list[list[float]] = []
+    if node.left is not None and node.right is not None:
+        if not isinstance(node.left, Cluster):
+            raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003  # pragma: no cover
+        if not isinstance(node.right, Cluster):
+            raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003  # pragma: no cover
+        links_list.extend(_get_linkage(node.left))
+        links_list.extend(_get_linkage(node.right))
+        links_list.append(
+            [
+                float(node.left.value),
+                float(node.right.value),
+                float(node.size),
+                float(len(node.left.leaves) + len(node.right.leaves)),
+            ]
+        )
+    return links_list
+
+
 def build_tree(
     cor: pl.DataFrame, method: Literal["single", "complete", "average", "ward"] = "ward", bisection: bool = False
 ) -> Dendrogram:
@@ -201,65 +239,7 @@ def build_tree(
     if bisection:
         # Rebuild tree using bisection
         leaf_ids: list[int] = [int(node.value) for node in root.leaves]
-        nnn: int = max(leaf_ids)
-
-        def bisect_tree(ids: list[int]) -> Cluster:
-            """Build tree by recursive bisection.
-
-            This function recursively splits the list of IDs in half and creates
-            a binary tree where each node represents a split.
-
-            Args:
-                ids (list[int]): List of leaf node IDs to organize into a tree
-
-            Returns:
-                Cluster: Root node of the constructed tree
-            """
-            nonlocal nnn
-
-            if len(ids) == 1:
-                return Cluster(value=ids[0])
-
-            mid = len(ids) // 2
-            left_ids, right_ids = ids[:mid], ids[mid:]
-
-            left = bisect_tree(left_ids)
-            right = bisect_tree(right_ids)
-
-            nnn += 1
-            return Cluster(value=nnn, left=left, right=right)
-
-        root = bisect_tree(leaf_ids)
-
-        # Convert back to linkage format for plotting
-        links_list: list[list[float]] = []
-
-        def get_linkage(node: Cluster) -> None:
-            """Convert tree structure back to linkage matrix format.
-
-            This function traverses the tree and builds a linkage matrix compatible
-            with scipy's hierarchical clustering format for visualization.
-
-            Args:
-                node (Cluster): Current node being processed
-            """
-            if node.left is not None and node.right is not None:
-                if not isinstance(node.left, Cluster):
-                    raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003  # pragma: no cover
-                if not isinstance(node.right, Cluster):
-                    raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003  # pragma: no cover
-                get_linkage(node.left)
-                get_linkage(node.right)
-                links_list.append(
-                    [
-                        float(node.left.value),
-                        float(node.right.value),
-                        float(node.size),
-                        float(len(node.left.leaves) + len(node.right.leaves)),
-                    ]
-                )
-
-        get_linkage(root)
-        links = np.array(links_list)
+        root, _ = _bisect_tree(ids=leaf_ids, next_id=max(leaf_ids))
+        links = np.array(_get_linkage(root))
 
     return Dendrogram(root=root, linkage=links, method=method, distance=dist, assets=cor.columns)
