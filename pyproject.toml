@@ -22,6 +22,8 @@ Changelog = "https://github.com/tschm/pyhrp/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 dev = [
+    "hypothesis>=6.150.0",
+    "hypothesis[numpy]>=6.150.0",
     "kaleido>=1.3.0",
     "marimo>=0.14.9",
 ]
