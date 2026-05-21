@@ -34,6 +34,16 @@ def risk_parity(root: Cluster, cov: pl.DataFrame) -> Cluster:
 
     Returns:
         Cluster: The root node with portfolio weights assigned
+
+    Examples:
+        >>> import polars as pl
+        >>> from pyhrp.cluster import Cluster
+        >>> from pyhrp.algos import risk_parity
+        >>> cov = pl.DataFrame({"A": [4.0, 0.0], "B": [0.0, 1.0]})
+        >>> root = Cluster(2, left=Cluster(0), right=Cluster(1))
+        >>> cluster = risk_parity(root=root, cov=cov)
+        >>> round(cluster.portfolio["B"], 1)
+        0.8
     """
     if root.is_leaf:
         # a node is a leaf if has no further relatives downstream.
@@ -108,6 +118,16 @@ def one_over_n(dendrogram: Dendrogram) -> Generator[tuple[int, Portfolio]]:
     Yields:
         tuple[int, Portfolio]: A tuple containing the level number and the portfolio
                               at that level
+
+    Examples:
+        >>> import polars as pl
+        >>> from pyhrp.hrp import build_tree
+        >>> from pyhrp.algos import one_over_n
+        >>> cor = pl.DataFrame({"A": [1.0, 0.3], "B": [0.3, 1.0]})
+        >>> dg = build_tree(cor, method="ward")
+        >>> levels = list(one_over_n(dg))
+        >>> len(levels) > 0
+        True
     """
     root = dendrogram.root
     assets = dendrogram.assets
