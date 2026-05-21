@@ -7,7 +7,7 @@ It implements only the functionality needed by the pyhrp package.
 from __future__ import annotations
 
 from collections import deque
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from typing import Generic, TypeVar
 
 # Type for node values
@@ -49,7 +49,7 @@ class Node(Generic[T]):
         return self.left is None and self.right is None
 
     @property
-    def leaves(self) -> list[Node[T]]:
+    def leaves(self) -> Sequence[Node[T]]:
         """Get all leaf nodes in the tree rooted at this node.
 
         Returns:
@@ -58,7 +58,7 @@ class Node(Generic[T]):
         if self.is_leaf:
             return [self]
 
-        result = []
+        result: list[Node[T]] = []
         if self.left:
             result.extend(self.left.leaves)
         if self.right:
