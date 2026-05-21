@@ -9,11 +9,16 @@ from __future__ import annotations
 
 from collections.abc import Generator
 from copy import deepcopy
-from typing import Any
+from typing import TYPE_CHECKING
 
 import polars as pl
 
 from .cluster import Cluster, Portfolio
+
+if TYPE_CHECKING:
+    from .hrp import Dendrogram
+
+__all__ = ["one_over_n", "risk_parity"]
 
 
 def risk_parity(root: Cluster, cov: pl.DataFrame) -> Cluster:
@@ -89,7 +94,7 @@ def _parity(cluster: Cluster, cov: pl.DataFrame) -> Cluster:
     return cluster
 
 
-def one_over_n(dendrogram: Any) -> Generator[tuple[int, Portfolio]]:
+def one_over_n(dendrogram: Dendrogram) -> Generator[tuple[int, Portfolio]]:
     """Generate portfolios using the 1/N (equal weight) strategy at each tree level.
 
     This function implements a hierarchical 1/N strategy where weights are

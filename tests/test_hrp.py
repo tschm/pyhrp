@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from polars import DataFrame
 
-from pyhrp.hrp import _compute_corr, build_tree
+from pyhrp.hrp import _bisect_tree, _compute_corr, _get_linkage, build_tree
 
 
 def test_linkage(returns: DataFrame, resource_dir: Path) -> None:
@@ -102,3 +102,23 @@ def test_invariant_order(returns: DataFrame, method: str) -> None:
     assert dendrogram1.assets == dendrogram2.assets
     assert dendrogram1.ids == dendrogram2.ids
     assert dendrogram1.names == dendrogram2.names
+
+
+def test_bisect_tree_helper() -> None:
+    """Test the module-level _bisect_tree helper."""
+    root, next_id = _bisect_tree(ids=[0, 1, 2, 3], next_id=3)
+
+    assert next_id == 6
+    assert root.value == 6
+    assert [leaf.value for leaf in root.leaves] == [0, 1, 2, 3]
+
+
+def test_get_linkage_helper() -> None:
+    """Test the module-level _get_linkage helper."""
+    root, _ = _bisect_tree(ids=[0, 1, 2, 3], next_id=3)
+
+    assert _get_linkage(root) == [
+        [0.0, 1.0, 3.0, 2.0],
+        [2.0, 3.0, 3.0, 2.0],
+        [4.0, 5.0, 7.0, 4.0],
+    ]

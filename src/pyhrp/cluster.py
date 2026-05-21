@@ -17,6 +17,8 @@ from cvx.linalg import a_norm
 
 from .treelib import Node
 
+__all__ = ["Cluster", "Portfolio"]
+
 
 @dataclass
 class Portfolio:
@@ -140,6 +142,7 @@ class Cluster(Node[int]):
 
     @property
     def leaves(self) -> list[Cluster]:
+        # Preserve left-to-right dendrogram order required by HRP (not default post-order traversal).
         """Get all reachable leaf nodes in the correct order.
 
         Note that the leaves method of the Node class implemented in BinaryTree
