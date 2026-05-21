@@ -19,23 +19,27 @@ def _synthetic_prices(asset_count: int, periods: int = 500, seed: int = 0) -> pl
 
 @pytest.mark.stress
 def test_benchmark_hrp_20_assets(benchmark: BenchmarkFixture, prices: pl.DataFrame) -> None:
+    """Benchmark HRP on 20 assets."""
     benchmark(lambda: hrp(prices=prices, method="ward", bisection=False))
 
 
 @pytest.mark.stress
 def test_benchmark_hrp_100_assets(benchmark: BenchmarkFixture) -> None:
+    """Benchmark HRP on 100 assets."""
     prices = _synthetic_prices(asset_count=100, seed=100)
     benchmark(lambda: hrp(prices=prices, method="ward", bisection=False))
 
 
 @pytest.mark.stress
 def test_benchmark_hrp_200_assets(benchmark: BenchmarkFixture) -> None:
+    """Benchmark HRP on 200 assets."""
     prices = _synthetic_prices(asset_count=200, seed=200)
     benchmark(lambda: hrp(prices=prices, method="ward", bisection=False))
 
 
 @pytest.mark.stress
 def test_benchmark_build_tree_100_assets(benchmark: BenchmarkFixture) -> None:
+    """Benchmark build_tree on 100 assets."""
     prices = _synthetic_prices(asset_count=100, seed=300)
     returns = prices.select(pl.all().pct_change()).drop_nulls()
     cor = _compute_corr(returns)
@@ -44,6 +48,7 @@ def test_benchmark_build_tree_100_assets(benchmark: BenchmarkFixture) -> None:
 
 @pytest.mark.stress
 def test_benchmark_build_tree_200_assets(benchmark: BenchmarkFixture) -> None:
+    """Benchmark build_tree on 200 assets."""
     prices = _synthetic_prices(asset_count=200, seed=400)
     returns = prices.select(pl.all().pct_change()).drop_nulls()
     cor = _compute_corr(returns)
