@@ -106,7 +106,7 @@ class Portfolio:
         return fig
 
 
-class Cluster(Node):
+class Cluster(Node[int]):
     """Represents a cluster in the hierarchical clustering tree.
 
     Clusters are the nodes of the graphs we build.
@@ -139,14 +139,14 @@ class Cluster(Node):
         return self.left is None and self.right is None
 
     @property
-    def leaves(self) -> list[Cluster]:
+    def leaves(self) -> list[Node[int]]:
         """Get all reachable leaf nodes in the correct order.
 
         Note that the leaves method of the Node class implemented in BinaryTree
         is not respecting the 'correct' order of the nodes.
 
         Returns:
-            list[Cluster]: List of all leaf nodes reachable from this cluster
+            list[Node[int]]: List of all leaf nodes reachable from this cluster
         """
         if self.is_leaf:
             return [self]
@@ -155,6 +155,8 @@ class Cluster(Node):
                 raise ValueError("Expected left child to exist for non-leaf cluster")  # noqa: TRY003
             if self.right is None:
                 raise ValueError("Expected right child to exist for non-leaf cluster")  # noqa: TRY003
-            left_leaves: list[Cluster] = self.left.leaves  # type: ignore[assignment]
-            right_leaves: list[Cluster] = self.right.leaves  # type: ignore[assignment]
-            return left_leaves + right_leaves
+            if not isinstance(self.left, Cluster):
+                raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003
+            if not isinstance(self.right, Cluster):
+                raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003
+            return self.left.leaves + self.right.leaves

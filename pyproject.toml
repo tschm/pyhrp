@@ -32,6 +32,9 @@ build-backend = "hatchling.build"
 packages = ["src/pyhrp"]
 
 [tool.mypy]
+
+[[tool.mypy.overrides]]
+module = ["cvx.*", "plotly.*", "scipy.*"]
 ignore_missing_imports = true
 
 [tool.deptry]
