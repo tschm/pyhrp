@@ -19,10 +19,10 @@ import polars as pl
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
-from .algos import risk_parity
+from .algos import risk_parity, schur_risk_parity
 from .cluster import Cluster
 
-__all__ = ["Dendrogram", "build_tree", "compute_corr", "compute_cov", "hrp"]
+__all__ = ["Dendrogram", "build_tree", "compute_corr", "compute_cov", "hrp", "schur_hrp"]
 
 
 def compute_cov(df: pl.DataFrame) -> pl.DataFrame:
@@ -83,6 +83,53 @@ def hrp(
     node = node or build_tree(cor, method=method, bisection=bisection).root
 
     return risk_parity(root=node, cov=cov)
+
+
+def schur_hrp(
+    prices: pl.DataFrame,
+    node: Cluster | None = None,
+    method: Literal["single", "complete", "average", "ward"] = "ward",
+    bisection: bool = False,
+    gamma: float = 0.5,
+) -> Cluster:
+    """Compute Schur Complementary Allocation portfolio weights.
+
+    Extends HRP by augmenting each sub-covariance block with off-diagonal information
+    via Schur complements before splitting risk between clusters. Introduced by Peter Cotton
+    (arXiv:2411.05807). At gamma=0 this is identical to HRP; at gamma=1 it recovers the
+    global minimum-variance portfolio through the same recursive hierarchy.
+
+    Args:
+        prices (pl.DataFrame): Asset price time series (columns are assets, rows are dates)
+        node (Cluster, optional): Root node of the hierarchical clustering tree.
+            If None, a tree will be built from the correlation matrix.
+        method (Literal["single", "complete", "average", "ward"]): Linkage method for clustering
+        bisection (bool): Whether to use bisection method for tree construction
+        gamma (float): Schur interpolation parameter in [0, 1].
+            0 recovers standard HRP; 1 recovers minimum-variance portfolio.
+
+    Returns:
+        Cluster: The root cluster with portfolio weights assigned
+
+    Examples:
+        >>> import polars as pl
+        >>> from pyhrp.hrp import schur_hrp
+        >>> prices = pl.DataFrame({"A": [100.0, 101.0, 99.0, 102.0], "B": [50.0, 51.0, 49.0, 52.0]})
+        >>> root = schur_hrp(prices, method="ward", gamma=0.5)
+        >>> round(sum(root.portfolio.weights.values()), 6)
+        1.0
+    """
+    returns = (
+        prices.select(pl.all().pct_change())
+        .filter(pl.any_horizontal(pl.all().is_not_null()))
+        .fill_null(0.0)
+        .fill_nan(0.0)
+    )
+    cov = compute_cov(returns)
+    cor = compute_corr(returns)
+    node = node or build_tree(cor, method=method, bisection=bisection).root
+
+    return schur_risk_parity(root=node, cov=cov, gamma=gamma)
 
 
 @dataclass(frozen=True)
