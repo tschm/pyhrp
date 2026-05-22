@@ -3,6 +3,8 @@
 This module implements the core HRP algorithm and related functions:
 - hrp: Main function to compute HRP portfolio weights
 - build_tree: Function to build hierarchical cluster tree from correlation matrix
+- compute_cov: Function to compute a covariance matrix from returns
+- compute_corr: Function to compute a correlation matrix from returns
 - Dendrogram: Class to store and visualize hierarchical clustering results
 """
 
