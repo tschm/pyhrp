@@ -1,3 +1,26 @@
+## [2.2.0] - 2026-05-22
+
+### 🚀 Features
+
+- Implement Schur Complementary Allocation (Peter Cotton, arXiv:2411.05807)
+
+### 💼 Other
+
+- Bump version 2.1.0 → 2.2.0
+
+### 🚜 Refactor
+
+- Promote _compute_cov and _compute_corr to public API
+
+### 📚 Documentation
+
+- Update README example to use public compute_cov / compute_corr
+- List public helper APIs in hrp module docstring
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md for v2.1.0
+- Update marimo notebooks to v0.23.6
 ## [2.1.0] - 2026-05-21
 
 ### 💼 Other
