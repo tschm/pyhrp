@@ -22,7 +22,7 @@ and portfolio weights for each approach.
 
 import marimo
 
-__generated_with = "0.14.16"
+__generated_with = "0.23.6"
 app = marimo.App()
 
 with app.setup:
@@ -35,8 +35,7 @@ with app.setup:
 
 @app.cell
 def _():
-    mo.md(
-        r"""
+    mo.md(r"""
     # Hierarchical Risk Parity (HRP)
 
     We follow ideas by Marcos Lopez de Prado.
@@ -45,8 +44,7 @@ def _():
     - Compute the 2nd dendrogram by using the order of leaves
       of the 1st dendrogram (following an argument by Thomas Raffinot)
     - Apply Risk Parity in a recursive bottom-up traverse
-    """
-    )
+    """)
     return
 
 
@@ -54,8 +52,7 @@ def _():
 def _():
     _prices = pl.read_csv(str(mo.notebook_location() / "public" / "stock_prices.csv"))
     returns = _prices.drop(_prices.columns[0]).select(pl.all().pct_change()).drop_nulls().fill_null(0.0)
-    column_names = returns.columns
-    return column_names, returns
+    return (returns,)
 
 
 @app.cell

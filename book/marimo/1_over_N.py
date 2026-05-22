@@ -20,7 +20,7 @@ and applies the 1/N strategy level by level, from the root to the leaves.
 
 import marimo
 
-__generated_with = "0.16.5"
+__generated_with = "0.23.6"
 app = marimo.App()
 
 with app.setup:
@@ -32,8 +32,7 @@ with app.setup:
 
 @app.cell
 def _():
-    mo.md(
-        r"""
+    mo.md(r"""
     # 1 over N (the hierarchical version)
 
     Inspired by Thomas Raffinot
@@ -43,8 +42,7 @@ def _():
     - Apply the methods level by level. Go from level 0 (only the root),
       to level 1 (left and right of the root), to level 2 (...)
     - On level n evaluate the function f for all leaves for each node.
-    """
-    )
+    """)
     return
 
 
@@ -55,8 +53,8 @@ def _():
     _prices = pl.read_csv(str(mo.notebook_location() / "public" / "stock_prices.csv"))
     returns = _prices.drop(_prices.columns[0]).select(pl.all().pct_change()).drop_nulls().fill_null(0.0)
     cor = compute_corr(returns)
-    cov = compute_cov(returns)
-    return (cor, cov, returns)
+    compute_cov(returns)
+    return (cor,)
 
 
 @app.cell
