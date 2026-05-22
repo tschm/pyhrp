@@ -63,3 +63,17 @@ def test_ci_os_matrix_make_target_can_be_configured(logger):
     )
     assert result.returncode == 0
     assert json.loads(result.stdout.strip()) == ["ubuntu-latest", "windows-latest"]
+
+
+def test_ci_test_job_retries_uv_install_on_failure(root):
+    """Test job must retry uv setup when the first attempt fails."""
+    workflow = _load_workflow(root)
+    steps = workflow["jobs"]["test"]["steps"]
+
+    install_step = next((step for step in steps if step.get("id") == "install-uv"), None)
+    assert install_step is not None, "Expected an install-uv step in test job"
+    assert install_step.get("continue-on-error") is True
+
+    retry_step = next((step for step in steps if step.get("name") == "Retry uv installation"), None)
+    assert retry_step is not None, "Expected a retry step for uv setup in test job"
+    assert retry_step.get("if") == "steps.install-uv.outcome == 'failure'"
