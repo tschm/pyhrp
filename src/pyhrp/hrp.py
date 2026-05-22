@@ -3,6 +3,8 @@
 This module implements the core HRP algorithm and related functions:
 - hrp: Main function to compute HRP portfolio weights
 - build_tree: Function to build hierarchical cluster tree from correlation matrix
+- compute_cov: Function to compute a covariance matrix from returns
+- compute_corr: Function to compute a correlation matrix from returns
 - Dendrogram: Class to store and visualize hierarchical clustering results
 """
 
@@ -12,16 +14,33 @@ from dataclasses import dataclass
 from typing import Literal
 
 import numpy as np
-import pandas as pd
+import plotly.graph_objects as go
+import polars as pl
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
-from .algos import risk_parity
+from .algos import risk_parity, schur_risk_parity
 from .cluster import Cluster
+
+__all__ = ["Dendrogram", "build_tree", "compute_corr", "compute_cov", "hrp", "schur_hrp"]
+
+
+def compute_cov(df: pl.DataFrame) -> pl.DataFrame:
+    """Compute covariance matrix from a DataFrame of returns."""
+    cols = df.columns
+    cov = np.cov(df.to_numpy().T)
+    return pl.DataFrame(dict(zip(cols, cov, strict=False)))
+
+
+def compute_corr(df: pl.DataFrame) -> pl.DataFrame:
+    """Compute correlation matrix from a DataFrame of returns."""
+    cols = df.columns
+    corr = np.corrcoef(df.to_numpy().T)
+    return pl.DataFrame(dict(zip(cols, corr, strict=False)))
 
 
 def hrp(
-    prices: pd.DataFrame,
+    prices: pl.DataFrame,
     node: Cluster | None = None,
     method: Literal["single", "complete", "average", "ward"] = "ward",
     bisection: bool = False,
@@ -32,7 +51,7 @@ def hrp(
     builds a hierarchical clustering tree if not provided, and applies risk parity weights.
 
     Args:
-        prices (pd.DataFrame): Asset price time series
+        prices (pl.DataFrame): Asset price time series (columns are assets, rows are dates)
         node (Cluster, optional): Root node of the hierarchical clustering tree.
             If None, a tree will be built from the correlation matrix.
         method (Literal["single", "complete", "average", "ward"]): Linkage method to use for distance calculation
@@ -44,12 +63,73 @@ def hrp(
 
     Returns:
         Cluster: The root cluster with portfolio weights assigned according to HRP
+
+    Examples:
+        >>> import polars as pl
+        >>> from pyhrp.hrp import hrp
+        >>> prices = pl.DataFrame({"A": [100.0, 101.0, 99.0, 102.0], "B": [50.0, 51.0, 49.0, 52.0]})
+        >>> root = hrp(prices, method="ward")
+        >>> round(sum(root.portfolio.weights.values()), 6)
+        1.0
     """
-    returns = prices.pct_change().dropna(axis=0, how="all")
-    cov, cor = returns.cov(), returns.corr()
+    returns = (
+        prices.select(pl.all().pct_change())
+        .filter(pl.any_horizontal(pl.all().is_not_null()))
+        .fill_null(0.0)
+        .fill_nan(0.0)
+    )
+    cov = compute_cov(returns)
+    cor = compute_corr(returns)
     node = node or build_tree(cor, method=method, bisection=bisection).root
 
     return risk_parity(root=node, cov=cov)
+
+
+def schur_hrp(
+    prices: pl.DataFrame,
+    node: Cluster | None = None,
+    method: Literal["single", "complete", "average", "ward"] = "ward",
+    bisection: bool = False,
+    gamma: float = 0.5,
+) -> Cluster:
+    """Compute Schur Complementary Allocation portfolio weights.
+
+    Extends HRP by augmenting each sub-covariance block with off-diagonal information
+    via Schur complements before splitting risk between clusters. Introduced by Peter Cotton
+    (arXiv:2411.05807). At gamma=0 this is identical to HRP; at gamma=1 it recovers the
+    global minimum-variance portfolio through the same recursive hierarchy.
+
+    Args:
+        prices (pl.DataFrame): Asset price time series (columns are assets, rows are dates)
+        node (Cluster, optional): Root node of the hierarchical clustering tree.
+            If None, a tree will be built from the correlation matrix.
+        method (Literal["single", "complete", "average", "ward"]): Linkage method for clustering
+        bisection (bool): Whether to use bisection method for tree construction
+        gamma (float): Schur interpolation parameter in [0, 1].
+            0 recovers standard HRP; 1 recovers minimum-variance portfolio.
+
+    Returns:
+        Cluster: The root cluster with portfolio weights assigned
+
+    Examples:
+        >>> import polars as pl
+        >>> from pyhrp.hrp import schur_hrp
+        >>> prices = pl.DataFrame({"A": [100.0, 101.0, 99.0, 102.0], "B": [50.0, 51.0, 49.0, 52.0]})
+        >>> root = schur_hrp(prices, method="ward", gamma=0.5)
+        >>> round(sum(root.portfolio.weights.values()), 6)
+        1.0
+    """
+    returns = (
+        prices.select(pl.all().pct_change())
+        .filter(pl.any_horizontal(pl.all().is_not_null()))
+        .fill_null(0.0)
+        .fill_nan(0.0)
+    )
+    cov = compute_cov(returns)
+    cor = compute_corr(returns)
+    node = node or build_tree(cor, method=method, bisection=bisection).root
+
+    return schur_risk_parity(root=node, cov=cov, gamma=gamma)
 
 
 @dataclass(frozen=True)
@@ -61,48 +141,56 @@ class Dendrogram:
 
     Attributes:
         root (Cluster): The root node of the hierarchical clustering tree
-        assets (pd.Index): Index of assets included in the clustering
+        assets (list[str]): Names of assets included in the clustering
         linkage (np.ndarray | None): Linkage matrix in scipy format for plotting
-        distance (np.ndarray | None): Distance matrix used for clustering
+        distance (pl.DataFrame | None): Distance matrix used for clustering
         method (str | None): Linkage method used for clustering
     """
 
     root: Cluster
-    assets: pd.Index
-    distance: pd.DataFrame | None = None
+    assets: list[str]
+    distance: pl.DataFrame | None = None
     linkage: np.ndarray | None = None
     method: str | None = None
 
     def __post_init__(self) -> None:
         """Validate dataclass fields after initialization.
 
-        Ensures that the optional distance matrix, when provided, is a pandas
-        DataFrame aligned with the asset order, and verifies that the number of
-        leaves in the cluster tree matches the number of assets.
+        Ensures that the optional distance matrix, when provided, is a polars
+        DataFrame with columns aligned to the asset list, and verifies that the
+        number of leaves in the cluster tree matches the number of assets.
         """
-        # ---- Optional: validate distance index/columns ----
         if self.distance is not None:
-            if not isinstance(self.distance, pd.DataFrame):
-                raise TypeError("distance must be a pandas DataFrame.")  # noqa: TRY003
+            if not isinstance(self.distance, pl.DataFrame):
+                raise TypeError("distance must be a polars DataFrame.")  # noqa: TRY003
 
-            # Optionally check if distance matches assets
-            if not self.distance.index.equals(pd.Index(self.assets)) or not self.distance.columns.equals(
-                pd.Index(self.assets)
-            ):
+            if self.distance.columns != list(self.assets):
                 raise ValueError("Distance matrix index/columns must align with assets.")  # noqa: TRY003
 
-        # Check the number of leaves and assets
         if len(self.root.leaves) != len(self.assets):
             raise ValueError("Number of leaves does not match number of assets.")  # noqa: TRY003
 
-    def plot(self, **kwargs: object) -> None:
-        """Plot the dendrogram."""
-        sch.dendrogram(self.linkage, leaf_rotation=90, leaf_font_size=8, labels=self.assets, **kwargs)
+    def plot(self, **kwargs: object) -> go.Figure:
+        """Build and return a plotly dendrogram figure."""
+        ddata = sch.dendrogram(self.linkage, labels=self.assets, no_plot=True, **kwargs)
+        fig = go.Figure()
+        for xs, ys in zip(ddata["icoord"], ddata["dcoord"], strict=False):
+            fig.add_trace(go.Scatter(x=xs, y=ys, mode="lines", line={"color": "steelblue"}, showlegend=False))
+        n = len(self.assets)
+        fig.update_layout(
+            xaxis={
+                "tickmode": "array",
+                "tickvals": [5 + 10 * i for i in range(n)],
+                "ticktext": ddata["ivl"],
+                "tickangle": -90,
+            },
+        )
+        return fig
 
     @property
     def ids(self) -> list[int]:
         """Node values in the order left -> right as they appear in the dendrogram."""
-        return [node.value for node in self.root.leaves]  # type: ignore[misc]
+        return [node.value for node in self.root.leaves]
 
     @property
     def names(self) -> list[str]:
@@ -110,16 +198,53 @@ class Dendrogram:
         return [self.assets[i] for i in self.ids]
 
 
-def _compute_distance_matrix(corr: pd.DataFrame) -> pd.DataFrame:
+def _compute_distance_matrix(corr: pl.DataFrame) -> pl.DataFrame:
     """Convert correlation matrix to distance matrix."""
-    c = corr.values
+    c = corr.to_numpy()
     dist = np.sqrt(np.clip((1.0 - c) / 2.0, a_min=0.0, a_max=1.0))
     np.fill_diagonal(dist, 0.0)
-    return pd.DataFrame(data=dist, index=corr.index, columns=corr.index)
+    cols = corr.columns
+    return pl.DataFrame(dict(zip(cols, dist, strict=False)))
+
+
+def _bisect_tree(ids: list[int], next_id: int) -> tuple[Cluster, int]:
+    """Build tree by recursive bisection."""
+    if not ids:
+        raise ValueError("ids must contain at least one node id.")  # noqa: TRY003
+    if len(ids) == 1:
+        return Cluster(value=ids[0]), next_id
+
+    mid = len(ids) // 2
+    left_ids, right_ids = ids[:mid], ids[mid:]
+    left, next_id = _bisect_tree(left_ids, next_id)
+    right, next_id = _bisect_tree(right_ids, next_id)
+    next_id += 1
+    return Cluster(value=next_id, left=left, right=right), next_id
+
+
+def _get_linkage(node: Cluster) -> list[list[float]]:
+    """Convert tree structure back to linkage matrix format."""
+    links_list: list[list[float]] = []
+    if node.left is not None and node.right is not None:
+        if not isinstance(node.left, Cluster):
+            raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003  # pragma: no cover
+        if not isinstance(node.right, Cluster):
+            raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003  # pragma: no cover
+        links_list.extend(_get_linkage(node.left))
+        links_list.extend(_get_linkage(node.right))
+        links_list.append(
+            [
+                float(node.left.value),
+                float(node.right.value),
+                float(node.size),
+                float(len(node.left.leaves) + len(node.right.leaves)),
+            ]
+        )
+    return links_list
 
 
 def build_tree(
-    cor: pd.DataFrame, method: Literal["single", "complete", "average", "ward"] = "ward", bisection: bool = False
+    cor: pl.DataFrame, method: Literal["single", "complete", "average", "ward"] = "ward", bisection: bool = False
 ) -> Dendrogram:
     """Build hierarchical cluster tree from correlation matrix.
 
@@ -128,7 +253,7 @@ def build_tree(
     resulting tree structure.
 
     Args:
-        cor (pd.DataFrame): Correlation matrix of asset returns
+        cor (pl.DataFrame): Correlation matrix of asset returns (columns are assets)
         method (Literal["single", "complete", "average", "ward"]): Linkage method for hierarchical clustering
             - "single": minimum distance between points (nearest neighbor)
             - "complete": maximum distance between points (furthest neighbor)
@@ -143,12 +268,19 @@ def build_tree(
             - assets: List of assets
             - method: Clustering method used
             - distance: Distance matrix
+
+    Examples:
+        >>> import polars as pl
+        >>> from pyhrp.hrp import build_tree
+        >>> cor = pl.DataFrame({"A": [1.0, 0.5], "B": [0.5, 1.0]})
+        >>> dg = build_tree(cor, method="ward")
+        >>> dg.root.leaf_count
+        2
     """
-    # Create distance matrix and linkage
-    if not isinstance(cor, pd.DataFrame):
-        raise TypeError("Correlation matrix must be a pandas DataFrame.")  # noqa: TRY003
+    if not isinstance(cor, pl.DataFrame):
+        raise TypeError("Correlation matrix must be a polars DataFrame.")  # noqa: TRY003
     dist = _compute_distance_matrix(cor)
-    links = sch.linkage(ssd.squareform(dist), method=method)
+    links = sch.linkage(ssd.squareform(dist.to_numpy(), checks=False), method=method)
 
     # Convert scipy tree to our Cluster format
     def to_cluster(node: sch.ClusterNode) -> Cluster:
@@ -172,65 +304,7 @@ def build_tree(
     if bisection:
         # Rebuild tree using bisection
         leaf_ids: list[int] = [int(node.value) for node in root.leaves]
-        nnn: int = max(leaf_ids)
-
-        def bisect_tree(ids: list[int]) -> Cluster:
-            """Build tree by recursive bisection.
-
-            This function recursively splits the list of IDs in half and creates
-            a binary tree where each node represents a split.
-
-            Args:
-                ids (list[int]): List of leaf node IDs to organize into a tree
-
-            Returns:
-                Cluster: Root node of the constructed tree
-            """
-            nonlocal nnn
-
-            if len(ids) == 1:
-                return Cluster(value=ids[0])
-
-            mid = len(ids) // 2
-            left_ids, right_ids = ids[:mid], ids[mid:]
-
-            left = bisect_tree(left_ids)
-            right = bisect_tree(right_ids)
-
-            nnn += 1
-            return Cluster(value=nnn, left=left, right=right)
-
-        root = bisect_tree(leaf_ids)
-
-        # Convert back to linkage format for plotting
-        links_list: list[list[float]] = []
-
-        def get_linkage(node: Cluster) -> None:
-            """Convert tree structure back to linkage matrix format.
-
-            This function traverses the tree and builds a linkage matrix compatible
-            with scipy's hierarchical clustering format for visualization.
-
-            Args:
-                node (Cluster): Current node being processed
-            """
-            if node.left is not None and node.right is not None:
-                if not isinstance(node.left, Cluster):
-                    raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003  # pragma: no cover
-                if not isinstance(node.right, Cluster):
-                    raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003  # pragma: no cover
-                get_linkage(node.left)
-                get_linkage(node.right)
-                links_list.append(
-                    [
-                        float(node.left.value),
-                        float(node.right.value),
-                        float(node.size),
-                        float(len(node.left.leaves) + len(node.right.leaves)),
-                    ]
-                )
-
-        get_linkage(root)
-        links = np.array(links_list)
+        root, _ = _bisect_tree(ids=leaf_ids, next_id=max(leaf_ids))
+        links = np.array(_get_linkage(root))
 
     return Dendrogram(root=root, linkage=links, method=method, distance=dist, assets=cor.columns)

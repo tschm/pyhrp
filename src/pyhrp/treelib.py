@@ -7,15 +7,15 @@ It implements only the functionality needed by the pyhrp package.
 from __future__ import annotations
 
 from collections import deque
-from collections.abc import Iterator
-from typing import TypeVar
+from collections.abc import Iterator, Sequence
 
 # Type for node values
 NodeValue = int | float | str
-T = TypeVar("T", bound="Node")
+
+__all__ = ["Node"]
 
 
-class Node:
+class Node[T: NodeValue]:
     """A binary tree node with left and right children.
 
     This class implements the minimal functionality needed from the binarytree.Node class
@@ -27,7 +27,7 @@ class Node:
         right: The right child node
     """
 
-    def __init__(self, value: NodeValue, left: Node | None = None, right: Node | None = None):
+    def __init__(self, value: T, left: Node[T] | None = None, right: Node[T] | None = None):
         """Initialize a new Node.
 
         Args:
@@ -49,7 +49,7 @@ class Node:
         return self.left is None and self.right is None
 
     @property
-    def leaves(self) -> list[Node]:
+    def leaves(self) -> Sequence[Node[T]]:
         """Get all leaf nodes in the tree rooted at this node.
 
         Returns:
@@ -58,7 +58,7 @@ class Node:
         if self.is_leaf:
             return [self]
 
-        result = []
+        result: list[Node[T]] = []
         if self.left:
             result.extend(self.left.leaves)
         if self.right:
@@ -67,7 +67,7 @@ class Node:
         return result
 
     @property
-    def levels(self) -> list[list[Node]]:
+    def levels(self) -> list[list[Node[T]]]:
         """Get nodes by level in the tree.
 
         Returns:
@@ -113,13 +113,13 @@ class Node:
             size += self.right.size
         return size
 
-    def __iter__(self) -> Iterator[Node]:
+    def __iter__(self) -> Iterator[Node[T]]:
         """Iterate through all nodes in the tree in level-order.
 
         Returns:
             Iterator[Node]: Iterator over all nodes
         """
-        queue: deque[Node] = deque([self])
+        queue: deque[Node[T]] = deque([self])
         while queue:
             node = queue.popleft()
             yield node

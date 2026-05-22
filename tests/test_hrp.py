@@ -3,11 +3,10 @@
 from pathlib import Path
 
 import numpy as np
-import pandas as pd
 import pytest
-from pandas import DataFrame
+from polars import DataFrame
 
-from pyhrp.hrp import build_tree
+from pyhrp.hrp import _bisect_tree, _get_linkage, build_tree, compute_corr
 
 
 def test_linkage(returns: DataFrame, resource_dir: Path) -> None:
@@ -21,13 +20,10 @@ def test_linkage(returns: DataFrame, resource_dir: Path) -> None:
         returns: DataFrame of asset returns
         resource_dir: Path to test resources directory
     """
-    # Build dendrogram without bisection
-    dendrogram = build_tree(cor=returns.corr(), method="single", bisection=False)
+    dendrogram = build_tree(cor=compute_corr(returns), method="single", bisection=False)
 
-    # Verify the order of node IDs
     assert dendrogram.ids == [11, 7, 19, 6, 14, 5, 10, 13, 3, 1, 4, 16, 0, 2, 17, 9, 8, 18, 12, 15]
 
-    # Verify the linkage matrix against reference data
     np.testing.assert_array_almost_equal(dendrogram.linkage, np.loadtxt(resource_dir / "links.csv", delimiter=","))
 
 
@@ -41,10 +37,8 @@ def test_bisection(returns: DataFrame, resource_dir: Path) -> None:
         returns: DataFrame of asset returns
         resource_dir: Path to test resources directory
     """
-    # Build dendrogram with bisection
-    dendrogram = build_tree(cor=returns.corr(), method="single", bisection=True)
+    dendrogram = build_tree(cor=compute_corr(returns), method="single", bisection=True)
 
-    # The order doesn't change when using bisection
     assert dendrogram.ids == [11, 7, 19, 6, 14, 5, 10, 13, 3, 1, 4, 16, 0, 2, 17, 9, 8, 18, 12, 15]
 
 
@@ -59,17 +53,12 @@ def test_plot_bisection(returns: DataFrame) -> None:
     Args:
         returns: DataFrame of asset returns
     """
-    # Compute correlation matrix
-    cor = returns.corr()
-
-    # Construct a new dendrogram with bisection
+    cor = compute_corr(returns)
     dendrogram = build_tree(cor=cor, method="single", bisection=True)
 
-    # Verify the dendrogram has the expected structure
     assert dendrogram.root is not None
     assert dendrogram.linkage is not None
 
-    # Verify the order of nodes in the dendrogram
     assert dendrogram.names == [
         "UAA",
         "WMT",
@@ -106,15 +95,36 @@ def test_invariant_order(returns: DataFrame, method: str) -> None:
         returns: DataFrame of asset returns
         method: Clustering method to use (single, ward, average, or complete)
     """
-    # Compute correlation matrix
-    cor = returns.corr()
-
-    # Build dendrograms with and without bisection
+    cor = compute_corr(returns)
     dendrogram1 = build_tree(cor=cor, method=method, bisection=True)
     dendrogram2 = build_tree(cor=cor, method=method, bisection=False)
 
-    pd.testing.assert_index_equal(dendrogram1.assets, dendrogram2.assets)
-
-    # assert dendrogram1.assets == dendrogram2.assets == cor.columns.tolist()
+    assert dendrogram1.assets == dendrogram2.assets
     assert dendrogram1.ids == dendrogram2.ids
     assert dendrogram1.names == dendrogram2.names
+
+
+def test_bisect_tree_helper() -> None:
+    """Test the module-level _bisect_tree helper."""
+    root, next_id = _bisect_tree(ids=[0, 1, 2, 3], next_id=3)
+
+    assert next_id == 6
+    assert root.value == 6
+    assert [leaf.value for leaf in root.leaves] == [0, 1, 2, 3]
+
+
+def test_bisect_tree_helper_empty_ids() -> None:
+    """Test _bisect_tree rejects empty ids input."""
+    with pytest.raises(ValueError, match="at least one node id"):
+        _bisect_tree(ids=[], next_id=0)
+
+
+def test_get_linkage_helper() -> None:
+    """Test the module-level _get_linkage helper."""
+    root, _ = _bisect_tree(ids=[0, 1, 2, 3], next_id=3)
+
+    assert _get_linkage(root) == [
+        [0.0, 1.0, 3.0, 2.0],
+        [2.0, 3.0, 3.0, 2.0],
+        [4.0, 5.0, 7.0, 4.0],
+    ]

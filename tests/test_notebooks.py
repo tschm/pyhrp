@@ -1,39 +1,33 @@
 """Tests for the Marimo notebooks."""
 
-import subprocess  # nosec B404
-import sys
+import runpy
 from pathlib import Path
 
-from security import safe_command
+import polars as pl
+
+from pyhrp.cluster import Cluster
 
 
-def test_notebooks(root_dir: Path) -> None:
-    """Test that all Marimo notebooks run without errors.
+def test_notebooks() -> None:
+    """Test notebooks execute and expose expected typed outputs."""
+    repo_root = Path(__file__).resolve().parents[1]
+    notebooks_dir = repo_root / "book" / "marimo"
+    prices_path = repo_root / "tests" / "resources" / "stock_prices.csv"
 
-    This test verifies:
-    1. All Python files in the book/marimo directory can be executed
-    2. The execution completes without errors
+    for py_file in notebooks_dir.glob("*.py"):
+        namespace = runpy.run_path(str(py_file))
 
-    Args:
-        root_dir: Path to the repository root directory
-    """
-    # Get the path to the marimo notebooks directory
-    path = root_dir / "book" / "marimo"
+        if py_file.name == "demo.py":
+            prices = namespace["_load_prices"](prices_path)
+            returns = prices.select(pl.all().pct_change()).drop_nulls()
+            cov, cor = namespace["_compute_cov_and_corr"](returns)
+            root = namespace["risk_parity"](namespace["build_tree"](cor, method="ward").root, cov)
 
-    # List all .py files in the directory using glob
-    py_files: list[Path] = list(path.glob("*.py"))
-
-    # Loop over the files and run them
-    for py_file in py_files:
-        print(f"Running {py_file.name}...")
-
-        # Execute the Python file using a safe command wrapper
-        result = safe_command.run(subprocess.run, [sys.executable, str(py_file)], capture_output=True, text=True)
-
-        # Print the result of running the Python file
-        if result.returncode == 0:
-            print(f"{py_file.name} ran successfully.")
-            print(f"Output: {result.stdout}")
+            assert isinstance(root, Cluster)
+            assert isinstance(root.portfolio.weights, dict)
+            assert root.portfolio.weights
+            weights = list(root.portfolio.weights.values())
+            assert abs(sum(weights) - 1.0) < 1e-9, "HRP weights must sum to 1.0"
+            assert all(0.0 <= w <= 1.0 for w in weights), "All HRP weights must be in [0, 1]"
         else:
-            print(f"Error running {py_file.name}:")
-            print(f"stderr: {result.stderr}")
+            assert "app" in namespace

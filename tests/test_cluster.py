@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import numpy as np
-import pandas as pd
+import polars as pl
 import pytest
 
 from pyhrp.algos import _parity, risk_parity
@@ -28,11 +28,9 @@ def test_riskparity() -> None:
     right = Cluster(value=0)
     right.portfolio["B"] = 1.0
 
-    # Create covariance matrix
-    # [[2.0, 1.0],
-    #  [1.0, 4.0]]
-    cov = np.array([[2.0, 1.0], [1.0, 4.0]])
-    cov = pd.DataFrame(data=cov, index=["B", "A"], columns=["B", "A"])
+    # Covariance matrix: cov(B,B)=2, cov(A,A)=4, cov(A,B)=cov(B,A)=1
+    # Columns: B, A — row 0 = B's row, row 1 = A's row
+    cov = pl.DataFrame({"B": [2.0, 1.0], "A": [1.0, 4.0]})
 
     # Create parent cluster
     cl = Cluster(value=2, left=left, right=right)
@@ -40,9 +38,12 @@ def test_riskparity() -> None:
     # Apply risk parity algorithm
     cluster = risk_parity(cl, cov=cov)
 
-    # Verify the resulting portfolio weights
+    # Verify the resulting portfolio weights (alphabetically sorted: A, B)
     # Expected weights: [1/3, 2/3]
-    np.testing.assert_allclose(cluster.portfolio.weights.values, np.array([1.0, 2.0]) / 3.0)
+    np.testing.assert_allclose(
+        np.array(list(cluster.portfolio.weights.values())),
+        np.array([1.0, 2.0]) / 3.0,
+    )
 
     # Verify the resulting portfolio variance
     np.testing.assert_almost_equal(cluster.portfolio.variance(cov), 1.7777777777777777)
@@ -53,7 +54,7 @@ def test_risk_parity_non_cluster_left() -> None:
     root = Cluster(value=10)
     root.left = Node(1)
     root.right = Cluster(value=2)
-    cov = pd.DataFrame([[1.0]], index=["A"], columns=["A"])
+    cov = pl.DataFrame({"A": [1.0]})
     with pytest.raises(TypeError, match="Expected left child to be a Cluster"):
         risk_parity(root, cov)
 
@@ -63,7 +64,7 @@ def test_risk_parity_non_cluster_right() -> None:
     root = Cluster(value=10)
     root.left = Cluster(value=1)
     root.right = Node(2)
-    cov = pd.DataFrame([[1.0]], index=["A"], columns=["A"])
+    cov = pl.DataFrame({"A": [1.0]})
     with pytest.raises(TypeError, match="Expected right child to be a Cluster"):
         risk_parity(root, cov)
 
@@ -73,7 +74,7 @@ def test_parity_non_cluster_left() -> None:
     cluster = Cluster(value=10)
     cluster.left = Node(1)
     cluster.right = Cluster(value=2)
-    cov = pd.DataFrame([[1.0]], index=["A"], columns=["A"])
+    cov = pl.DataFrame({"A": [1.0]})
     with pytest.raises(TypeError, match="Expected left child to be a Cluster"):
         _parity(cluster, cov)
 
@@ -83,7 +84,7 @@ def test_parity_non_cluster_right() -> None:
     cluster = Cluster(value=10)
     cluster.left = Cluster(value=1)
     cluster.right = Node(2)
-    cov = pd.DataFrame([[1.0]], index=["A"], columns=["A"])
+    cov = pl.DataFrame({"A": [1.0]})
     with pytest.raises(TypeError, match="Expected right child to be a Cluster"):
         _parity(cluster, cov)
 
@@ -102,3 +103,21 @@ def test_leaves_only_left_child() -> None:
     c.left = Cluster(value=1)
     with pytest.raises(ValueError, match="Expected right child to exist for non-leaf cluster"):
         _ = c.leaves
+
+
+def test_leaves_non_cluster_left() -> None:
+    """TypeError is raised when leaves encounters a non-Cluster left child."""
+    cluster = Cluster(2)
+    cluster.left = Node(0)  # type: ignore[assignment]
+    cluster.right = Cluster(1)
+    with pytest.raises(TypeError, match="Expected left child to be a Cluster"):
+        _ = cluster.leaves
+
+
+def test_leaves_non_cluster_right() -> None:
+    """TypeError is raised when leaves encounters a non-Cluster right child."""
+    cluster = Cluster(2)
+    cluster.left = Cluster(0)
+    cluster.right = Node(1)  # type: ignore[assignment]
+    with pytest.raises(TypeError, match="Expected right child to be a Cluster"):
+        _ = cluster.leaves

@@ -501,3 +501,30 @@ jobs:
 
           gh release edit "$TAG" --draft=false --notes-file /tmp/notes.md
 
+  update-changelog:
+    name: Update CHANGELOG.md
+    runs-on: ubuntu-latest
+    needs: [tag, finalise-release]
+    if: needs.finalise-release.result == 'success'
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v6.0.2
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8.1.0
+        with:
+          version: "0.11.14"
+
+      - name: Regenerate CHANGELOG.md
+        run: uvx git-cliff --output CHANGELOG.md
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git diff --staged --quiet || git commit -m "chore: update CHANGELOG.md for ${{ needs.tag.outputs.tag }}"
+          git diff HEAD origin/main --quiet || git push origin main

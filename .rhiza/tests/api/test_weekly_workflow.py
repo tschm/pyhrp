@@ -17,7 +17,7 @@ import yaml
 from api.conftest import run_make
 
 WORKFLOW_PATH = Path(".github") / "workflows" / "rhiza_weekly.yml"
-EXPECTED_JOBS = {"dep-compat-test", "semgrep", "pip-audit", "link-check"}
+EXPECTED_JOBS = {"dep-compat-test", "semgrep", "pip-audit", "link-check", "benchmark"}
 
 
 # ---------------------------------------------------------------------------
