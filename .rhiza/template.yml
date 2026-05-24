@@ -1,6 +1,9 @@
 template-repository: "jebel-quant/rhiza"
 template-branch: "v0.11.0"
 
+profiles:
+  - github-project
+
 templates:
   - github
   - github-book
