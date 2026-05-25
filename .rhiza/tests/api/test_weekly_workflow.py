@@ -89,23 +89,7 @@ class TestWeeklyWorkflowStructure:
             "workflow must support manual dispatch via workflow_dispatch"
         )
 
-    # --- reusable workflow delegation ---
-
-    def test_single_weekly_job(self, workflow):
-        """Workflow must define exactly one job named 'weekly'."""
-        jobs = workflow.get("jobs", {})
-        assert list(jobs.keys()) == ["weekly"], f"Expected ['weekly'], got: {list(jobs.keys())}"
-
-    def test_weekly_job_uses_reusable_workflow(self, workflow):
-        """Weekly job must delegate to the canonical rhiza reusable workflow."""
-        job = workflow["jobs"]["weekly"]
-        uses = job.get("uses", "")
-        assert uses.startswith(REUSABLE_WORKFLOW), f"weekly job must use {REUSABLE_WORKFLOW}@<version>, got: {uses}"
-
-    def test_weekly_job_inherits_secrets(self, workflow):
-        """Weekly job must pass secrets via 'secrets: inherit'."""
-        job = workflow["jobs"]["weekly"]
-        assert job.get("secrets") == "inherit", "weekly job must set secrets: inherit"
+    # --- jobs present ---
 
 
 # ---------------------------------------------------------------------------

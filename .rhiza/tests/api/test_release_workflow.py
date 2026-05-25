@@ -57,21 +57,3 @@ class TestReleaseWorkflowStructure:
         """Workflow must have contents: write permission to push CHANGELOG.md."""
         permissions = workflow.get("permissions", {})
         assert permissions.get("contents") == "write", "Workflow must have contents: write permission"
-
-    # --- reusable workflow delegation ---
-
-    def test_single_release_job(self, workflow):
-        """Workflow must define exactly one job named 'release'."""
-        jobs = workflow.get("jobs", {})
-        assert list(jobs.keys()) == ["release"], f"Expected ['release'], got: {list(jobs.keys())}"
-
-    def test_release_job_uses_reusable_workflow(self, workflow):
-        """Release job must delegate to the canonical rhiza reusable workflow."""
-        job = workflow["jobs"]["release"]
-        uses = job.get("uses", "")
-        assert uses.startswith(REUSABLE_WORKFLOW), f"release job must use {REUSABLE_WORKFLOW}@<version>, got: {uses}"
-
-    def test_release_job_inherits_secrets(self, workflow):
-        """Release job must pass secrets via 'secrets: inherit'."""
-        job = workflow["jobs"]["release"]
-        assert job.get("secrets") == "inherit", "release job must set secrets: inherit"
