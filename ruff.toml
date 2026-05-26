@@ -85,6 +85,7 @@ extend-select = [
 ignore = [
     "D203",  # one-blank-line-before-class (conflicts with D211)
     "D213",  # multi-line-summary-second-line (conflicts with D212)
+    "UP046", # Generic[T] subclass — PEP 695 syntax breaks older CI Python versions
 ]
 
 [lint.pydocstyle]

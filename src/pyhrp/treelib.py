@@ -8,14 +8,17 @@ from __future__ import annotations
 
 from collections import deque
 from collections.abc import Iterator, Sequence
+from typing import Generic, TypeVar
 
 # Type for node values
 NodeValue = int | float | str
 
+T = TypeVar("T", bound=NodeValue)
+
 __all__ = ["Node"]
 
 
-class Node[T: NodeValue]:
+class Node(Generic[T]):
     """A binary tree node with left and right children.
 
     This class implements the minimal functionality needed from the binarytree.Node class
