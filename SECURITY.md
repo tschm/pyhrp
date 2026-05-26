@@ -2,71 +2,96 @@
 
 ## Supported Versions
 
+We actively support the following versions with security updates:
+
 | Version | Supported          |
 | ------- | ------------------ |
-| 2.0.x   | :white_check_mark: |
-| < 2.0   | :x:                |
+| latest  | :white_check_mark: |
+| n-1     | :white_check_mark: |
+| older   | :x:                |
 
 ## Reporting a Vulnerability
 
+We take security vulnerabilities seriously. If you discover a security issue, please report it responsibly.
+
+### How to Report
+
 **Do NOT report security vulnerabilities through public GitHub issues.**
 
-Please use one of the following methods:
+Instead, please report them via one of the following methods:
 
-1. **GitHub Security Advisories** (preferred)
-   - Go to the [Security Advisories](https://github.com/tschm/pyhrp/security/advisories) page
-   - Click "New draft security advisory" and fill in the details
+1. **GitHub Security Advisories** (Preferred)
+   - Go to the Security Advisories page of this repository
+   - Click "New draft security advisory"
+   - Fill in the details and submit
 
 2. **Email**
-   - Contact the maintainer at `thomas.schmelzer@gmail.com`
+   - Send details to the repository maintainers
    - Include "SECURITY" in the subject line
 
-### What to include
+### What to Include
+
+Please include the following information in your report:
 
 - **Description**: A clear description of the vulnerability
-- **Impact**: Potential impact
-- **Steps to Reproduce**: Detailed reproduction steps
+- **Impact**: The potential impact of the vulnerability
+- **Steps to Reproduce**: Detailed steps to reproduce the issue
 - **Affected Versions**: Which versions are affected
 - **Suggested Fix**: If you have one (optional)
 
-### What to expect
+### What to Expect
 
-- **Acknowledgment**: Within 48 hours
-- **Initial Assessment**: Within 7 days
-- **Resolution**: Critical issues within 30 days
-- **Credit**: Reporters credited in the security advisory unless anonymity is requested
+- **Acknowledgment**: We will acknowledge receipt within 48 hours
+- **Initial Assessment**: We will provide an initial assessment within 7 days
+- **Resolution Timeline**: We aim to resolve critical issues within 30 days
+- **Credit**: We will credit reporters in the security advisory (unless you prefer to remain anonymous)
+
+### Scope
+
+This security policy applies to:
+
+- The source code and configuration files in this repository
+- GitHub Actions workflows provided by this repository
+- Python utilities and scripts maintained in this repository
+
+### Out of Scope
+
+The following are generally out of scope:
+
+- Vulnerabilities in upstream dependencies (report these to the respective projects)
+- Issues that require physical access to a user's machine
+- Social engineering attacks
+- Denial of service attacks that require significant resources
 
 ## Security Measures
 
-### CI Security Scanning
+This project implements several security measures:
 
-- **Security scans**: `make security` runs on every push and pull request
-- **License compliance**: `pip-licenses` verifies all dependency licenses
-- **Dependency checks**: `deptry` validates declared vs. actual dependencies
-- **Pre-commit hooks**: Enforced on all commits via CI
+### Code Scanning
+- **CodeQL**: Automated code scanning for Python and GitHub Actions
+- **Bandit**: Python security linter integrated in CI and pre-commit
+- **pip-audit**: Dependency vulnerability scanning
+- **Secret Scanning**: GitHub secret scanning enabled on this repository
 
 ### Supply Chain Security
-
-- **Locked dependencies**: `uv.lock` ensures reproducible builds
-- **SBOM**: CycloneDX Software Bill of Materials (JSON and XML) generated and attached to every release
-- **SBOM attestations**: Stored on GitHub for supply chain transparency (public repo)
+- **SLSA Provenance**: Build attestations for release artifacts (public repositories only)
+- **Locked Dependencies**: `uv.lock` ensures reproducible builds
+- **Dependabot**: Automated dependency updates with security patches (version and security updates)
+- **Renovate**: Additional automated dependency update management
 
 ### Release Security
+- **OIDC Publishing**: PyPI trusted publishing without stored credentials
+- **Signed Commits**: GPG signing supported for releases
+- **Tag Protection**: Releases require version tag validation
 
-- **OIDC publishing**: PyPI trusted publishing — no stored PyPI credentials
-- **SLSA provenance**: Build attestations generated for all release artifacts (public repo)
-- **Tag validation**: Version in `pyproject.toml` must match the release tag before publishing proceeds
+## Security Best Practices
 
-## Scope
+1. **Keep Updated**: Regularly update dependencies and review security advisories
+2. **Review Changes**: Review dependency update PRs before merging
+3. **Enable Security Features**: Enable CodeQL, secret scanning, and Dependabot in your repositories
+4. **Use Locked Dependencies**: Always commit `uv.lock` for reproducible builds
+5. **Configure Branch Protection**: Require PR reviews and status checks
 
-This policy covers:
+## Acknowledgments
 
-- The `pyhrp` Python library (`src/pyhrp/`)
-- GitHub Actions workflows in `.github/workflows/`
-
-**Out of scope:**
-
-- Vulnerabilities in upstream dependencies (report these to their respective projects)
-- Issues requiring physical machine access
-- Social engineering
-- Denial of service attacks requiring significant resources
+We thank the security researchers and community members who help keep this project secure.

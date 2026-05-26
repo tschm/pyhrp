@@ -1,29 +1,16 @@
-# For most projects, this workflow file will not need changing; you simply need
-# to commit it to your repository.
+# This file is part of the jebel-quant/rhiza repository
+# (https://github.com/jebel-quant/rhiza).
 #
-# You may wish to alter this file to override the set of languages analyzed,
-# or to provide custom queries or build logic.
+# Workflow: CodeQL
 #
-# ******** NOTE ********
-# We have attempted to detect the languages in your repository. Please check
-# the `language` matrix defined below to confirm you have the correct set of
-# supported CodeQL languages.
+# Purpose: Automated code scanning for Python and GitHub Actions using
+#          GitHub's CodeQL engine. Free for public repositories; requires
+#          GitHub Advanced Security for private repositories.
+#          Set the CODEQL_ENABLED repository variable to 'true' to force-enable
+#          on private repos, 'false' to disable, or leave unset for auto-detect.
 #
-# ******** IMPORTANT: GitHub Advanced Security Required ********
-# CodeQL is FREE for public repositories, but requires GitHub Advanced Security
-# (part of GitHub Enterprise) for private repositories.
-#
-# This workflow automatically:
-# - Runs on public repositories
-# - Skips on private repositories (unless Advanced Security is available)
-#
-# To control this behavior, set the CODEQL_ENABLED repository variable:
-# - Set to 'true' to force enable (if you have Advanced Security on private repos)
-# - Set to 'false' to disable entirely
-# - Leave unset for automatic behavior (recommended)
-#
-# To learn more about customizing this workflow, see the comments below
-#
+# Trigger: On push to main/master, pull requests, and weekly schedule.
+
 name: "(RHIZA) CODEQL"
 
 permissions:
@@ -42,5 +29,5 @@ on:
 
 jobs:
   codeql:
-    uses: jebel-quant/rhiza/.github/workflows/rhiza_codeql.yml@v0.11.3
+    uses: jebel-quant/rhiza/.github/workflows/rhiza_codeql.yml@v0.14.0
     secrets: inherit
