@@ -1,7 +1,7 @@
-sha: 60ebf18c7ad73ae0a6500315c97e7365efbd9933
+sha: 2bc1c8262d292c3304496e2c4352f11b5c2b32fa
 repo: jebel-quant/rhiza
 host: github
-ref: v0.13.3
+ref: v0.15.1
 include: []
 exclude: []
 templates:
@@ -17,8 +17,19 @@ files:
 - .github/DISCUSSION_TEMPLATE/q-and-a.yml
 - .github/ISSUE_TEMPLATE/bug_report.yml
 - .github/ISSUE_TEMPLATE/feature_request.yml
+- .github/actions/configure-git-auth/README.md
+- .github/actions/configure-git-auth/action.yml
 - .github/dependabot.yml
+- .github/pull_request_template.md
+- .github/release.yml
 - .github/secret_scanning.yml
+- .github/workflows/rhiza_book.yml
+- .github/workflows/rhiza_ci.yml
+- .github/workflows/rhiza_codeql.yml
+- .github/workflows/rhiza_marimo.yml
+- .github/workflows/rhiza_release.yml
+- .github/workflows/rhiza_sync.yml
+- .github/workflows/rhiza_weekly.yml
 - .gitignore
 - .pre-commit-config.yaml
 - .python-version
@@ -29,6 +40,9 @@ files:
 - .rhiza/CODE_OF_CONDUCT.md
 - .rhiza/CONTRIBUTING.md
 - .rhiza/assets/rhiza-logo.svg
+- .rhiza/completions/README.md
+- .rhiza/completions/rhiza-completion.bash
+- .rhiza/completions/rhiza-completion.zsh
 - .rhiza/make.d/book.mk
 - .rhiza/make.d/bootstrap.mk
 - .rhiza/make.d/custom-env.mk
@@ -44,13 +58,6 @@ files:
 - .rhiza/requirements/tools.txt
 - .rhiza/rhiza.mk
 - .rhiza/semgrep.yml
-- .rhiza/stubs/workflows/rhiza_book.yml
-- .rhiza/stubs/workflows/rhiza_ci.yml
-- .rhiza/stubs/workflows/rhiza_codeql.yml
-- .rhiza/stubs/workflows/rhiza_marimo.yml
-- .rhiza/stubs/workflows/rhiza_release.yml
-- .rhiza/stubs/workflows/rhiza_sync.yml
-- .rhiza/stubs/workflows/rhiza_weekly.yml
 - .rhiza/tests/README.md
 - .rhiza/tests/api/conftest.py
 - .rhiza/tests/api/test_ci_workflow.py
@@ -100,5 +107,5 @@ files:
 - ruff.toml
 profiles:
 - github-project
-synced_at: '2026-05-25T09:42:22Z'
+synced_at: '2026-05-26T07:17:47Z'
 strategy: merge

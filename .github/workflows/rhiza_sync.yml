@@ -1,10 +1,18 @@
-name: (RHIZA) SYNC
-# Synchronizes the repository with its rhiza template.
-# - On Renovate/rhiza branch push: auto-commits synced files directly to the branch.
-# - On schedule/dispatch: opens a pull request with the synced changes.
+# This file is part of the jebel-quant/rhiza repository
+# (https://github.com/jebel-quant/rhiza).
+#
+# Workflow: Sync
+#
+# Purpose: Synchronizes the repository with its upstream rhiza template.
+#          On Renovate/rhiza branch push: auto-commits synced files directly
+#          to the branch. On schedule/dispatch: opens a pull request.
 #
 # IMPORTANT: A PAT with 'workflow' scope (PAT_TOKEN) is required when workflow
-# files are modified. See .rhiza/docs/TOKEN_SETUP.md for setup instructions.
+#            files are modified. See .github/CONFIG.md for setup instructions.
+#
+# Trigger: On Renovate/rhiza branch push, weekly schedule, and manual dispatch.
+
+name: "(RHIZA) SYNC"
 
 permissions:
   contents: write
@@ -28,7 +36,7 @@ on:
 
 jobs:
   sync:
-    uses: jebel-quant/rhiza/.github/workflows/rhiza_sync.yml@v0.11.3
+    uses: jebel-quant/rhiza/.github/workflows/rhiza_sync.yml@v0.14.0
     with:
       direct: ${{ github.event_name == 'push' }}
       create-pr: ${{ github.event_name != 'push' && (github.event_name == 'schedule' || inputs.create-pr == true) }}

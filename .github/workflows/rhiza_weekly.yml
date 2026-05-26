@@ -1,14 +1,17 @@
-name: "(RHIZA) WEEKLY"
+# This file is part of the jebel-quant/rhiza repository
+# (https://github.com/jebel-quant/rhiza).
+#
+# Workflow: Weekly
+#
+# Purpose: Runs checks that are too slow or noisy for every push:
+#   dep-compat-test — resolves dependencies fresh (ignoring the lockfile) and
+#                     runs the full test suite to catch newly-released packages
+#                     that break compatibility before Renovate picks them up.
+#   link-check      — verifies all hyperlinks in README.md are reachable.
+#
+# Trigger: Weekly schedule (Monday 08:00 UTC) and manual dispatch.
 
-# Runs weekly checks that are too slow or noisy for every push:
-#
-#   dep-compat-test  — Resolves all dependencies fresh (ignoring the lockfile)
-#                      and runs the full test suite. Catches newly-released
-#                      packages that break compatibility before Renovate picks
-#                      them up. Runs on schedule/dispatch only.
-#
-#   link-check       — Verifies that all hyperlinks in README.md are reachable.
-#                      Runs on schedule/dispatch only.
+name: "(RHIZA) WEEKLY"
 
 permissions:
   contents: read
@@ -25,5 +28,5 @@ on:
 
 jobs:
   weekly:
-    uses: jebel-quant/rhiza/.github/workflows/rhiza_weekly.yml@v0.11.4
+    uses: jebel-quant/rhiza/.github/workflows/rhiza_weekly.yml@v0.14.0
     secrets: inherit

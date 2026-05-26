@@ -1,7 +1,7 @@
 """Tests for the rhiza_release.yml workflow configuration.
 
-Validates that the release workflow is correctly defined and delegates
-to the canonical reusable workflow from jebel-quant/rhiza.
+Validates that the release workflow is correctly defined, including the
+update-changelog job that generates and commits CHANGELOG.md on every release.
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ import pytest
 import yaml
 
 WORKFLOW_PATH = Path(".github") / "workflows" / "rhiza_release.yml"
-REUSABLE_WORKFLOW = "jebel-quant/rhiza/.github/workflows/rhiza_release.yml"
+EXPECTED_JOBS = {"tag", "build", "draft-release", "update-changelog", "pypi", "devcontainer", "finalise-release"}
 
 
 # ---------------------------------------------------------------------------
@@ -27,6 +27,16 @@ def _load_workflow(root: Path) -> dict:
         pytest.fail(f"Workflow file not found: {workflow_file}")
     with open(workflow_file) as fh:
         return yaml.safe_load(fh)
+
+
+def _step_commands(job: dict) -> list[str]:
+    """Return all ``run`` strings from a job's steps."""
+    return [step["run"] for step in job.get("steps", []) if "run" in step]
+
+
+def _step_uses(job: dict) -> list[str]:
+    """Return all ``uses`` strings from a job's steps."""
+    return [step["uses"] for step in job.get("steps", []) if "uses" in step]
 
 
 # ---------------------------------------------------------------------------

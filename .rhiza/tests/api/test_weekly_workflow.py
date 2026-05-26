@@ -1,8 +1,8 @@
 """Tests for the rhiza_weekly.yml workflow and its referenced Makefile targets.
 
 Covers two layers:
-- Structural: parse .github/workflows/rhiza_weekly.yml and assert the workflow
-  delegates to the canonical reusable workflow from jebel-quant/rhiza.
+- Structural: parse .github/workflows/rhiza_weekly.yml and assert every job,
+  trigger, and key step is correctly defined.
 - Behavioural: dry-run (make -n) the Makefile targets that the workflow invokes
   (semgrep, security, test) to confirm they are wired up without actually
   running them.
@@ -17,7 +17,7 @@ import yaml
 from api.conftest import run_make
 
 WORKFLOW_PATH = Path(".github") / "workflows" / "rhiza_weekly.yml"
-REUSABLE_WORKFLOW = "jebel-quant/rhiza/.github/workflows/rhiza_weekly.yml"
+EXPECTED_JOBS = {"dep-compat-test", "semgrep", "pip-audit", "link-check"}
 
 
 # ---------------------------------------------------------------------------
@@ -41,6 +41,21 @@ def _get_triggers(workflow: dict) -> dict:
     up both the string key and the boolean key to be robust.
     """
     return workflow.get("on") or workflow.get(True) or {}
+
+
+def _step_commands(job: dict) -> list[str]:
+    """Return all ``run`` strings from a job's steps."""
+    return [step["run"] for step in job.get("steps", []) if "run" in step]
+
+
+def _step_uses(job: dict) -> list[str]:
+    """Return all ``uses`` strings from a job's steps."""
+    return [step["uses"] for step in job.get("steps", []) if "uses" in step]
+
+
+def _step_with_args(job: dict) -> list[dict]:
+    """Return all steps that have a ``with`` block."""
+    return [step for step in job.get("steps", []) if "with" in step]
 
 
 # ---------------------------------------------------------------------------
