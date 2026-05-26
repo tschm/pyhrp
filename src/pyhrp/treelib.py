@@ -15,7 +15,7 @@ NodeValue = int | float | str
 __all__ = ["Node"]
 
 
-class Node[T: NodeValue]:
+class Node:
     """A binary tree node with left and right children.
 
     This class implements the minimal functionality needed from the binarytree.Node class
@@ -27,7 +27,7 @@ class Node[T: NodeValue]:
         right: The right child node
     """
 
-    def __init__(self, value: T, left: Node[T] | None = None, right: Node[T] | None = None):
+    def __init__(self, value: NodeValue, left: Node | None = None, right: Node | None = None):
         """Initialize a new Node.
 
         Args:
@@ -49,7 +49,7 @@ class Node[T: NodeValue]:
         return self.left is None and self.right is None
 
     @property
-    def leaves(self) -> Sequence[Node[T]]:
+    def leaves(self) -> Sequence[Node]:
         """Get all leaf nodes in the tree rooted at this node.
 
         Returns:
@@ -58,7 +58,7 @@ class Node[T: NodeValue]:
         if self.is_leaf:
             return [self]
 
-        result: list[Node[T]] = []
+        result: list[Node] = []
         if self.left:
             result.extend(self.left.leaves)
         if self.right:
@@ -67,7 +67,7 @@ class Node[T: NodeValue]:
         return result
 
     @property
-    def levels(self) -> list[list[Node[T]]]:
+    def levels(self) -> list[list[Node]]:
         """Get nodes by level in the tree.
 
         Returns:
@@ -113,13 +113,13 @@ class Node[T: NodeValue]:
             size += self.right.size
         return size
 
-    def __iter__(self) -> Iterator[Node[T]]:
+    def __iter__(self) -> Iterator[Node]:
         """Iterate through all nodes in the tree in level-order.
 
         Returns:
             Iterator[Node]: Iterator over all nodes
         """
-        queue: deque[Node[T]] = deque([self])
+        queue: deque[Node] = deque([self])
         while queue:
             node = queue.popleft()
             yield node
