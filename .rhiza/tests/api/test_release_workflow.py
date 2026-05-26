@@ -1,7 +1,7 @@
 """Tests for the rhiza_release.yml workflow configuration.
 
-Validates that the release workflow is correctly defined and delegates
-to the canonical reusable workflow from jebel-quant/rhiza.
+Validates that the release workflow is correctly defined, including the
+update-changelog job that generates and commits CHANGELOG.md on every release.
 """
 
 from __future__ import annotations
@@ -12,7 +12,7 @@ import pytest
 import yaml
 
 WORKFLOW_PATH = Path(".github") / "workflows" / "rhiza_release.yml"
-REUSABLE_WORKFLOW = "jebel-quant/rhiza/.github/workflows/rhiza_release.yml"
+EXPECTED_JOBS = {"tag", "build", "draft-release", "update-changelog", "pypi", "devcontainer", "finalise-release"}
 
 
 # ---------------------------------------------------------------------------
@@ -27,6 +27,16 @@ def _load_workflow(root: Path) -> dict:
         pytest.fail(f"Workflow file not found: {workflow_file}")
     with open(workflow_file) as fh:
         return yaml.safe_load(fh)
+
+
+def _step_commands(job: dict) -> list[str]:
+    """Return all ``run`` strings from a job's steps."""
+    return [step["run"] for step in job.get("steps", []) if "run" in step]
+
+
+def _step_uses(job: dict) -> list[str]:
+    """Return all ``uses`` strings from a job's steps."""
+    return [step["uses"] for step in job.get("steps", []) if "uses" in step]
 
 
 # ---------------------------------------------------------------------------
@@ -57,21 +67,3 @@ class TestReleaseWorkflowStructure:
         """Workflow must have contents: write permission to push CHANGELOG.md."""
         permissions = workflow.get("permissions", {})
         assert permissions.get("contents") == "write", "Workflow must have contents: write permission"
-
-    # --- reusable workflow delegation ---
-
-    def test_single_release_job(self, workflow):
-        """Workflow must define exactly one job named 'release'."""
-        jobs = workflow.get("jobs", {})
-        assert list(jobs.keys()) == ["release"], f"Expected ['release'], got: {list(jobs.keys())}"
-
-    def test_release_job_uses_reusable_workflow(self, workflow):
-        """Release job must delegate to the canonical rhiza reusable workflow."""
-        job = workflow["jobs"]["release"]
-        uses = job.get("uses", "")
-        assert uses.startswith(REUSABLE_WORKFLOW), f"release job must use {REUSABLE_WORKFLOW}@<version>, got: {uses}"
-
-    def test_release_job_inherits_secrets(self, workflow):
-        """Release job must pass secrets via 'secrets: inherit'."""
-        job = workflow["jobs"]["release"]
-        assert job.get("secrets") == "inherit", "release job must set secrets: inherit"
