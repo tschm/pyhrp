@@ -1,3 +1,75 @@
+## [2.2.5] - 2026-05-27
+
+### 🐛 Bug Fixes
+
+- Inline release jobs to fix PyPI Trusted Publishing with reusable workflows
+
+### 💼 Other
+
+- Bump version 2.2.4 → 2.2.5
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md for v2.2.4 [skip ci]
+## [2.2.4] - 2026-05-27
+
+### 🐛 Bug Fixes
+
+- Pass required tag input to rhiza release workflow
+
+### 💼 Other
+
+- Bump version 2.2.3 → 2.2.4
+## [2.2.3] - 2026-05-27
+
+### 💼 Other
+
+- Bump version 2.2.2 → 2.2.3
+## [2.2.2] - 2026-05-27
+
+### 💼 Other
+
+- Bump version 2.2.1 → 2.2.2
+
+### ⚙️ Miscellaneous Tasks
+
+- Relax dependency floors and update package description
+- Add workflow to test with lowest-direct dependency floors
+## [2.2.1] - 2026-05-27
+
+### 🚀 Features
+
+- Add profiles: github-project to template.yml
+
+### 🐛 Bug Fixes
+
+- Add uv install retry step to CI test job
+- Remove duplicate update-changelog job from release workflow
+- Use Generic[T] to keep Node subscriptable on older CI Python
+
+### 💼 Other
+
+- Bump version 2.2.0 → 2.2.1
+
+### 🚜 Refactor
+
+- Remove cvx-linalg dependency
+
+### 🧪 Testing
+
+- Increase coverage to 100% by testing TypeError guard branches
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md for v2.2.0
+- Bump rhiza template to v0.11.0
+- Sync with rhiza v0.11.0
+- Sync with rhiza v0.16.1
+- Bump rhiza to v0.15.3
+- Apply rhiza sync v0.15.3
+- Remove blank line from .python-version
+- Bump rhiza to v0.16.0
+- Apply rhiza sync v0.16.0
 ## [2.2.0] - 2026-05-22
 
 ### 🚀 Features
@@ -118,6 +190,8 @@
 - Sync with Rhiza template v0.10.7
 - Add github-book and github-marimo template bundles
 - Sync github-book and github-marimo template bundles
+- Update Rhiza template to v0.10.9
+- Sync with Rhiza template v0.10.9
 ## [1.6.3] - 2026-04-23
 
 ### 🚀 Features

@@ -149,12 +149,12 @@ jobs:
           fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.6.0
+        uses: astral-sh/setup-uv@v8.1.0
         with:
           version: "0.11.16"
 
       - name: Configure git auth for private packages
-        uses: jebel-quant/rhiza/.github/actions/configure-git-auth@v0.15.2
+        uses: ./.github/actions/configure-git-auth
         with:
           token: ${{ secrets.GH_PAT }}
 
@@ -258,7 +258,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.6.0
+        uses: astral-sh/setup-uv@v8.1.0
 
       - name: Generate release notes with git-cliff
         run: uvx git-cliff --latest --output RELEASE_NOTES.md
@@ -294,7 +294,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.6.0
+        uses: astral-sh/setup-uv@v8.1.0
 
       - name: Generate CHANGELOG.md with git-cliff
         run: uvx git-cliff --output CHANGELOG.md
@@ -458,7 +458,7 @@ jobs:
           fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v7.6.0
+        uses: astral-sh/setup-uv@v8.1.0
         with:
           version: "0.11.16"
 
@@ -528,5 +528,3 @@ jobs:
           } > /tmp/notes.md
 
           gh release edit "$TAG" --draft=false --notes-file /tmp/notes.md
-
-
