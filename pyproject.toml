@@ -1,15 +1,15 @@
 [project]
 name = "pyhrp"
 version = "2.2.1"
-description = "Hierarchial risk parity"
+description = "Cluster-based portfolio allocation: HRP, Schur risk parity, and 1/N"
 authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "numpy>=2.3,<3",
+    "numpy>=2.0,<3",
     "plotly>=5,<7",
-    "polars>=1.40.1,<2",
-    "scipy>=1.14.1",
+    "polars>=1.0,<2",
+    "scipy>=1.11",
 ]
 license = "MIT"
 license-files = ["LICENSE"]
