@@ -79,6 +79,6 @@ permissions:
 
 jobs:
   release:
-    uses: jebel-quant/rhiza/.github/workflows/rhiza_release.yml@v0.14.0
+    uses: jebel-quant/rhiza/.github/workflows/rhiza_release.yml@v0.16.0
     secrets: inherit
 
