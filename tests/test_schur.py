@@ -6,9 +6,10 @@ import polars as pl
 import pytest
 from polars import DataFrame
 
-from pyhrp.algos import risk_parity, schur_risk_parity
+from pyhrp.algos import _schur_parity, risk_parity, schur_risk_parity
 from pyhrp.cluster import Cluster
 from pyhrp.hrp import build_tree, compute_corr, compute_cov, hrp, schur_hrp
+from pyhrp.treelib import Node
 
 
 def test_schur_weights_sum_to_one(prices: DataFrame) -> None:
@@ -107,3 +108,45 @@ def test_schur_accepts_custom_node(prices: DataFrame) -> None:
     node = build_tree(cor, method="single").root
     cluster = schur_hrp(prices=prices, node=node, gamma=0.5)
     assert sum(cluster.portfolio.weights.values()) == pytest.approx(1.0, rel=1e-6)
+
+
+def test_schur_risk_parity_raises_for_non_cluster_left() -> None:
+    """schur_risk_parity raises TypeError when left child is not a Cluster."""
+    cov = pl.DataFrame({"A": [4.0, 0.0], "B": [0.0, 1.0]})
+    root = Cluster(2)
+    root.left = Node(0)  # type: ignore[assignment]
+    root.right = Cluster(1)
+    with pytest.raises(TypeError, match="Expected left child to be a Cluster"):
+        schur_risk_parity(root=root, cov=cov, gamma=0.5)
+
+
+def test_schur_risk_parity_raises_for_non_cluster_right() -> None:
+    """schur_risk_parity raises TypeError when right child is not a Cluster."""
+    cov = pl.DataFrame({"A": [4.0, 0.0], "B": [0.0, 1.0]})
+    left = Cluster(0)
+    root = Cluster(2)
+    root.left = left
+    root.right = Node(1)  # type: ignore[assignment]
+    with pytest.raises(TypeError, match="Expected right child to be a Cluster"):
+        schur_risk_parity(root=root, cov=cov, gamma=0.5)
+
+
+def test_schur_parity_raises_for_non_cluster_left() -> None:
+    """_schur_parity raises TypeError when left child is not a Cluster."""
+    cov = pl.DataFrame({"A": [4.0, 0.0], "B": [0.0, 1.0]})
+    cluster = Cluster(2)
+    cluster.left = Node(0)  # type: ignore[assignment]
+    cluster.right = Cluster(1)
+    with pytest.raises(TypeError, match="Expected left child to be a Cluster"):
+        _schur_parity(cluster=cluster, cov=cov, gamma=0.5)
+
+
+def test_schur_parity_raises_for_non_cluster_right() -> None:
+    """_schur_parity raises TypeError when right child is not a Cluster."""
+    cov = pl.DataFrame({"A": [4.0, 0.0], "B": [0.0, 1.0]})
+    left = Cluster(0)
+    cluster = Cluster(2)
+    cluster.left = left
+    cluster.right = Node(1)  # type: ignore[assignment]
+    with pytest.raises(TypeError, match="Expected right child to be a Cluster"):
+        _schur_parity(cluster=cluster, cov=cov, gamma=0.5)
