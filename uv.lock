@@ -607,7 +607,7 @@ wheels = [
 
 [[package]]
 name = "pyhrp"
-version = "2.2.4"
+version = "2.2.5"
 source = { editable = "." }
 dependencies = [
     { name = "numpy" },
