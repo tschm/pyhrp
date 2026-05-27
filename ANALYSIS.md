@@ -10,7 +10,7 @@
 |---------|-------|
 | 1. Source Code | **10 / 10** |
 | 2. Tests | **10 / 10** |
-| 3. Dependencies | **9 / 10** |
+| 3. Dependencies | **10 / 10** |
 | 4. CI/CD | **10 / 10** |
 | 5. Tooling | **10 / 10** |
 | 6. Documentation | **10 / 10** |
@@ -64,7 +64,7 @@ Five focused modules totalling **~850 lines** under `src/pyhrp/`:
 
 ### Overview
 
-**99 test functions across 15 files. Line coverage: 100 %.**
+**103 test functions across 15 files. Line coverage: 100 %.**
 
 | File | Tests | Focus |
 |------|-------|-------|
@@ -86,7 +86,7 @@ Five focused modules totalling **~850 lines** under `src/pyhrp/`:
 
 ### Strengths
 
-- **100 % line coverage.** Every branch including all error paths in `Cluster.leaves` is exercised.
+- **100 % line coverage.** Every branch including all error paths in `Cluster.leaves` is exercised. 103 tests across 15 files.
 - **Reference-data validation.** `tests/resources/` holds CSV ground-truth files (`weights_hrp.csv`, `weights_marcos.csv`, `links.csv`) against which computed outputs are compared.
 - **`pytest.approx()` used throughout** for floating-point comparisons.
 - **Parametrised over linkage methods.** Key tests run against `single`, `ward`, `average`, and `complete` methods.
@@ -100,38 +100,30 @@ Five focused modules totalling **~850 lines** under `src/pyhrp/`:
 
 ---
 
-## 3. Dependencies — 9 / 10
+## 3. Dependencies — 10 / 10
 
 | Subcategory | Score |
 |-------------|-------|
 | Security (pip-audit, deptry, lock file) | 10 / 10 |
-| Set minimalism | 7 / 10 |
+| Set minimalism | 10 / 10 |
 | Version constraint hygiene | 10 / 10 |
 
-> **Note:** `cvx-linalg` is retained as an intentional companion dependency. Set minimalism is
-> therefore capped at 7 / 10 and the section ceiling is **9 / 10**.
-
-### Runtime (5 packages)
+### Runtime (4 packages)
 
 | Package | Constraint | Usage |
 |---------|-----------|-------|
 | `numpy` | `>=2.3,<3` | Array operations, linear algebra throughout |
 | `scipy` | `>=1.14.1` | Hierarchical clustering (`linkage`, `leaves_list`) |
 | `polars` | `>=1.40.1,<2` | DataFrame I/O and return computation |
-| `cvx-linalg` | `>=0.5.1,<1` | `a_norm()` for portfolio variance in `cluster.py` |
 | `plotly` | `>=5,<7` | Interactive dendrogram and weight plots |
 
 ### Strengths
 
 - **`uv.lock` is committed**, ensuring fully reproducible builds.
-- **All runtime packages carry explicit upper bounds.** `numpy<3`, `polars<2`, `plotly<7`, and `cvx-linalg<1` guard against silent API breakage on major-version bumps.
+- **All runtime packages carry explicit upper bounds.** `numpy<3`, `polars<2`, and `plotly<7` guard against silent API breakage on major-version bumps.
 - **OIDC PyPI publishing** means no stored credentials in CI secrets.
 - **`pip-audit`** runs in every CI build (`make security`), catching known CVEs.
 - **`deptry`** verifies that declared deps match actual imports.
-
-### Weaknesses
-
-- **`cvx-linalg` is a companion dependency for a single utility function.** `a_norm(w, c)` computes `sqrt(w @ c @ w)`. It is retained intentionally as part of the `cvx` ecosystem — the only remaining supply-chain consideration.
 
 ---
 
@@ -237,12 +229,8 @@ Five focused modules totalling **~850 lines** under `src/pyhrp/`:
 
 1. **Algorithmically correct and faithful to the papers.** Risk-parity weighting, bisection, and Ward-linkage reconstruction are validated against reference CSVs. Schur Complementary Allocation (arXiv:2411.05807) extends the core algorithm with off-diagonal covariance information.
 2. **Excellent CI/CD security posture.** SBOM, SLSA provenance, OIDC publishing, Bandit, and pip-audit together place this well above typical open-source Python projects.
-3. **Comprehensive test suite at 100 % coverage.** 99 tests across 15 files — including Hypothesis property tests (max_examples=200), benchmarks with correctness assertions, 500/1000-asset stress tests, Schur allocation tests, direct helper unit tests, and asserted notebook output.
+3. **Comprehensive test suite at 100 % coverage.** 103 tests across 15 files — including Hypothesis property tests (max_examples=200), benchmarks with correctness assertions, 500/1000-asset stress tests, Schur allocation tests, direct helper unit tests, and asserted notebook output.
 4. **Zero `# type: ignore` pragmas and zero `Any` annotations.** Generic `Node[T]`, explicit `__all__`, and precise type signatures throughout.
 5. **Strict, automated code quality.** 15 pre-commit hooks, ruff with 100+ rules at `py312` target, `max-doc-length = 120`, interrogate docstring enforcement, and `ty` type checking all run on every push.
-6. **Small, purposeful, bounded dependency set** with a committed `uv.lock`, `deptry` drift detection, and explicit major-version upper bounds on all runtime packages.
+6. **Small, purposeful, bounded dependency set (4 runtime packages)** with a committed `uv.lock`, `deptry` drift detection, and explicit major-version upper bounds on all runtime packages.
 7. **CHANGELOG is automatically maintained** by `git-cliff` in the release workflow — no manual intervention needed.
-
-### Remaining Consideration
-
-- **`cvx-linalg` is a companion dependency for a single utility function.** Retained intentionally as part of the `cvx` ecosystem, capping the Dependencies score at 9 / 10.

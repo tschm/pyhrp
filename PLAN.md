@@ -2,16 +2,13 @@
 
 > Derived from ANALYSIS.md (version 2.0.0, 2026-05-21).
 > Starting average: **8.7 / 10** across 18 subcategories.
-> **Final state: Dependencies 9 / 10 (cvx-linalg retained); all other sections 10 / 10.**
+> **Final state: all sections 10 / 10.**
 
 All tasks have been implemented and merged to `main`. Current version: **2.2.0** (adds Schur Complementary Allocation and public `compute_cov`/`compute_corr` helpers; quality scores unchanged).
 
 ---
 
-## Section 3 · Dependencies (8 → 9)
-
-> `cvx-linalg` is kept as an intentional dependency. **Set minimalism** is therefore capped at 7 / 10,
-> and the section ceiling is **9 / 10** rather than 10.
+## Section 3 · Dependencies (8 → 10)
 
 ### 3a. Add `numpy` upper bound — **PR #672** ✅
 
@@ -122,6 +119,7 @@ Added `update-changelog` job that runs after `finalise-release`, checks out `mai
 | # | Task | PR | Section(s) affected | Status |
 |---|------|----|---------------------|--------|
 | 3a | `numpy` upper bound | #672 | Dependencies | ✅ merged |
+| 3b | Remove `cvx-linalg` | #688 | Dependencies | ✅ merged |
 | 1a | Remove `**kwargs: Any` | #672 | Source Code | ✅ merged |
 | 1b | `Examples:` in docstrings | #673 | Source Code, Documentation | ✅ merged |
 | 2a | Raise `max_examples` | #672 | Tests | ✅ merged |

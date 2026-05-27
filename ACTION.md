@@ -2,7 +2,7 @@
 
 > Derived from ANALYSIS.md scores. Items ordered by gap from 10 (largest first).
 > Original average: **7.0 / 10** across 18 subcategories.
-> Last updated: 2026-05-27 · Current project version: **2.2.0**
+> Last updated: 2026-05-27 · Current project version: **2.2.0** · Final state: **10 / 10** all sections
 
 ---
 
@@ -61,7 +61,6 @@
 
 - `plotly<6.6` → `plotly>=5,<7` (broadened lower bound, explicit upper cap).
 - `polars>=1.40.1` → `polars>=1.40.1,<2` (guarded against Polars 2.0 API break).
-- `cvx-linalg>=0.5.1` → `cvx-linalg>=0.5.1,<1` (pinned to stable major version).
 - `numpy>=2.3` → `numpy>=2.3,<3` (explicit upper bound, symmetric with other runtime packages).
 
 ---
@@ -164,10 +163,13 @@ Coverage gate (`--cov-fail-under=90`) runs on every matrix leg (all OS × Python
 
 ---
 
-### Set minimalism — deliberate design decision
+### Set minimalism — 7 / 10 → **done**
 
-**Not actioned.** `cvx-linalg` is retained as an intentional companion dependency within the `cvx`
-ecosystem. This caps the Dependencies section at **9 / 10**.
+**PR #688** (`tschm/linalg`):
+
+- Removed `cvx-linalg` dependency entirely.
+- Replaced `a_norm(w, c) ** 2` in `cluster.py` with the equivalent numpy quadratic form `w @ c @ w`.
+- Dependencies section now scores **10 / 10**.
 
 ---
 
@@ -185,7 +187,7 @@ ecosystem. This caps the Dependencies section at **9 / 10**.
 | API design | 6 | 10 | ✅ PR #667 |
 | Type safety | 6 | 10 | ✅ PRs #665, #672 |
 | Type checking | 6 | 10 | ✅ PR #669 |
-| Set minimalism | 7 | 7 | — intentional (cvx-linalg retained) |
+| Set minimalism | 7 | 10 | ✅ PR #688 |
 | Standard files | 7 | 10 | ✅ PR #666 |
 | Docstring coverage | 8 | 10 | ✅ PRs #667, #673 |
 | Test breadth & module coverage | 8 | 10 | ✅ PRs #670, #674 |
