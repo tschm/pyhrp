@@ -1,3 +1,16 @@
+## [2.2.5] - 2026-05-27
+
+### 🐛 Bug Fixes
+
+- Inline release jobs to fix PyPI Trusted Publishing with reusable workflows
+
+### 💼 Other
+
+- Bump version 2.2.4 → 2.2.5
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md for v2.2.4 [skip ci]
 ## [2.2.4] - 2026-05-27
 
 ### 🐛 Bug Fixes
