@@ -4,7 +4,7 @@
 > Starting average: **8.7 / 10** across 18 subcategories.
 > **Final state: Dependencies 9 / 10 (cvx-linalg retained); all other sections 10 / 10.**
 
-All tasks have been implemented and merged to `main`.
+All tasks have been implemented and merged to `main`. Current version: **2.2.0** (adds Schur Complementary Allocation and public `compute_cov`/`compute_corr` helpers; quality scores unchanged).
 
 ---
 

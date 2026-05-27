@@ -1,6 +1,6 @@
 # pyhrp — Quality Analysis
 
-> Analysis date: 2026-05-21 · Version: 2.0.0
+> Analysis date: 2026-05-27 · Version: 2.2.0
 
 ---
 
@@ -30,12 +30,12 @@
 
 ### Structure
 
-Five focused modules totalling **~700 lines** under `src/pyhrp/`:
+Five focused modules totalling **~850 lines** under `src/pyhrp/`:
 
 | Module | Role |
 |--------|------|
-| `hrp.py` | HRP algorithm, `Dendrogram`, `build_tree`, `hrp` entry point, `_bisect_tree`, `_get_linkage` |
-| `algos.py` | `risk_parity`, `one_over_n` recursive tree traversals |
+| `hrp.py` | HRP algorithm, `Dendrogram`, `build_tree`, `hrp`, `schur_hrp` entry points, `compute_cov`, `compute_corr`, `_bisect_tree`, `_get_linkage` |
+| `algos.py` | `risk_parity`, `schur_risk_parity`, `one_over_n` recursive tree traversals |
 | `cluster.py` | `Portfolio` and `Cluster` data structures |
 | `treelib.py` | Generic binary `Node[T]` base class |
 | `__init__.py` | Dynamic version via `importlib.metadata` |
@@ -43,11 +43,13 @@ Five focused modules totalling **~700 lines** under `src/pyhrp/`:
 ### Strengths
 
 - **Separation of concerns is clean.** The tree data structure (`treelib`), domain model (`cluster`), algorithms (`algos`), and orchestration (`hrp`) are clearly separated. Adding a new allocation algorithm requires touching only `algos.py`.
-- **Public API surface is small, explicit, and intentional.** `__all__` is defined in every module. Six public symbols cover the full use-case: `hrp`, `build_tree`, `Dendrogram`, `risk_parity`, `one_over_n`, `Cluster`/`Portfolio`.
+- **Public API surface is small, explicit, and intentional.** `__all__` is defined in every module. Ten public symbols cover the full use-case: `hrp`, `schur_hrp`, `build_tree`, `Dendrogram`, `compute_cov`, `compute_corr`, `risk_parity`, `schur_risk_parity`, `one_over_n`, `Cluster`/`Portfolio`.
 - **Zero `# type: ignore` pragmas and zero `Any` annotations.** All previous suppressions are resolved. `treelib.Node` is now generic (`class Node[T: NodeValue]`). `**kwargs: Any` was removed from `Cluster.__init__` — the last `Any` annotation in the codebase is gone.
 - **Type annotations are complete and precise.** `one_over_n` accepts `Dendrogram` (not `Any`). Every public symbol is fully typed, and `ty` in CI enforces it.
 - **Docstrings follow Google style consistently** with `Examples:` blocks on all primary public functions. Enforced by `interrogate` in pre-commit and CI.
 - **Algorithm is faithful to the source.** The risk-parity formula (`alpha_left = v_right / (v_left + v_right)`) matches Lopez de Prado's original paper.
+- **Schur Complementary Allocation** (`schur_hrp`, `schur_risk_parity`) extends HRP with off-diagonal covariance information via Schur complements (Peter Cotton, arXiv:2411.05807). The `gamma` parameter interpolates between standard HRP (`gamma=0`) and minimum-variance (`gamma=1`).
+- **`compute_cov` and `compute_corr` are public.** Previously private helpers are now first-class API, documented, and importable directly from `pyhrp.hrp`.
 
 ---
 
@@ -62,11 +64,12 @@ Five focused modules totalling **~700 lines** under `src/pyhrp/`:
 
 ### Overview
 
-**88 test functions across 14 files. Line coverage: 100 %.**
+**99 test functions across 15 files. Line coverage: 100 %.**
 
 | File | Tests | Focus |
 |------|-------|-------|
 | `test_dendrogram_extras.py` | 32 | Dendrogram validation, distance matrix, edge cases |
+| `test_schur.py` | 11 | Schur Complementary Allocation weights, gamma boundary cases, Schur vs HRP |
 | `test_hrp.py` | 7 | Linkage matrix, bisection, node ordering |
 | `test_treelib.py` | 7 | Full `Node` class coverage |
 | `test_cluster.py` | 9 | Risk parity, type/value error branches in `Cluster.leaves` |
@@ -75,7 +78,7 @@ Five focused modules totalling **~700 lines** under `src/pyhrp/`:
 | `test_hrp_function.py` | 2 | Weights vs. reference CSV files |
 | `test_one_over_n.py` | 2 | 1/N algorithm |
 | `test_portfolio.py` | 2 | Portfolio creation, plotting, variance |
-| `test_helpers.py` | 2 | Direct unit tests for `_compute_cov` and `_compute_corr` |
+| `test_helpers.py` | 2 | Direct unit tests for `compute_cov` and `compute_corr` |
 | `test_large_1n.py` | 1 | 1/N on 20-stock real data |
 | `test_node.py` | 1 | `Cluster` basics |
 | `test_notebooks.py` | 1 | Marimo notebook execution with output and weight assertions |
@@ -88,7 +91,8 @@ Five focused modules totalling **~700 lines** under `src/pyhrp/`:
 - **`pytest.approx()` used throughout** for floating-point comparisons.
 - **Parametrised over linkage methods.** Key tests run against `single`, `ward`, `average`, and `complete` methods.
 - **Property-based testing via Hypothesis.** `test_property.py` generates random valid correlation and covariance matrices, asserting weights sum to 1 and lie in `[0, 1]`. `max_examples = 200` gives high confidence. Explicit edge cases cover single-asset, two-asset closed-form, near-singular, and depth-one bisection trees.
-- **Direct helper tests.** `test_helpers.py` verifies that `_compute_cov` produces a symmetric matrix and that `_compute_corr` has a unit diagonal and preserves column names.
+- **Direct helper tests.** `test_helpers.py` verifies that `compute_cov` produces a symmetric matrix and that `compute_corr` has a unit diagonal and preserves column names.
+- **Schur Complementary Allocation tests.** `test_schur.py` (11 tests) validates the Schur algorithm: weights sum to 1, `gamma=0` reproduces standard HRP, `gamma=1` is permissible, and the `_schur_parity` helper is tested in isolation.
 - **Benchmark correctness.** `test_benchmark.py` captures return values and asserts weights sum to 1.0 and lie in `[0, 1]`; build-tree benchmarks assert `leaf_count == asset_count`.
 - **Stress tests.** `tests/stress/test_stress.py` exercises 500- and 1000-asset universes (excluded from `make test`, run by `make stress`), asserting weight validity throughout.
 - **Notebook assertions.** `test_notebooks.py` asserts on `root` type, `portfolio.weights` type and contents, `sum(weights) ≈ 1.0`, and `all(0 ≤ w ≤ 1)`.
@@ -196,7 +200,7 @@ Five focused modules totalling **~700 lines** under `src/pyhrp/`:
 ### Strengths
 
 - **MkDocs site with `mkdocstrings-python`** auto-generates API reference from docstrings. All modules define `__all__`, making the public surface explicit.
-- **`Examples:` blocks on all four primary public functions** (`hrp`, `build_tree`, `risk_parity`, `one_over_n`), providing runnable usage snippets in the docs site and the REPL.
+- **`Examples:` blocks on all primary public functions** (`hrp`, `schur_hrp`, `build_tree`, `risk_parity`, `schur_risk_parity`, `one_over_n`), providing runnable usage snippets in the docs site and the REPL.
 - **Two marimo notebooks** (`hrp.py`, `1_over_N.py`) provide interactive, runnable demonstrations.
 - **`SECURITY.md`** is up-to-date with correct version table, real contact details, and accurate CI security measures.
 - **README explains the domain.** A Motivation section covers HRP vs. mean-variance, a method comparison table documents all linkage/bisection combinations, and a result-interpretation paragraph explains the `Cluster` tree output.
@@ -231,9 +235,9 @@ Five focused modules totalling **~700 lines** under `src/pyhrp/`:
 
 ### Strengths
 
-1. **Algorithmically correct and faithful to the paper.** Risk-parity weighting, bisection, and Ward-linkage reconstruction are non-trivial and validated against reference CSVs.
+1. **Algorithmically correct and faithful to the papers.** Risk-parity weighting, bisection, and Ward-linkage reconstruction are validated against reference CSVs. Schur Complementary Allocation (arXiv:2411.05807) extends the core algorithm with off-diagonal covariance information.
 2. **Excellent CI/CD security posture.** SBOM, SLSA provenance, OIDC publishing, Bandit, and pip-audit together place this well above typical open-source Python projects.
-3. **Comprehensive test suite at 100 % coverage.** 88 tests across 14 files — including Hypothesis property tests (max_examples=200), benchmarks with correctness assertions, 500/1000-asset stress tests, direct helper unit tests, and asserted notebook output.
+3. **Comprehensive test suite at 100 % coverage.** 99 tests across 15 files — including Hypothesis property tests (max_examples=200), benchmarks with correctness assertions, 500/1000-asset stress tests, Schur allocation tests, direct helper unit tests, and asserted notebook output.
 4. **Zero `# type: ignore` pragmas and zero `Any` annotations.** Generic `Node[T]`, explicit `__all__`, and precise type signatures throughout.
 5. **Strict, automated code quality.** 15 pre-commit hooks, ruff with 100+ rules at `py312` target, `max-doc-length = 120`, interrogate docstring enforcement, and `ty` type checking all run on every push.
 6. **Small, purposeful, bounded dependency set** with a committed `uv.lock`, `deptry` drift detection, and explicit major-version upper bounds on all runtime packages.

@@ -2,7 +2,7 @@
 
 > Derived from ANALYSIS.md scores. Items ordered by gap from 10 (largest first).
 > Original average: **7.0 / 10** across 18 subcategories.
-> Last updated: 2026-05-21
+> Last updated: 2026-05-27 · Current project version: **2.2.0**
 
 ---
 
@@ -116,8 +116,8 @@
 
 **PR #670** (`copilot/add-direct-unit-tests-compute-cov-corr`):
 
-- Added `tests/test_helpers.py` (2 tests): directly tests `_compute_cov` (symmetry) and
-  `_compute_corr` (unit diagonal, column name preservation).
+- Added `tests/test_helpers.py` (2 tests): directly tests `compute_cov` (symmetry) and
+  `compute_corr` (unit diagonal, column name preservation). These helpers are now public API.
 - Added 4 assertions to `test_notebooks.py`: verifies expected output variables in notebook
   namespaces rather than just checking for no exception.
 
