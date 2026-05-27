@@ -1,6 +1,17 @@
 # This file is part of the jebel-quant/rhiza repository
 # (https://github.com/jebel-quant/rhiza).
 #
+# ⚠️  WHY THIS WORKFLOW CANNOT USE A STUB
+#
+# Rhiza normally distributes workflows as thin stubs that delegate to a reusable
+# workflow in this repository via `workflow_call`. That pattern cannot be used here
+# because PyPI Trusted Publishing (OIDC) validates the *exact* workflow file path
+# and repository that invokes `pypa/gh-action-pypi-publish`. When a stub delegates
+# to a reusable workflow in jebel-quant/rhiza, PyPI sees rhiza's repository as the
+# publisher — not the downstream project's — and rejects the OIDC token. This file
+# must therefore be synced directly into each downstream project so that the publish
+# step runs under the correct repository identity.
+#
 # Release Workflow for Python Packages with Optional Devcontainer Publishing
 #
 # This workflow implements a secure, maintainable release pipeline with distinct phases:
@@ -70,6 +81,19 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_call:
+    inputs:
+      tag:
+        description: 'Version tag to release (e.g. v1.2.3). Required when called via workflow_call.'
+        required: true
+        type: string
+    secrets:
+      GH_PAT:
+        required: false
+      UV_EXTRA_INDEX_URL:
+        required: false
+      PYPI_TOKEN:
+        required: false
 
 permissions:
   contents: write       # Needed to create releases
@@ -92,7 +116,11 @@ jobs:
       - name: Set Tag Variable
         id: set_tag
         run: |
-          TAG="${GITHUB_REF#refs/tags/}"
+          if [[ -n "${{ inputs.tag }}" ]]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
 
       - name: Validate Release
@@ -500,4 +528,3 @@ jobs:
           } > /tmp/notes.md
 
           gh release edit "$TAG" --draft=false --notes-file /tmp/notes.md
-
