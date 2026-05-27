@@ -1,16 +1,15 @@
 [project]
 name = "pyhrp"
-version = "2.2.0"
-description = "Hierarchial risk parity"
+version = "2.2.2"
+description = "Cluster-based portfolio allocation: HRP, Schur risk parity, and 1/N"
 authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "cvx-linalg>=0.5.1,<1",
-    "numpy>=2.3,<3",
+    "numpy>=2.0,<3",
     "plotly>=5,<7",
-    "polars>=1.40.1,<2",
-    "scipy>=1.14.1",
+    "polars>=1.0,<2",
+    "scipy>=1.11",
 ]
 license = "MIT"
 license-files = ["LICENSE"]
@@ -40,6 +39,6 @@ packages = ["src/pyhrp"]
 fail_under = 90
 
 [tool.deptry]
-package_module_name_map = {"cvx-linalg" = "cvx", numpy = "numpy", scipy = "scipy", marimo = "marimo", polars = "polars", plotly = "plotly"}
+package_module_name_map = {numpy = "numpy", scipy = "scipy", marimo = "marimo", polars = "polars", plotly = "plotly"}
 ignore = ["DEP004"]
 extend_exclude = [".rhiza"]
