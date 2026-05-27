@@ -108,19 +108,6 @@ wheels = [
 ]
 
 [[package]]
-name = "cvx-linalg"
-version = "0.6.1"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "numpy" },
-    { name = "polars" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/40/b4/8704cc758c5b3a43ed82050c5cc77a01922c34517adde4688f02caf09cab/cvx_linalg-0.6.1.tar.gz", hash = "sha256:cbc87ba185a2482df7e638b39ba9f5f656fdda46d4a227b244ca3d61a7b29c6c", size = 20695, upload-time = "2026-05-20T11:45:03.513Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/97/2d/5393709cd1df83bb8486d25fd8a5c91fc5c3f39ea8e81c1cb2c5193e472c/cvx_linalg-0.6.1-py3-none-any.whl", hash = "sha256:5fb2f6a322117f8426536164ac397de4ab5ee3c9249b66ebfc001f3e4156f685", size = 23501, upload-time = "2026-05-20T11:45:02.316Z" },
-]
-
-[[package]]
 name = "docutils"
 version = "0.22.4"
 source = { registry = "https://pypi.org/simple" }
@@ -622,7 +609,6 @@ name = "pyhrp"
 version = "2.2.0"
 source = { editable = "." }
 dependencies = [
-    { name = "cvx-linalg" },
     { name = "numpy" },
     { name = "plotly" },
     { name = "polars" },
@@ -639,7 +625,6 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "cvx-linalg", specifier = ">=0.5.1,<1" },
     { name = "numpy", specifier = ">=2.3,<3" },
     { name = "plotly", specifier = ">=5,<7" },
     { name = "polars", specifier = ">=1.40.1,<2" },

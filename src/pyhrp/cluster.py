@@ -12,7 +12,6 @@ from dataclasses import dataclass, field
 import numpy as np
 import plotly.graph_objects as go
 import polars as pl
-from cvx.linalg import a_norm
 
 from .treelib import Node
 
@@ -57,7 +56,7 @@ class Portfolio:
         cov_matrix = cov.to_numpy()
         c = cov_matrix[np.ix_(row_indices, row_indices)]
         w = np.array([self._weights[a] for a in assets])
-        return float(a_norm(w, c) ** 2)
+        return float(w @ c @ w)
 
     def __getitem__(self, item: str) -> float:
         """Return the weight for a given asset.
