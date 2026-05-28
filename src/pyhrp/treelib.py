@@ -76,8 +76,8 @@ class Node(Generic[T]):
         Returns:
             List[List[Node]]: List of lists of nodes at each level
         """
-        result = []
-        current_level = [self]
+        result: list[list[Node[T]]] = []
+        current_level: list[Node[T]] = [self]
 
         while current_level:
             result.append(current_level)
