@@ -10,7 +10,7 @@
 #
 # Components:
 #   - 📓 Process Marimo notebooks
-#   - 📖 Generate API documentation with pdoc
+#   - 📖 Build documentation site via zensical
 #   - 🧪 Run tests and generate coverage reports
 #   - 🚀 Deploy combined documentation to GitHub Pages
 

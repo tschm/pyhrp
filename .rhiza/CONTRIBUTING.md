@@ -11,6 +11,8 @@ Contributions are made through
 [pull requests](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests).
 Before sending a pull request, make sure you do the following:
 
+- If setup or tooling fails, run `make doctor` first to validate prerequisites and
+  follow the install guidance.
 - Run `make fmt` to make sure your code adheres to our [coding style](#code-style)
 and all tests pass.
 - [Write unit tests](#writing-unit-tests) for new functionality added.
@@ -23,6 +25,17 @@ navigate to its root, and run the following command:
 
 ```bash
 make install
+```
+
+### Optional uv dependency groups
+
+For faster, focused installs you can sync only the dependency groups you need:
+
+```bash
+uv sync --group lint        # linting + pre-commit tooling
+uv sync --group test        # test tooling
+uv sync --group docs        # docs/notebook stack (marimo, numpy, pandas, plotly)
+uv sync --all-groups        # full development environment
 ```
 
 ## Contributing code
