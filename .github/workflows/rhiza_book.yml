@@ -24,7 +24,7 @@ on:
 
 jobs:
   book:
-    uses: jebel-quant/rhiza/.github/workflows/rhiza_book.yml@v0.18.4
+    uses: jebel-quant/rhiza/.github/workflows/rhiza_book.yml@v0.18.5
     secrets: inherit
     permissions:
       contents: read
