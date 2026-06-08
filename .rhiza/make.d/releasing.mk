@@ -12,7 +12,7 @@ post-release:: ; @:
 
 # DRY_RUN support: pass DRY_RUN=1 to preview changes without applying them
 _DRY_RUN_FLAG := $(if $(DRY_RUN),--dry-run,)
-_VERSION=0.3.3
+_VERSION=0.5.1
 
 ##@ Releasing and Versioning
 bump: pre-bump ## bump version of the project (supports DRY_RUN=1)

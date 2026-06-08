@@ -23,8 +23,9 @@
 #   4. 📝 Draft Release - Create draft GitHub release with build artifacts and SBOM
 #   5. 📄 Update CHANGELOG - Generate and commit CHANGELOG.md to the default branch
 #   6. 🚀 Publish to PyPI - Publish package using OIDC or custom feed
-#   7. 🐳 Publish Devcontainer - Build and publish devcontainer image (conditional)
-#   8. ✅ Finalize Release - Publish the GitHub release with links
+#   7. 📦 Generate Conda Recipe - Generate conda-forge recipe with grayskull (conditional)
+#   8. 🐳 Publish Devcontainer - Build and publish devcontainer image (conditional)
+#   9. ✅ Finalize Release - Publish the GitHub release with links
 #
 # 📦 SBOM Generation:
 #   - Generated using CycloneDX format (industry standard for software supply chain security)
@@ -49,6 +50,11 @@
 #   - For custom feeds, use PYPI_REPOSITORY_URL and PYPI_TOKEN secrets
 #   - Adds PyPI/custom feed link to GitHub release notes
 #
+# 📦 Conda Recipe Generation:
+#   - Runs only when PyPI publishing is enabled and succeeds
+#   - Uses grayskull to generate a conda-forge compatible recipe from PyPI metadata
+#   - Uploads conda-recipe/meta.yaml as a workflow artifact for downstream feedstock updates
+#
 # 🔐 Security:
 #   - No PyPI credentials stored; relies on Trusted Publishing via GitHub OIDC
 #   - For custom feeds, PYPI_TOKEN secret is used with default username __token__
@@ -59,6 +65,7 @@
 # 📄 Requirements:
 #   - pyproject.toml with top-level version field (for Python packages)
 #   - Package registered on PyPI as Trusted Publisher (for PyPI publishing)
+#   - Conda recipe generation is optional and only runs when PyPI publishing is active
 #   - PUBLISH_DEVCONTAINER variable set to "true" (for devcontainer publishing)
 #   - .devcontainer/devcontainer.json file (for devcontainer publishing)
 #
@@ -137,6 +144,52 @@ jobs:
               echo "::warning::Release '$TAG' exists as a draft. Will proceed to update it."
             fi
           fi
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7.6.0
+
+      - name: Ensure release version is newer than latest published
+        env:
+          TAG: ${{ steps.set_tag.outputs.tag }}
+        run: |
+          # Backstop for issue #1126: refuse a tag that is not strictly newer than the
+          # highest version already released. A diverged branch with a stale pyproject.toml
+          # can otherwise publish an older version (e.g. v0.3.3 after v0.4.0). The bump
+          # tooling enforces the same rule; this guards manually-pushed tags too.
+          git tag -l 'v*' | uv run --with packaging --no-project python3 -c '
+          import sys
+          from packaging.version import Version, InvalidVersion
+
+          new = sys.argv[1].lstrip("v")
+          try:
+              new_v = Version(new)
+          except InvalidVersion:
+              print(f"::error::Tag {sys.argv[1]} is not a valid version")
+              sys.exit(1)
+
+          latest = None
+          for line in sys.stdin:
+              tag = line.strip().lstrip("v")
+              if not tag:
+                  continue
+              try:
+                  candidate = Version(tag)
+              except InvalidVersion:
+                  continue
+              if candidate == new_v:
+                  continue
+              if latest is None or candidate > latest:
+                  latest = candidate
+
+          if latest is not None and new_v <= latest:
+              print(
+                  f"::error::Refusing to release v{new_v}: it is not newer than the latest "
+                  f"released version v{latest} (issue #1126). Sync with the default branch and bump again."
+              )
+              sys.exit(1)
+          print(f"v{new_v} is newer than the latest released version v{latest}" if latest
+                else f"v{new_v} is the first release")
+          ' "$TAG"
 
   build:
     name: Build
@@ -358,6 +411,68 @@ jobs:
           repository-url: ${{ vars.PYPI_REPOSITORY_URL }}
           password: ${{ secrets.PYPI_TOKEN }}
 
+
+  conda:
+    name: Generate Conda Recipe
+    runs-on: ubuntu-latest
+    needs: [tag, pypi]
+    outputs:
+      should_generate: ${{ steps.check_conda.outputs.should_generate }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Check if conda recipe should be generated
+        id: check_conda
+        env:
+          PUBLISH_CONDA: ${{ vars.PUBLISH_CONDA }}
+        run: |
+          PUBLISH_CONDA="${PUBLISH_CONDA:-true}"
+          if [[ "$PUBLISH_CONDA" == "true" ]] && [[ "${{ needs.pypi.outputs.should_publish }}" == "true" ]] && [[ "${{ needs.pypi.result }}" == "success" ]]; then
+            echo "should_generate=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_generate=false" >> "$GITHUB_OUTPUT"
+            echo "⏭️ Skipping conda recipe generation (PUBLISH_CONDA not true, or PyPI publish disabled or failed)"
+          fi
+
+      - name: Set up Python
+        if: steps.check_conda.outputs.should_generate == 'true'
+        uses: actions/setup-python@v6.2.0
+        with:
+          python-version-file: .python-version
+
+      - name: Install grayskull
+        if: steps.check_conda.outputs.should_generate == 'true'
+        run: python -m pip install --upgrade grayskull
+
+      - name: Generate conda recipe with grayskull
+        if: steps.check_conda.outputs.should_generate == 'true'
+        run: |
+          PACKAGE_NAME=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml', 'rb'))['project']['name'])")
+          mkdir -p /tmp/conda-recipe
+          cd /tmp/conda-recipe
+
+          grayskull pypi "$PACKAGE_NAME" --strict-conda-forge
+
+          RECIPE_PATH=$(find . -type f -path "*/meta.yaml" | head -n 1)
+          if [[ -z "$RECIPE_PATH" ]]; then
+            echo "::error::grayskull did not produce a meta.yaml file"
+            exit 1
+          fi
+
+          mkdir -p "$GITHUB_WORKSPACE/conda-recipe"
+          cp "$RECIPE_PATH" "$GITHUB_WORKSPACE/conda-recipe/meta.yaml"
+
+      - name: Upload conda recipe artifact
+        if: steps.check_conda.outputs.should_generate == 'true'
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: conda-recipe
+          path: conda-recipe/meta.yaml
+
   devcontainer:
     name: Publish Devcontainer Image
     runs-on: ubuntu-latest
@@ -449,8 +564,8 @@ jobs:
   finalise-release:
     name: Finalise Release
     runs-on: ubuntu-latest
-    needs: [tag, pypi, devcontainer]
-    if: needs.pypi.result == 'success' || needs.devcontainer.result == 'success'
+    needs: [tag, pypi, conda, devcontainer]
+    if: needs.pypi.result == 'success' || needs.conda.result == 'success' || needs.devcontainer.result == 'success'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6.0.3
@@ -510,12 +625,25 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Generate Conda Recipe Note
+        id: conda_link
+        if: needs.conda.outputs.should_generate == 'true' && needs.conda.result == 'success'
+        run: |
+          {
+            echo "message<<EOF"
+            echo "### Conda Recipe"
+            echo ""
+            echo "A conda-forge recipe was generated with grayskull and uploaded as the \`conda-recipe\` workflow artifact."
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Publish Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ needs.tag.outputs.tag }}
           DEVCONTAINER_MSG: ${{ steps.devcontainer_link.outputs.message }}
           PYPI_MSG: ${{ steps.pypi_link.outputs.message }}
+          CONDA_MSG: ${{ steps.conda_link.outputs.message }}
         run: |
           # Get existing auto-generated release notes (gracefully handle missing release)
           EXISTING=$(gh release view "$TAG" --json body --jq '.body // ""' 2>/dev/null || echo "")
@@ -525,6 +653,7 @@ jobs:
             printf '%s' "$EXISTING"
             [ -n "$DEVCONTAINER_MSG" ] && printf '\n\n%s' "$DEVCONTAINER_MSG"
             [ -n "$PYPI_MSG" ] && printf '\n\n%s' "$PYPI_MSG"
+            [ -n "$CONDA_MSG" ] && printf '\n\n%s' "$CONDA_MSG"
           } > /tmp/notes.md
 
           gh release edit "$TAG" --draft=false --notes-file /tmp/notes.md

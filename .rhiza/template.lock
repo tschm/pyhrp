@@ -1,7 +1,7 @@
-sha: 2d95f598ddcb0bf5ff1cdf753d7165c96150237f
+sha: ae79c6f0729b21239655abe390269be9171f907d
 repo: jebel-quant/rhiza
 host: github
-ref: v0.18.4
+ref: v0.18.8
 include: []
 exclude: []
 templates:
@@ -12,8 +12,6 @@ files:
 - .github/DISCUSSION_TEMPLATE/q-and-a.yml
 - .github/ISSUE_TEMPLATE/bug_report.yml
 - .github/ISSUE_TEMPLATE/feature_request.yml
-- .github/actions/configure-git-auth/README.md
-- .github/actions/configure-git-auth/action.yml
 - .github/dependabot.yml
 - .github/pull_request_template.md
 - .github/release.yml
@@ -57,12 +55,13 @@ files:
 - .rhiza/semgrep.yml
 - .rhiza/tests/README.md
 - .rhiza/tests/api/conftest.py
+- .rhiza/tests/api/test_github_targets.py
+- .rhiza/tests/api/test_make_variable_overrides.py
 - .rhiza/tests/api/test_makefile_api.py
 - .rhiza/tests/api/test_makefile_targets.py
 - .rhiza/tests/conftest.py
 - .rhiza/tests/integration/test_book_targets.py
 - .rhiza/tests/integration/test_docs_targets.py
-- .rhiza/tests/integration/test_sbom.py
 - .rhiza/tests/integration/test_test_mk.py
 - .rhiza/tests/integration/test_virtual_env_unexport.py
 - .rhiza/tests/shell/test_scripts.sh
@@ -87,10 +86,9 @@ files:
 - docs/development/TESTS.md
 - docs/index.md
 - docs/mkdocs-base.yml
-- pyproject.toml.template
 - pytest.ini
 - ruff.toml
 profiles:
 - github-project
-synced_at: '2026-05-28T16:23:49Z'
+synced_at: '2026-06-06T05:16:17Z'
 strategy: merge
