@@ -17,6 +17,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
 ]
 
 [project.urls]
@@ -40,6 +41,7 @@ test = [
     "pytest-timeout>=2.0",
 ]
 lint = [
+    "mypy>=1.14",
     "pre-commit>=4.0",
 ]
 
@@ -52,6 +54,14 @@ packages = ["src/pyhrp"]
 
 [tool.coverage.report]
 fail_under = 90
+
+[tool.mypy]
+files = ["src"]
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["scipy.*", "plotly.*"]
+ignore_missing_imports = true
 
 [tool.deptry]
 package_module_name_map = {numpy = "numpy", scipy = "scipy", marimo = "marimo", polars = "polars", plotly = "plotly"}

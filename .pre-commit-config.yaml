@@ -76,6 +76,13 @@ repos:
         args: [--config=pyproject.toml]
         files: ^src/
 
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v2.1.0
+    hooks:
+      - id: mypy
+        files: ^src/
+        additional_dependencies: [numpy, polars]
+
   - repo: https://github.com/Jebel-Quant/rhiza-hooks
     rev: v0.4.0  # Use the latest release
     hooks:

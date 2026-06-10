@@ -52,7 +52,8 @@ class Portfolio:
             float: Portfolio variance
         """
         assets = self.assets
-        row_indices = [cov.columns.index(a) for a in assets]
+        index = {name: i for i, name in enumerate(cov.columns)}
+        row_indices = [index[a] for a in assets]
         cov_matrix = cov.to_numpy()
         c = cov_matrix[np.ix_(row_indices, row_indices)]
         w = np.array([self._weights[a] for a in assets])
@@ -128,22 +129,11 @@ class Cluster(Node[int]):
         super().__init__(value=value, left=left, right=right)
         self.portfolio = Portfolio()
 
-    @property
-    def is_leaf(self) -> bool:
-        """Check if this cluster is a leaf node (has no children).
-
-        Returns:
-            bool: True if this is a leaf node, False otherwise
-        """
-        return self.left is None and self.right is None
-
-    # Preserve left-to-right dendrogram order required by HRP (not default post-order traversal).
+    # Override narrows the return type to list[Cluster] and validates tree integrity;
+    # the traversal order (left to right) matches Node.leaves.
     @property
     def leaves(self) -> list[Cluster]:
-        """Get all reachable leaf nodes in the correct order.
-
-        Note that the leaves method of the Node class implemented in BinaryTree
-        is not respecting the 'correct' order of the nodes.
+        """Get all reachable leaf nodes in left-to-right dendrogram order.
 
         Returns:
             list[Cluster]: List of all leaf nodes reachable from this cluster
