@@ -46,12 +46,16 @@ Here's a simple example
 
 ```python
 import polars as pl
-from pyhrp.hrp import build_tree, compute_cov, compute_corr
-from pyhrp.algos import risk_parity
+from pyhrp import build_tree, compute_cov, compute_corr, risk_parity
 
 prices = pl.read_csv("tests/resources/stock_prices.csv", try_parse_dates=True).drop("date")
 
-returns = prices.select(pl.all().pct_change()).drop_nulls().fill_null(0.0)
+returns = (
+    prices.select(pl.all().pct_change())
+    .filter(pl.any_horizontal(pl.all().is_not_null()))
+    .fill_null(0.0)
+    .fill_nan(0.0)
+)
 cov = compute_cov(returns)
 cor = compute_corr(returns)
 
@@ -69,7 +73,7 @@ For your convenience you can bypass the construction of the covariance and
 correlation matrix, and the construction of the dendrogram.
 
 ```python
-from pyhrp.hrp import hrp
+from pyhrp import hrp
 root = hrp(prices=prices, method="ward", bisection=False)
 
 ```

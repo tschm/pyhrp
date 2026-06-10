@@ -6,7 +6,7 @@ import numpy as np
 import polars as pl
 import pytest
 
-from pyhrp.algos import _parity, risk_parity
+from pyhrp.algos import risk_parity
 from pyhrp.cluster import Cluster
 from pyhrp.treelib import Node
 
@@ -67,26 +67,6 @@ def test_risk_parity_non_cluster_right() -> None:
     cov = pl.DataFrame({"A": [1.0]})
     with pytest.raises(TypeError, match="Expected right child to be a Cluster"):
         risk_parity(root, cov)
-
-
-def test_parity_non_cluster_left() -> None:
-    """TypeError is raised when _parity encounters a non-Cluster left child."""
-    cluster = Cluster(value=10)
-    cluster.left = Node(1)
-    cluster.right = Cluster(value=2)
-    cov = pl.DataFrame({"A": [1.0]})
-    with pytest.raises(TypeError, match="Expected left child to be a Cluster"):
-        _parity(cluster, cov)
-
-
-def test_parity_non_cluster_right() -> None:
-    """TypeError is raised when _parity encounters a non-Cluster right child."""
-    cluster = Cluster(value=10)
-    cluster.left = Cluster(value=1)
-    cluster.right = Node(2)
-    cov = pl.DataFrame({"A": [1.0]})
-    with pytest.raises(TypeError, match="Expected right child to be a Cluster"):
-        _parity(cluster, cov)
 
 
 def test_leaves_only_right_child() -> None:

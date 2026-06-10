@@ -28,15 +28,29 @@ __all__ = ["Dendrogram", "build_tree", "compute_corr", "compute_cov", "hrp", "sc
 def compute_cov(df: pl.DataFrame) -> pl.DataFrame:
     """Compute covariance matrix from a DataFrame of returns."""
     cols = df.columns
-    cov = np.cov(df.to_numpy().T)
-    return pl.DataFrame(dict(zip(cols, cov, strict=False)))
+    cov = np.atleast_2d(np.cov(df.to_numpy().T))
+    return pl.DataFrame(dict(zip(cols, cov, strict=True)))
 
 
 def compute_corr(df: pl.DataFrame) -> pl.DataFrame:
     """Compute correlation matrix from a DataFrame of returns."""
     cols = df.columns
-    corr = np.corrcoef(df.to_numpy().T)
-    return pl.DataFrame(dict(zip(cols, corr, strict=False)))
+    corr = np.atleast_2d(np.corrcoef(df.to_numpy().T))
+    return pl.DataFrame(dict(zip(cols, corr, strict=True)))
+
+
+def _returns(prices: pl.DataFrame) -> pl.DataFrame:
+    """Compute simple returns from prices.
+
+    Drops leading all-null rows produced by pct_change and fills remaining
+    nulls/NaNs (e.g. from missing prices) with zero returns.
+    """
+    return (
+        prices.select(pl.all().pct_change())
+        .filter(pl.any_horizontal(pl.all().is_not_null()))
+        .fill_null(0.0)
+        .fill_nan(0.0)
+    )
 
 
 def hrp(
@@ -72,12 +86,7 @@ def hrp(
         >>> round(sum(root.portfolio.weights.values()), 6)
         1.0
     """
-    returns = (
-        prices.select(pl.all().pct_change())
-        .filter(pl.any_horizontal(pl.all().is_not_null()))
-        .fill_null(0.0)
-        .fill_nan(0.0)
-    )
+    returns = _returns(prices)
     cov = compute_cov(returns)
     cor = compute_corr(returns)
     node = node or build_tree(cor, method=method, bisection=bisection).root
@@ -119,12 +128,7 @@ def schur_hrp(
         >>> round(sum(root.portfolio.weights.values()), 6)
         1.0
     """
-    returns = (
-        prices.select(pl.all().pct_change())
-        .filter(pl.any_horizontal(pl.all().is_not_null()))
-        .fill_null(0.0)
-        .fill_nan(0.0)
-    )
+    returns = _returns(prices)
     cov = compute_cov(returns)
     cor = compute_corr(returns)
     node = node or build_tree(cor, method=method, bisection=bisection).root
@@ -172,6 +176,9 @@ class Dendrogram:
 
     def plot(self, **kwargs: object) -> go.Figure:
         """Build and return a plotly dendrogram figure."""
+        if self.linkage is None:
+            msg = "Dendrogram has no linkage matrix to plot."
+            raise ValueError(msg)
         ddata = sch.dendrogram(self.linkage, labels=self.assets, no_plot=True, **kwargs)
         fig = go.Figure()
         for xs, ys in zip(ddata["icoord"], ddata["dcoord"], strict=False):
@@ -204,7 +211,7 @@ def _compute_distance_matrix(corr: pl.DataFrame) -> pl.DataFrame:
     dist = np.sqrt(np.clip((1.0 - c) / 2.0, a_min=0.0, a_max=1.0))
     np.fill_diagonal(dist, 0.0)
     cols = corr.columns
-    return pl.DataFrame(dict(zip(cols, dist, strict=False)))
+    return pl.DataFrame(dict(zip(cols, dist, strict=True)))
 
 
 def _bisect_tree(ids: list[int], next_id: int) -> tuple[Cluster, int]:
@@ -279,6 +286,20 @@ def build_tree(
     """
     if not isinstance(cor, pl.DataFrame):
         raise TypeError("Correlation matrix must be a polars DataFrame.")  # noqa: TRY003
+    if len(cor.columns) < 2:
+        msg = "Correlation matrix must contain at least two assets."
+        raise ValueError(msg)
+    c = cor.to_numpy()
+    bad = [col for col, diag in zip(cor.columns, np.diagonal(c), strict=True) if not np.isfinite(diag)]
+    if bad:
+        msg = (
+            f"Correlation matrix contains non-finite values for assets {bad}; "
+            "constant (zero-variance) price series produce NaN correlations."
+        )
+        raise ValueError(msg)
+    if not np.isfinite(c).all():
+        msg = "Correlation matrix contains non-finite values."
+        raise ValueError(msg)
     dist = _compute_distance_matrix(cor)
     links = sch.linkage(ssd.squareform(dist.to_numpy(), checks=False), method=method)
 

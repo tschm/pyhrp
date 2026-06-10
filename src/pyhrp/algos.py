@@ -2,12 +2,13 @@
 
 This module implements various portfolio optimization algorithms:
 - risk_parity: The main hierarchical risk parity algorithm
+- schur_risk_parity: Schur Complementary Allocation (Cotton, arXiv:2411.05807)
 - one_over_n: A simple equal-weight allocation strategy
 """
 
 from __future__ import annotations
 
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
@@ -29,6 +30,11 @@ def risk_parity(root: Cluster, cov: pl.DataFrame) -> Cluster:
     traverses the cluster tree and assigns weights to each node based on
     the risk parity principle.
 
+    Note:
+        The tree is modified in place: the portfolio of every node is rebuilt
+        from scratch, so the function is idempotent and a tree can be reused
+        with a different covariance matrix.
+
     Args:
         root (Cluster): The root node of the cluster tree
         cov (pl.DataFrame): Covariance matrix of asset returns
@@ -46,63 +52,17 @@ def risk_parity(root: Cluster, cov: pl.DataFrame) -> Cluster:
         >>> round(cluster.portfolio["B"], 1)
         0.8
     """
-    if root.is_leaf:
-        # a node is a leaf if has no further relatives downstream.
-        asset = cov.columns[int(root.value)]
-        root.portfolio[asset] = 1.0
-        return root
+    cov_np = cov.to_numpy()
+    index = {name: i for i, name in enumerate(cov.columns)}
 
-    # drill down on the left
-    if not isinstance(root.left, Cluster):
-        raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003
-    if not isinstance(root.right, Cluster):
-        raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003
-    root.left = risk_parity(root.left, cov)
-    # drill down on the right
-    root.right = risk_parity(root.right, cov)
+    def combine(cluster: Cluster) -> Cluster:
+        """Combine the child portfolios of a cluster via inverse-variance split."""
+        left, right = _children(cluster)
+        v_left = _block_variance(left.portfolio, cov_np, index)
+        v_right = _block_variance(right.portfolio, cov_np, index)
+        return _split(cluster, v_left, v_right)
 
-    # combine left and right into a new cluster
-    return _parity(root, cov=cov)
-
-
-def _parity(cluster: Cluster, cov: pl.DataFrame) -> Cluster:
-    """Compute risk parity weights for a parent cluster from its children.
-
-    This function implements the core risk parity principle: allocating weights
-    inversely proportional to risk, so that each sub-portfolio contributes
-    equally to the total portfolio risk.
-
-    Args:
-        cluster (Cluster): The parent cluster with left and right children
-        cov (pl.DataFrame): Covariance matrix of asset returns
-
-    Returns:
-        Cluster: The parent cluster with portfolio weights assigned
-    """
-    # Calculate variances of left and right sub-portfolios
-    if not isinstance(cluster.left, Cluster):
-        raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003
-    if not isinstance(cluster.right, Cluster):
-        raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003
-    v_left = cluster.left.portfolio.variance(cov)
-    v_right = cluster.right.portfolio.variance(cov)
-
-    # Calculate weights inversely proportional to risk
-    # such that v_left * alpha_left == v_right * alpha_right and alpha_left + alpha_right = 1
-    alpha_left = v_right / (v_left + v_right)
-    alpha_right = v_left / (v_left + v_right)
-
-    # Combine assets from left and right clusters with their adjusted weights
-    assets = {
-        **{k: alpha_left * v for k, v in cluster.left.portfolio.weights.items()},
-        **{k: alpha_right * v for k, v in cluster.right.portfolio.weights.items()},
-    }
-
-    # Assign the combined weights to the parent cluster's portfolio
-    for asset, weight in assets.items():
-        cluster.portfolio[asset] = weight
-
-    return cluster
+    return _allocate(root, cov.columns, combine)
 
 
 def schur_risk_parity(root: Cluster, cov: pl.DataFrame, gamma: float = 0.5) -> Cluster:
@@ -113,6 +73,11 @@ def schur_risk_parity(root: Cluster, cov: pl.DataFrame, gamma: float = 0.5) -> C
     At gamma=0 this recovers standard HRP; at gamma=1 it recovers the minimum-variance
     portfolio through the same recursive structure.
 
+    Note:
+        The tree is modified in place: the portfolio of every node is rebuilt
+        from scratch, so the function is idempotent and a tree can be reused
+        with a different covariance matrix or gamma.
+
     Args:
         root (Cluster): The root node of the cluster tree
         cov (pl.DataFrame): Covariance matrix of asset returns
@@ -120,6 +85,9 @@ def schur_risk_parity(root: Cluster, cov: pl.DataFrame, gamma: float = 0.5) -> C
 
     Returns:
         Cluster: The root node with portfolio weights assigned
+
+    Raises:
+        ValueError: If gamma is outside the interval [0, 1].
 
     Examples:
         >>> import polars as pl
@@ -131,65 +99,120 @@ def schur_risk_parity(root: Cluster, cov: pl.DataFrame, gamma: float = 0.5) -> C
         >>> round(cluster.portfolio["B"], 1)
         0.8
     """
+    if not 0.0 <= gamma <= 1.0:
+        msg = f"gamma must be in [0, 1], got {gamma}"
+        raise ValueError(msg)
+
+    cov_np = cov.to_numpy()
+    index = {name: i for i, name in enumerate(cov.columns)}
+
+    def combine(cluster: Cluster) -> Cluster:
+        """Combine the child portfolios of a cluster via a Schur-augmented split."""
+        left, right = _children(cluster)
+
+        li = [index[a] for a in left.portfolio.assets]
+        ri = [index[a] for a in right.portfolio.assets]
+
+        a_mat = cov_np[np.ix_(li, li)]
+        b_mat = cov_np[np.ix_(li, ri)]
+        d_mat = cov_np[np.ix_(ri, ri)]
+
+        w_left = np.array([left.portfolio[a] for a in left.portfolio.assets])
+        w_right = np.array([right.portfolio[a] for a in right.portfolio.assets])
+
+        # Schur-augmented blocks: condition each group on the other
+        a_aug = a_mat - gamma * (b_mat @ _solve(d_mat, b_mat.T))
+        d_aug = d_mat - gamma * (b_mat.T @ _solve(a_mat, b_mat))
+
+        v_left = float(w_left @ a_aug @ w_left)
+        v_right = float(w_right @ d_aug @ w_right)
+        return _split(cluster, v_left, v_right)
+
+    return _allocate(root, cov.columns, combine)
+
+
+def _allocate(root: Cluster, assets: list[str], combine: Callable[[Cluster], Cluster]) -> Cluster:
+    """Traverse the tree bottom-up, assigning leaf portfolios and combining children.
+
+    Every node's portfolio is replaced, never accumulated into, which keeps
+    repeated allocations on the same tree idempotent.
+
+    Args:
+        root (Cluster): The (sub)tree to allocate weights for
+        assets (list[str]): Asset names; a leaf's value indexes into this list
+        combine (Callable[[Cluster], Cluster]): Combines the two child portfolios
+            of a node into the node's own portfolio
+
+    Returns:
+        Cluster: The input node with portfolio weights assigned
+    """
     if root.is_leaf:
-        asset = cov.columns[int(root.value)]
-        root.portfolio[asset] = 1.0
+        root.portfolio = Portfolio()
+        root.portfolio[assets[int(root.value)]] = 1.0
         return root
 
-    if not isinstance(root.left, Cluster):
-        raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003
-    if not isinstance(root.right, Cluster):
-        raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003
-    root.left = schur_risk_parity(root.left, cov, gamma)
-    root.right = schur_risk_parity(root.right, cov, gamma)
-
-    return _schur_parity(root, cov=cov, gamma=gamma)
+    left, right = _children(root)
+    root.left = _allocate(left, assets, combine)
+    root.right = _allocate(right, assets, combine)
+    return combine(root)
 
 
-def _schur_parity(cluster: Cluster, cov: pl.DataFrame, gamma: float) -> Cluster:
-    """Compute Schur-augmented risk parity weights for a parent cluster.
-
-    Replaces sub-covariance blocks a_mat and d_mat with Schur complements
-    a_aug = a_mat - gamma * b_mat @ inv(d_mat) @ b_mat.T and
-    d_aug = d_mat - gamma * b_mat.T @ inv(a_mat) @ b_mat before splitting risk.
-    This incorporates cross-group covariance information that standard HRP discards.
-    """
+def _children(cluster: Cluster) -> tuple[Cluster, Cluster]:
+    """Return the validated left and right children of a non-leaf cluster."""
     if not isinstance(cluster.left, Cluster):
         raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003
     if not isinstance(cluster.right, Cluster):
         raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003
+    return cluster.left, cluster.right
 
-    left_assets = cluster.left.portfolio.assets
-    right_assets = cluster.right.portfolio.assets
 
-    cov_np = cov.to_numpy()
-    cols = cov.columns
-    li = [cols.index(a) for a in left_assets]
-    ri = [cols.index(a) for a in right_assets]
+def _block_variance(portfolio: Portfolio, cov_np: np.ndarray, index: dict[str, int]) -> float:
+    """Compute the variance of a portfolio against a precomputed covariance array."""
+    assets = portfolio.assets
+    idx = [index[a] for a in assets]
+    w = np.array([portfolio[a] for a in assets])
+    return float(w @ cov_np[np.ix_(idx, idx)] @ w)
 
-    a_mat = cov_np[np.ix_(li, li)]
-    b_mat = cov_np[np.ix_(li, ri)]
-    d_mat = cov_np[np.ix_(ri, ri)]
 
-    w_left = np.array([cluster.left.portfolio[a] for a in left_assets])
-    w_right = np.array([cluster.right.portfolio[a] for a in right_assets])
+def _split(cluster: Cluster, v_left: float, v_right: float) -> Cluster:
+    """Distribute weight between the two children inversely proportional to risk.
 
-    # Schur-augmented blocks: condition each group on the other
-    a_aug = a_mat - gamma * (b_mat @ np.linalg.solve(d_mat, b_mat.T))
-    d_aug = d_mat - gamma * (b_mat.T @ np.linalg.solve(a_mat, b_mat))
+    The split satisfies v_left * alpha_left == v_right * alpha_right with
+    alpha_left + alpha_right == 1. If both variances are zero (e.g. riskless
+    sub-portfolios), the weight is split equally.
 
-    v_left = float(w_left @ a_aug @ w_left)
-    v_right = float(w_right @ d_aug @ w_right)
+    Args:
+        cluster (Cluster): The parent cluster with left and right children
+        v_left (float): Variance of the left sub-portfolio
+        v_right (float): Variance of the right sub-portfolio
 
-    alpha_left = v_right / (v_left + v_right)
+    Returns:
+        Cluster: The parent cluster with portfolio weights assigned
+    """
+    left, right = _children(cluster)
+    total = v_left + v_right
+    alpha_left = v_right / total if total > 0 else 0.5
     alpha_right = 1.0 - alpha_left
 
-    for asset, weight in cluster.left.portfolio.weights.items():
+    cluster.portfolio = Portfolio()
+    for asset, weight in left.portfolio.weights.items():
         cluster.portfolio[asset] = alpha_left * weight
-    for asset, weight in cluster.right.portfolio.weights.items():
+    for asset, weight in right.portfolio.weights.items():
         cluster.portfolio[asset] = alpha_right * weight
 
     return cluster
+
+
+def _solve(m: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Solve m @ x = b, falling back to least squares for singular matrices.
+
+    Covariance blocks of collinear assets are singular; the minimum-norm
+    least-squares solution keeps the Schur augmentation well-defined there.
+    """
+    try:
+        return np.linalg.solve(m, b)
+    except np.linalg.LinAlgError:
+        return np.asarray(np.linalg.lstsq(m, b, rcond=None)[0])
 
 
 def one_over_n(dendrogram: Dendrogram) -> Generator[tuple[int, Portfolio]]:
