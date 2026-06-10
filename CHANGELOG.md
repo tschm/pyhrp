@@ -1,3 +1,41 @@
+## [2.3.1] - 2026-06-10
+
+### 💼 Other
+
+- Bump version 2.3.0 → 2.3.1
+## [2.3.0] - 2026-06-10
+
+### 💼 Other
+
+- Bump version 2.2.6 → 2.3.0
+
+### 🚜 Refactor
+
+- Harden API, validate inputs, speed up allocation
+## [2.2.6] - 2026-06-08
+
+### 🐛 Bug Fixes
+
+- Align pyproject.toml with rhiza structure tests
+- Add explicit type annotations in Node.levels to satisfy ty
+- Remove duplicate uses keys in workflow files
+
+### 💼 Other
+
+- Bump version 2.2.5 → 2.2.6
+
+### ⚙️ Miscellaneous Tasks
+
+- Update CHANGELOG.md for v2.2.5 [skip ci]
+- Upgrade actions/checkout to v6.0.2
+- Remove lowest_deps.yml (now in rhiza_ci)
+- Bump rhiza to v0.18.4
+- Apply rhiza sync v0.18.4
+- Add classifiers to pyproject.toml
+- Add pip dependabot entry for .rhiza/requirements
+- Bump rhiza reusable workflows from v0.16.0 to v0.18.4
+- Bump rhiza to v0.18.8
+- Bump rhiza to v0.18.8
 ## [2.2.5] - 2026-05-27
 
 ### 🐛 Bug Fixes
@@ -70,6 +108,8 @@
 - Remove blank line from .python-version
 - Bump rhiza to v0.16.0
 - Apply rhiza sync v0.16.0
+- Bump rhiza to v0.17.0
+- Apply rhiza sync v0.17.0
 ## [2.2.0] - 2026-05-22
 
 ### 🚀 Features
