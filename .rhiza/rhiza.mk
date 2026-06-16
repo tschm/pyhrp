@@ -10,6 +10,37 @@ ifndef MAKE_VERSION
 $(error GNU Make is required. macOS ships BSD make — install GNU Make with: brew install make)
 endif
 
+# Require a working POSIX shell.
+# Recipes use POSIX shell syntax (mkdir -p, printf, [ ... ], curl | sh). GNU Make
+# runs recipes with sh when it finds one on PATH -- even when make itself was
+# launched from PowerShell or cmd -- so e.g. CI on windows-latest (which ships
+# Git's sh.exe) works fine. Only when no POSIX shell is found does make fall back
+# to cmd.exe, where the recipes fail on the first non-cmd line with errors like:
+#   process_begin: CreateProcess(NULL, # Ensure ... folder exists, ...) failed.
+# So probe the shell make actually uses rather than guessing from the OS: run a
+# POSIX command and require its output. Guarded by $(OS) so the probe only runs
+# on Windows (no subprocess cost on Linux/macOS/WSL, where the shell is POSIX).
+ifeq ($(OS),Windows_NT)
+ifneq ($(shell printf POSIX),POSIX)
+define RHIZA_WINDOWS_SHELL_ERROR
+
+  This project's Makefile requires a POSIX shell, but make could not find one
+  and fell back to cmd.exe, which is not supported.
+
+  Run 'make' from an environment that provides a POSIX shell, e.g.:
+    - WSL (recommended):  https://learn.microsoft.com/windows/wsl/install
+    - Git Bash:           bundled with Git for Windows (https://git-scm.com/download/win)
+
+  Tip: if 'sh.exe' (from Git for Windows) is on your PATH, make will use it
+  automatically even from PowerShell or cmd.
+
+  See README.md > Prerequisites for details.
+
+endef
+$(error $(RHIZA_WINDOWS_SHELL_ERROR))
+endif
+endif
+
 # Colours for pretty output in help messages
 BLUE := \033[36m
 BOLD := \033[1m
@@ -69,7 +100,24 @@ export UV_VENV_CLEAR := 1
 unexport VIRTUAL_ENV
 
 # Load .rhiza/.env (if present) and export its variables so recipes see them.
+# This file is optional — sensible defaults are defined below.
 -include .rhiza/.env
+
+# ---------------------------------------------------------------------------
+# Default values for variables that may be set in .rhiza/.env.
+# These ?= assignments are skipped when the variable is already defined by
+# the included file, by an environment variable, or by the root Makefile.
+# ---------------------------------------------------------------------------
+
+# Directory that holds the project's Python source package(s).
+SOURCE_FOLDER ?= src
+
+# Directory that holds Marimo notebooks (used by marimo.mk and book.mk).
+MARIMO_FOLDER ?= docs/notebooks
+
+# JSON array of GitHub Actions runner OS labels used by the CI matrix.
+# Override in .rhiza/.env or your root Makefile to add more platforms.
+RHIZA_CI_OS_MATRIX ?= ["ubuntu-latest"]
 
 # ==============================================================================
 # Rhiza Core
@@ -164,7 +212,7 @@ version-matrix: install-uv ## Emit the list of supported Python versions from py
 	@${UVX_BIN} "rhiza-tools>=0.2.2" version-matrix
 
 ci-os-matrix: ## Emit GitHub CI OSes (RHIZA_CI_OS_MATRIX as JSON array, default ["ubuntu-latest"])
-	@printf '%s\n' '$(or $(RHIZA_CI_OS_MATRIX),["ubuntu-latest"])'
+	@$(info $(or $(RHIZA_CI_OS_MATRIX),["ubuntu-latest"]))
 
 print-% : ## print the value of a variable (usage: make print-VARIABLE)
 	@printf "${BLUE}[INFO] Printing value of variable '$*':${RESET}\n"

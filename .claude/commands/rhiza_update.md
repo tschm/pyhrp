@@ -23,13 +23,32 @@ gates, and open a PR. Follow the command-execution policy: always prefer
 - Briefly summarize what's between the two versions when it's cheap to do so
   (`gh release view`/release notes), so the reviewer knows what's landing.
 
-## 2. Bump the pin and commit (the tree must be clean to sync)
+### The Rhiza CLI pin (`.rhiza/.rhiza-version`) — ask before changing it
+
+`.rhiza/.rhiza-version` separately pins the **Rhiza CLI** — the `rhiza` package on
+PyPI that `make sync` runs as `uvx "rhiza==<version>"`. It is independent of the
+template `ref:` above, and there is no `$ARGUMENTS` override for it: always target
+the **latest** published version.
+
+- Read the current pin from `.rhiza/.rhiza-version`.
+- Resolve the latest published version on PyPI:
+  `curl -s https://pypi.org/pypi/rhiza/json` and read `.info.version`.
+- If the pin already equals the latest, there is nothing to do — leave it.
+- If a newer version is available, **ask the user whether to update the CLI** to
+  that latest version (state current → latest). Only bump `.rhiza/.rhiza-version`
+  if they agree; if they decline, leave the file untouched and proceed with the
+  template sync alone.
+
+## 2. Bump the pin(s) and commit (the tree must be clean to sync)
 
 - `make sync` refuses to run on a dirty tree, so the bump lands first.
 - Branch off the default branch (don't work on `main`/`master` directly):
   `git checkout -b sync/rhiza-<target>`.
-- Edit only `ref:` in `.rhiza/template.yml` to the target version.
-- Commit just that change (e.g. `Chore: bump rhiza template ref <old> → <target>`).
+- Edit `ref:` in `.rhiza/template.yml` to the target version. If the user agreed
+  to a CLI bump above, also set `.rhiza/.rhiza-version` to the latest PyPI version
+  in the same step, so `make sync` runs with the chosen CLI.
+- Commit the pin change(s) (e.g. `Chore: bump rhiza template ref <old> → <target>`,
+  noting the CLI bump in the message when one was made).
 
 ## 3. Sync
 
@@ -84,6 +103,39 @@ a **Rhiza-managed** file, that is an upstream problem: fix it in
 `jebel-quant/rhiza` and bump again — do **not** edit the synced artifact in
 place. Call out any such upstream-owned failure explicitly rather than papering
 over it locally.
+
+### Configure the CI variables/secrets the synced workflows need (fuzzing & mutation)
+
+If this sync added or updated the fuzzing/mutation workflows
+(`.github/workflows/rhiza_fuzzing.yml`, `.github/workflows/rhiza_mutation.yml`),
+make sure the configuration they read is present. These are **GitHub Actions
+repository variables and secrets** — *not* local env vars or files — set under
+**Settings → Secrets and variables → Actions** (or via `gh`), and documented in
+`.github/CONFIG.md`. Skip this step entirely if neither workflow is present.
+
+Inspect what is already set (presence only — secret values are never readable):
+
+- `gh variable list`
+- `gh secret list`
+
+**Mutation** (`rhiza_mutation.yml`) reads:
+
+- `MUTATION_ENABLED` (variable) — must be `true` for the mutation gate/badge to run.
+- `GH_PAT` (secret) — git auth for installing private dependencies.
+- `UV_EXTRA_INDEX_URL` (secret) — extra package index URL (with credentials) for private deps.
+
+**Fuzzing** (`rhiza_fuzzing.yml`) needs no user configuration — it uses the
+automatic `GITHUB_TOKEN`, so do not prompt for any fuzzing secret.
+
+For each of the above that is **missing**, **ask the user** whether to set it and
+for its value; set only the ones they provide:
+
+- variables: `gh variable set MUTATION_ENABLED --body true`
+- secrets:   `gh secret set GH_PAT` (let `gh` read the value from stdin — never
+  echo a secret value into the transcript or a commit).
+
+Leave anything the user declines unset, and note it in the PR body so the reviewer
+knows the corresponding workflow step will be skipped or fail until it is configured.
 
 ## 6. Commit, push, open a PR
 

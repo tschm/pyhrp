@@ -244,20 +244,20 @@ m te<TAB>  # Expands to: m test
 1. **Target Discovery**: Parses `make -qp` output to find all targets
 2. **Description Extraction**: Looks for `##` comments after target names
 3. **Variable Detection**: Includes common Makefile variables
-4. **Dynamic Completion**: Regenerates list each time you tab
+4. **Cached Completion**: The target list is cached per directory and refreshed automatically
 
 ### Performance
 
-- Completions are generated on-demand (when you press Tab)
-- For large Makefiles (100+ targets), there may be a small delay
-- Results are not cached to ensure targets are always current
+- The target list is cached under `${XDG_CACHE_HOME:-~/.cache}/rhiza/`, keyed per directory
+- The cache refreshes automatically whenever the `Makefile`, `local.mk`,
+  `.rhiza/rhiza.mk`, or any `.rhiza/make.d/*.mk` file changes
+- Only the first Tab press after a makefile change pays the full `make -qp` parsing cost
+- To force a refresh manually, delete the cache: `rm -rf "${XDG_CACHE_HOME:-$HOME/.cache}/rhiza"`
+- If the cache directory cannot be created (e.g. read-only home), completion
+  falls back to direct parsing on every Tab press
 
 ## See Also
 
 - [Tools Reference](../../docs/reference/TOOLS_REFERENCE.md) - Complete command reference
 - [Quick Reference](../../docs/guides/QUICK_REFERENCE.md) - Quick command reference
 - [Extending Rhiza](../../docs/guides/EXTENDING_RHIZA.md) - How to add custom targets
-
----
-
-*Last updated: 2026-02-15*

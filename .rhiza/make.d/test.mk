@@ -49,15 +49,25 @@ test:: install ## run all tests
 	  --html=_tests/html-report/report.html; \
 	fi
 
-# The 'typecheck' target runs static type analysis using ty.
-# 1. Checks if the source directory exists.
-# 2. Runs ty on the source folder.
-typecheck: install ## run ty type checking
-	@if [ -d ${SOURCE_FOLDER} ]; then \
-	  printf "${BLUE}[INFO] Running ty type checking...${RESET}\n"; \
-	  ${UV_BIN} run ty check ${SOURCE_FOLDER}; \
+# The 'typecheck' target runs static type analysis using ty and mypy.
+# 1. Builds a list of existing Python source folders to check.
+# 2. Runs ty on those folders.
+# 3. Runs mypy in strict mode on those folders as a cross-check.
+typecheck: install ## run ty and mypy type checking
+	@typecheck_paths=""; \
+	if [ -d "${SOURCE_FOLDER}" ]; then \
+	  typecheck_paths="${SOURCE_FOLDER}"; \
+	fi; \
+	if [ -d ".rhiza/utils" ]; then \
+	  typecheck_paths="$${typecheck_paths} .rhiza/utils"; \
+	fi; \
+	if [ -n "$${typecheck_paths}" ]; then \
+	  printf "${BLUE}[INFO] Running ty type checking in:$${typecheck_paths}${RESET}\n"; \
+	  ${UV_BIN} run ty check $${typecheck_paths} && \
+	  printf "${BLUE}[INFO] Running mypy strict type checking in:$${typecheck_paths}${RESET}\n"; \
+	  ${UV_BIN} run mypy --strict $${typecheck_paths}; \
 	else \
-	  printf "${YELLOW}[WARN] Source folder ${SOURCE_FOLDER} not found, skipping typecheck${RESET}\n"; \
+	  printf "${YELLOW}[WARN] No typecheck folders found (SOURCE_FOLDER='${SOURCE_FOLDER}', .rhiza/utils missing), skipping typecheck${RESET}\n"; \
 	fi
 
 # Extra flags forwarded to pip-audit (e.g. --ignore-vuln CVE-XXXX-YYYY)
@@ -65,12 +75,23 @@ PIP_AUDIT_ARGS ?=
 
 # The 'security' target performs security vulnerability scans.
 # 1. Runs pip-audit via pip_audit_policy.py: fails on runtime dep CVEs, warns on tooling (pip/setuptools/wheel).
-# 2. Runs bandit to find common security issues in the source code.
+# 2. Runs bandit to find common security issues in Python source folders that exist.
 security: install ## run security scans (pip-audit and bandit)
 	@printf "${BLUE}[INFO] Running pip-audit for dependency vulnerabilities...${RESET}\n"
 	@${UV_BIN} run python .rhiza/utils/pip_audit_policy.py ${PIP_AUDIT_ARGS}
-	@printf "${BLUE}[INFO] Running bandit security scan...${RESET}\n"
-	@${UVX_BIN} bandit -r ${SOURCE_FOLDER} -ll -q --ini .bandit
+	@bandit_paths=""; \
+	if [ -d "${SOURCE_FOLDER}" ]; then \
+	  bandit_paths="${SOURCE_FOLDER}"; \
+	fi; \
+	if [ -d ".rhiza/utils" ]; then \
+	  bandit_paths="$${bandit_paths} .rhiza/utils"; \
+	fi; \
+	if [ -n "$${bandit_paths}" ]; then \
+	  printf "${BLUE}[INFO] Running bandit security scan in:$${bandit_paths}${RESET}\n"; \
+	  ${UVX_BIN} bandit -r $${bandit_paths} -ll -q --ini .bandit; \
+	else \
+	  printf "${YELLOW}[WARN] No bandit scan folders found (SOURCE_FOLDER='${SOURCE_FOLDER}', .rhiza/utils missing), skipping bandit${RESET}\n"; \
+	fi
 
 # The 'benchmark' target runs performance benchmarks using pytest-benchmark.
 # 1. Installs benchmarking dependencies (pytest-benchmark, pygal).
@@ -92,14 +113,27 @@ benchmark:: install ## run performance benchmarks
 	fi
 
 # The 'docs-coverage' target checks documentation coverage using interrogate.
-# 1. Checks if SOURCE_FOLDER exists.
-# 2. Runs interrogate on the source folder with verbose output.
+# 1. Builds a list of existing Python source folders to check.
+# 2. Runs interrogate with verbose output against those folders.
 docs-coverage: install ## check documentation coverage with interrogate
-	@if [ -d "${SOURCE_FOLDER}" ]; then \
-	  printf "${BLUE}[INFO] Checking documentation coverage in ${SOURCE_FOLDER}...${RESET}\n"; \
-	  ${UV_BIN} run interrogate -vv --fail-under 100 --ignore-init-method --ignore-magic ${SOURCE_FOLDER}; \
+	@docstring_paths=""; \
+	if [ -d "${SOURCE_FOLDER}" ]; then \
+	  docstring_paths="${SOURCE_FOLDER}"; \
+	fi; \
+	if [ -d ".rhiza/utils" ]; then \
+	  docstring_paths="$${docstring_paths} .rhiza/utils"; \
+	fi; \
+	if [ -d "tests" ]; then \
+	  docstring_paths="$${docstring_paths} tests"; \
+	fi; \
+	if [ -d ".rhiza/tests" ]; then \
+	  docstring_paths="$${docstring_paths} .rhiza/tests"; \
+	fi; \
+	if [ -n "$${docstring_paths}" ]; then \
+	  printf "${BLUE}[INFO] Checking documentation coverage in:$${docstring_paths}${RESET}\n"; \
+	  ${UV_BIN} run interrogate -vv --fail-under 100 --ignore-init-method --ignore-magic $${docstring_paths}; \
 	else \
-	  printf "${YELLOW}[WARN] Source folder ${SOURCE_FOLDER} not found, skipping docs-coverage${RESET}\n"; \
+	  printf "${YELLOW}[WARN] No docs-coverage folders found (SOURCE_FOLDER='${SOURCE_FOLDER}', .rhiza/utils missing), skipping docs-coverage${RESET}\n"; \
 	fi
 
 # The 'hypothesis-test' target runs property-based tests using Hypothesis.

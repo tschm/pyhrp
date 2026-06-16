@@ -21,11 +21,14 @@
 #   2. 🏗️ Build - Build Python package with Hatch (if [build-system] is defined in pyproject.toml)
 #   3. 📦 Generate SBOM - Create Software Bill of Materials (CycloneDX format)
 #   4. 📝 Draft Release - Create draft GitHub release with build artifacts and SBOM
-#   5. 📄 Update CHANGELOG - Generate and commit CHANGELOG.md to the default branch
-#   6. 🚀 Publish to PyPI - Publish package using OIDC or custom feed
-#   7. 📦 Generate Conda Recipe - Generate conda-forge recipe with grayskull (conditional)
-#   8. 🐳 Publish Devcontainer - Build and publish devcontainer image (conditional)
-#   9. ✅ Finalize Release - Publish the GitHub release with links
+#   5. 🚀 Publish to PyPI - Publish package using OIDC or custom feed
+#   6. 📦 Generate Conda Recipe - Generate conda-forge recipe with grayskull (conditional)
+#   7. 🐳 Publish Devcontainer - Build and publish devcontainer image (conditional)
+#   8. ✅ Finalize Release - Publish the GitHub release with links
+#
+# 📄 CHANGELOG: not updated here. The rhiza-tools `bump` command folds a freshly
+# generated CHANGELOG.md into the version-bump commit (git-cliff pre-commit hook),
+# so the tagged commit already carries the changelog — no separate post-tag commit.
 #
 # 📦 SBOM Generation:
 #   - Generated using CycloneDX format (industry standard for software supply chain security)
@@ -102,21 +105,28 @@ on:
       PYPI_TOKEN:
         required: false
 
+# Queue runs instead of cancelling: a release or sync must never be
+# interrupted mid-publish or mid-push.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+# Least-privilege default: every job below re-declares exactly the write
+# scopes it needs (Scorecard Token-Permissions). Top-level stays read-only.
 permissions:
-  contents: write       # Needed to create releases
-  id-token: write       # Needed for OIDC authentication with PyPI
-  packages: write       # Needed to publish devcontainer image
-  attestations: write   # Needed for SLSA provenance attestations (public repos only)
+  contents: read
 
 jobs:
   tag:
     name: Validate Tag
     runs-on: ubuntu-latest
+    permissions:
+      contents: read   # Validation only: reads tags and release state
     outputs:
       tag: ${{ steps.set_tag.outputs.tag }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
 
@@ -195,19 +205,23 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     needs: tag
+    permissions:
+      contents: read
+      id-token: write       # OIDC for attestation signing
+      attestations: write   # SLSA provenance + SBOM attestations (public repos only)
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v8.2.0
+        uses: astral-sh/setup-uv@v7.6.0
         with:
           version: "0.11.16"
 
       - name: Configure git auth for private packages
-        uses: jebel-quant/rhiza/.github/actions/configure-git-auth@v0.19.1
+        uses: jebel-quant/rhiza/.github/actions/configure-git-auth@v0.19.3
         with:
           token: ${{ secrets.GH_PAT }}
 
@@ -270,11 +284,21 @@ jobs:
       - name: Attest SBOM
         # Attest only the JSON format as it's the canonical machine-readable format.
         # The XML format is provided for compatibility but doesn't need separate attestation.
+        id: attest-sbom
         if: hashFiles('pyproject.toml') != '' && github.event.repository.private == false
         uses: actions/attest@v4.1.0
         with:
           subject-path: sbom.cdx.json
           sbom-path: sbom.cdx.json
+
+      - name: Stage SBOM attestation for the GitHub release
+        # Attach the SBOM's Sigstore attestation bundle to the release as a
+        # recognised signature asset (*.sigstore.json). Non-buildable repos
+        # (no [build-system], so no dist/*.intoto.jsonl provenance) would
+        # otherwise ship releases without any signature asset, which fails
+        # OpenSSF Scorecard's Signed-Releases check.
+        if: hashFiles('pyproject.toml') != '' && github.event.repository.private == false
+        run: cp "${{ steps.attest-sbom.outputs.bundle-path }}" sbom.cdx.json.sigstore.json
 
       - name: Upload SBOM artifacts
         if: hashFiles('pyproject.toml') != ''
@@ -284,12 +308,21 @@ jobs:
           path: |
             sbom.cdx.json
             sbom.cdx.xml
+            sbom.cdx.json.sigstore.json
 
       - name: Generate SLSA provenance attestations
+        id: provenance
         if: steps.buildable.outputs.buildable == 'true' && github.event.repository.private == false
-        uses: actions/attest-build-provenance@v4
+        uses: actions/attest-build-provenance@v4.1.0
         with:
           subject-path: dist/*
+
+      - name: Stage provenance bundle for the GitHub release
+        # Attach the SLSA provenance bundle to the release as a recognised
+        # signature asset (*.intoto.jsonl) so consumers — and OpenSSF
+        # Scorecard's Signed-Releases check — can verify the artifacts.
+        if: steps.buildable.outputs.buildable == 'true' && github.event.repository.private == false
+        run: cp "${{ steps.provenance.outputs.bundle-path }}" dist/provenance.intoto.jsonl
 
       - name: Upload dist artifact
         if: steps.buildable.outputs.buildable == 'true'
@@ -303,15 +336,17 @@ jobs:
     name: Draft GitHub Release
     runs-on: ubuntu-latest
     needs: [tag, build]
+    permissions:
+      contents: write   # Needed to create the GitHub release and upload artifacts
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v8.2.0
+        uses: astral-sh/setup-uv@v7.6.0
 
       - name: Generate release notes with git-cliff
         run: uvx git-cliff --latest --output RELEASE_NOTES.md
@@ -324,6 +359,15 @@ jobs:
           path: sbom
         continue-on-error: true
 
+      - name: Download dist artifact
+        # Brings in provenance.intoto.jsonl (and the built distributions) staged
+        # by the build job, so the SLSA provenance ships as a release asset.
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: dist
+          path: dist
+        continue-on-error: true
+
       - name: Create GitHub Release with artifacts
         uses: ncipollo/release-action@v1.21.0
         with:
@@ -332,35 +376,7 @@ jobs:
           bodyFile: RELEASE_NOTES.md
           draft: true
           allowUpdates: true
-          artifacts: "sbom/*"
-
-  update-changelog:
-    name: Update CHANGELOG.md
-    runs-on: ubuntu-latest
-    needs: [tag, draft-release]
-    steps:
-      - name: Checkout Default Branch
-        uses: actions/checkout@v6.0.3
-        with:
-          ref: ${{ github.event.repository.default_branch }}
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v8.2.0
-
-      - name: Generate CHANGELOG.md with git-cliff
-        run: uvx git-cliff --output CHANGELOG.md
-
-      - name: Commit and push CHANGELOG.md
-        env:
-          TAG: ${{ needs.tag.outputs.tag }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add CHANGELOG.md
-          git diff --staged --quiet || git commit -m "chore: update CHANGELOG.md for $TAG [skip ci]"
-          git push origin ${{ github.event.repository.default_branch }}
+          artifacts: "sbom/*,dist/provenance.intoto.jsonl"
 
   # Decide at step-level whether to publish
   pypi:
@@ -368,12 +384,15 @@ jobs:
     runs-on: ubuntu-latest
     environment: release
     needs: [tag, build, draft-release]
+    permissions:
+      contents: read
+      id-token: write   # OIDC Trusted Publishing to PyPI (no stored credentials)
     outputs:
       should_publish: ${{ steps.check_dist.outputs.should_publish }}
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
 
@@ -400,11 +419,18 @@ jobs:
           fi
           cat "$GITHUB_OUTPUT"
 
+      - name: Remove non-distribution files before publish
+        # The dist artifact also carries the SLSA provenance bundle (staged for
+        # the GitHub release). twine/pypi-publish rejects it as an unknown
+        # distribution format, so strip it here before publishing.
+        if: ${{ steps.check_dist.outputs.should_publish == 'true' }}
+        run: rm -f dist/*.intoto.jsonl
+
       # this should not take place, as "Private :: Do Not Upload" set in pyproject.toml
       # repository-url and password only used for custom feeds, not for PyPI with OIDC
       - name: Publish to PyPI
         if: ${{ steps.check_dist.outputs.should_publish == 'true' }}
-        uses: pypa/gh-action-pypi-publish@release/v1
+        uses: pypa/gh-action-pypi-publish@v1.14.0
         with:
           packages-dir: dist/
           skip-existing: true
@@ -416,12 +442,14 @@ jobs:
     name: Generate Conda Recipe
     runs-on: ubuntu-latest
     needs: [tag, pypi]
+    permissions:
+      contents: read   # Generates a recipe and uploads it as a workflow artifact only
     outputs:
       should_generate: ${{ steps.check_conda.outputs.should_generate }}
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
 
@@ -478,12 +506,15 @@ jobs:
     runs-on: ubuntu-latest
     environment: release
     needs: [tag, build, draft-release]
+    permissions:
+      contents: read
+      packages: write   # Needed to push the devcontainer image to the registry
     outputs:
       should_publish: ${{ steps.check_publish.outputs.should_publish }}
       image_name: ${{ steps.image_name.outputs.image_name }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
 
@@ -554,7 +585,7 @@ jobs:
 
       - name: Build and Publish Devcontainer Image
         if: steps.check_publish.outputs.should_publish == 'true'
-        uses: devcontainers/ci@v0.3
+        uses: devcontainers/ci@v0.3.1900000450
         with:
           configFile: .devcontainer/devcontainer.json
           push: always
@@ -566,14 +597,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: [tag, pypi, conda, devcontainer]
     if: needs.pypi.result == 'success' || needs.conda.result == 'success' || needs.devcontainer.result == 'success'
+    permissions:
+      contents: write   # Needed to undraft/publish the GitHub release
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v6.0.2
         with:
           fetch-depth: 0
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v8.2.0
+        uses: astral-sh/setup-uv@v7.6.0
         with:
           version: "0.11.16"
 

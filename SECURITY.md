@@ -72,6 +72,7 @@ This project implements several security measures:
 - **Bandit**: Python security linter integrated in CI and pre-commit
 - **pip-audit**: Dependency vulnerability scanning
 - **Secret Scanning**: GitHub secret scanning enabled on this repository
+- **Fuzzing**: ClusterFuzzLite exercises Atheris-based fuzz targets on pull requests and scheduled batch runs
 
 ### Supply Chain Security
 - **SLSA Provenance**: Build attestations for release artifacts (public repositories only)
@@ -81,7 +82,7 @@ This project implements several security measures:
 
 ### Release Security
 - **OIDC Publishing**: PyPI trusted publishing without stored credentials
-- **Signed Commits**: GPG signing supported for releases
+- **SBOM Attestations**: CycloneDX SBOMs generated and attested for release artifacts (public repositories only)
 - **Tag Protection**: Releases require version tag validation
 
 ## Security Best Practices
