@@ -34,7 +34,7 @@ with app.setup:
 
 
 @app.cell
-def _():
+def _() -> None:
     mo.md(r"""
     # Hierarchical Risk Parity (HRP)
 
@@ -72,7 +72,7 @@ def _(cor):
 
 
 @app.cell
-def _(cov, dendrogram_before):
+def _(cov, dendrogram_before) -> None:
     root_before = risk_parity(dendrogram_before.root, cov)
     root_before.portfolio.plot(names=dendrogram_before.names).show()
     return
@@ -107,7 +107,7 @@ def _(cov, dendrogram_ward):
 
 
 @app.cell
-def _(root_bisection, root_ward):
+def _(root_bisection, root_ward) -> None:
     import plotly.graph_objects as go
 
     _weights_ward = root_ward.portfolio.weights
