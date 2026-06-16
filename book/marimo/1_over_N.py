@@ -31,7 +31,7 @@ with app.setup:
 
 
 @app.cell
-def _():
+def _() -> None:
     mo.md(r"""
     # 1 over N (the hierarchical version)
 
@@ -65,7 +65,7 @@ def _(cor):
 
 
 @app.cell
-def _(dendrogram):
+def _(dendrogram) -> None:
     from pyhrp.algos import one_over_n
 
     for level, portfolio in one_over_n(dendrogram):

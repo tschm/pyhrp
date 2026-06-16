@@ -27,7 +27,7 @@ class Node[T: NodeValue]:
         right: The right child node
     """
 
-    def __init__(self, value: T, left: Node[T] | None = None, right: Node[T] | None = None):
+    def __init__(self, value: T, left: Node[T] | None = None, right: Node[T] | None = None) -> None:
         """Initialize a new Node.
 
         Args:

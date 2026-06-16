@@ -27,6 +27,36 @@ navigate to its root, and run the following command:
 make install
 ```
 
+### Windows quick-start (WSL)
+
+The Makefile system requires GNU Make and a POSIX shell, so native Windows
+shells (PowerShell, cmd.exe, Git Bash) fail fast with an error. Use the
+Windows Subsystem for Linux instead:
+
+1. Install WSL with an Ubuntu distribution (PowerShell, as administrator):
+
+   ```bash
+   wsl --install -d Ubuntu
+   ```
+
+2. Inside the Ubuntu shell, install the prerequisites that `make doctor` checks
+   for (GNU Make and git; `make install` provisions `uv` itself):
+
+   ```bash
+   sudo apt-get update && sudo apt-get install -y make git curl
+   ```
+
+3. Clone the repository **inside the WSL filesystem** (e.g. `~/projects`), not
+   under `/mnt/c/...` — cross-filesystem I/O is dramatically slower and can
+   break file-permission assumptions:
+
+   ```bash
+   git clone https://github.com/jebel-quant/rhiza.git ~/projects/rhiza
+   cd ~/projects/rhiza && make install
+   ```
+
+4. Run `make doctor` to confirm the toolchain is complete.
+
 ### Optional uv dependency groups
 
 For faster, focused installs you can sync only the dependency groups you need:

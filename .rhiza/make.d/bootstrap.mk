@@ -72,10 +72,15 @@ install: pre-install install-uv ## install
 	  ${UV_BIN} pip install -r tests/requirements.txt || { printf "${RED}[ERROR] Failed to install test requirements${RESET}\n"; exit 1; }; \
 	fi
 
-	# Install pre-commit hooks
+	# Install pre-commit hooks (skip when core.hooksPath is set, e.g. by an
+	# external hook manager — pre-commit refuses to install in that case)
 	@if [ -f ".pre-commit-config.yaml" ]; then \
-	  printf "${BLUE}[INFO] Installing pre-commit hooks...${RESET}\n"; \
-	  ${UVX_BIN} -p ${PYTHON_VERSION} pre-commit install || { printf "${YELLOW}[WARN] Failed to install pre-commit hooks${RESET}\n"; }; \
+	  if [ -n "$$(git config --get core.hooksPath 2>/dev/null)" ]; then \
+	    printf "${BLUE}[INFO] Skipping pre-commit hook install: core.hooksPath is set${RESET}\n"; \
+	  else \
+	    printf "${BLUE}[INFO] Installing pre-commit hooks...${RESET}\n"; \
+	    ${UVX_BIN} -p ${PYTHON_VERSION} pre-commit install || { printf "${YELLOW}[WARN] Failed to install pre-commit hooks${RESET}\n"; }; \
+	  fi; \
 	fi
 
 	@$(MAKE) post-install

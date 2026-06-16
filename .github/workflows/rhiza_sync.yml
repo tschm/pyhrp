@@ -15,8 +15,7 @@
 name: "(RHIZA) SYNC"
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 on:
   push:
@@ -36,8 +35,11 @@ on:
 
 jobs:
   sync:
-    uses: jebel-quant/rhiza/.github/workflows/rhiza_sync.yml@v0.19.1
+    uses: jebel-quant/rhiza/.github/workflows/rhiza_sync.yml@v0.19.3
     with:
       direct: ${{ github.event_name == 'push' }}
       create-pr: ${{ github.event_name != 'push' && (github.event_name == 'schedule' || inputs.create-pr == true) }}
     secrets: inherit
+    permissions:
+      contents: write         # Commit/push synced files (direct mode)
+      pull-requests: write    # Open the sync PR (scheduled/dispatch mode)
