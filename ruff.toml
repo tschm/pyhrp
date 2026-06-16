@@ -138,8 +138,9 @@ line-ending = "auto"
     "RUF002",  # docstrings quote prose with typographic unicode (e.g. en dash)
     "RUF012",  # pytest class attributes are conventionally bare mutables, not ClassVar
 ]
-# Marimo notebooks - allow flexible coding patterns for interactive exploration
-"**/notebooks/*.py" = [
+# Marimo notebooks - allow flexible coding patterns for interactive exploration.
+# Matches both the rhiza default notebook folder and this repo's book/marimo/ layout.
+"**/{notebooks,marimo}/*.py" = [
     "ANN",     # notebooks prioritize interactive readability over strict annotation coverage
     "D100",    # No module docstring - marimo requires `import marimo` as the first statement
     "N803",    # Allow non-lowercase variable names in notebooks
