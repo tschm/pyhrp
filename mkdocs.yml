@@ -20,6 +20,19 @@ nav:
     - Test Report: reports/html-report/report.html
     - Coverage Report: reports/html-coverage/index.html
 
+# Tell mkdocstrings/griffe where the src-layout package lives so API docs build
+# by static analysis of the source, without an editable install. The rhiza book
+# command intentionally no longer installs the package editable
+# (see .rhiza/tests/integration/test_docs_targets.py::
+# test_default_book_command_does_not_use_editable_install), so a src-layout
+# project must point the handler at src/ itself.
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+
 extra:
   social:
     - icon: fontawesome/brands/github
