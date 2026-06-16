@@ -11,6 +11,7 @@ from pyhrp.hrp import build_tree, compute_corr, hrp
 
 
 def _synthetic_prices(asset_count: int, periods: int = 500, seed: int = 0) -> pl.DataFrame:
+    """Build a synthetic price frame of ``asset_count`` geometric-random-walk series."""
     rng = np.random.default_rng(seed)
     returns = rng.normal(loc=0.0005, scale=0.01, size=(periods, asset_count))
     prices = 100.0 * np.exp(np.cumsum(returns, axis=0))
