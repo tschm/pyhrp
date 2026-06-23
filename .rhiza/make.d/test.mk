@@ -16,38 +16,58 @@ COVERAGE_FAIL_UNDER ?= 90
 ##@ Development and Testing
 
 # The 'test' target runs the complete test suite.
-# 1. Cleans up any previous test results in _tests/.
+# 1. Cleans up any previous test results in _tests/ and stale coverage data.
 # 2. Creates directories for HTML coverage and test reports.
 # 3. Invokes pytest via the local virtual environment.
 # 4. Generates terminal output, HTML coverage, JSON coverage, and HTML test reports.
+#
+# Parallel (pytest-xdist) runs occasionally crash *during worker/session
+# teardown* even though every test passed — e.g. the xdist
+# `worker_workerfinished` KeyError or a pytest-html report-write race. pytest
+# signals these runner-internal crashes with exit code 3 (INTERNALERROR),
+# which is distinct from real test failures (1), interruptions (2) and usage
+# errors (4). We therefore retry the suite once on exit code 3 only, so a
+# teardown race no longer flips a green run red, while genuine failures still
+# fail immediately. Stale `.coverage*` data is removed before each attempt so a
+# previously crashed run cannot leave a corrupt data file that reports a false
+# 0% coverage on the next run.
 test:: install ## run all tests
-	@rm -rf _tests;
-
-	if [ -z "$$(find ${TESTS_FOLDER} -name 'test_*.py' -o -name '*_test.py' 2>/dev/null)" ]; then \
+	@rm -rf _tests
+	@if [ -z "$$(find ${TESTS_FOLDER} -name 'test_*.py' -o -name '*_test.py' 2>/dev/null)" ]; then \
 	  printf "${YELLOW}[WARN] No test files found in ${TESTS_FOLDER}, skipping tests.${RESET}\n"; \
 	  exit 0; \
 	fi; \
-	mkdir -p _tests/html-coverage _tests/html-report; \
 	if [ -d ${SOURCE_FOLDER} ]; then \
-	  ${UV_BIN} run pytest \
-	  -n auto \
-	  --ignore=${TESTS_FOLDER}/benchmarks \
-	  --ignore=${TESTS_FOLDER}/stress \
-	  --cov=${SOURCE_FOLDER} \
-	  --cov-report=term \
-	  --cov-report=html:_tests/html-coverage \
-	  --cov-fail-under=$(COVERAGE_FAIL_UNDER) \
-	  --cov-report=json:_tests/coverage.json \
-	  --cov-report=xml:_tests/coverage.xml \
-	  --html=_tests/html-report/report.html; \
+	  set -- -n auto \
+	    --ignore=${TESTS_FOLDER}/benchmarks \
+	    --ignore=${TESTS_FOLDER}/stress \
+	    --cov=${SOURCE_FOLDER} \
+	    --cov-report=term \
+	    --cov-report=html:_tests/html-coverage \
+	    --cov-fail-under=$(COVERAGE_FAIL_UNDER) \
+	    --cov-report=json:_tests/coverage.json \
+	    --cov-report=xml:_tests/coverage.xml \
+	    --html=_tests/html-report/report.html; \
 	else \
 	  printf "${YELLOW}[WARN] Source folder ${SOURCE_FOLDER} not found, running tests without coverage${RESET}\n"; \
-	  ${UV_BIN} run pytest \
-	  -n auto \
-	  --ignore=${TESTS_FOLDER}/benchmarks \
-	  --ignore=${TESTS_FOLDER}/stress \
-	  --html=_tests/html-report/report.html; \
-	fi
+	  set -- -n auto \
+	    --ignore=${TESTS_FOLDER}/benchmarks \
+	    --ignore=${TESTS_FOLDER}/stress \
+	    --html=_tests/html-report/report.html; \
+	fi; \
+	attempt=1; max_attempts=2; \
+	while :; do \
+	  rm -f .coverage .coverage.* _tests/coverage.xml _tests/coverage.json 2>/dev/null || true; \
+	  mkdir -p _tests/html-coverage _tests/html-report; \
+	  ${UV_BIN} run pytest "$$@"; status=$$?; \
+	  if [ $$status -ne 3 ]; then exit $$status; fi; \
+	  if [ $$attempt -ge $$max_attempts ]; then \
+	    printf "${RED}[ERROR] pytest reported an internal (teardown) error after %s attempts; failing.${RESET}\n" "$$attempt"; \
+	    exit $$status; \
+	  fi; \
+	  printf "${YELLOW}[WARN] pytest exited 3 (xdist/teardown internal error, all tests may have passed); retrying suite (attempt %s/%s)...${RESET}\n" "$$((attempt + 1))" "$$max_attempts"; \
+	  attempt=$$((attempt + 1)); \
+	done
 
 # The 'typecheck' target runs static type analysis using ty and mypy.
 # 1. Builds a list of existing Python source folders to check.
