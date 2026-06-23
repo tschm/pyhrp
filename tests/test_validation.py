@@ -8,7 +8,9 @@ import pytest
 
 import pyhrp
 from pyhrp import build_tree, compute_corr, compute_cov, hrp, risk_parity, schur_hrp, schur_risk_parity
+from pyhrp.algos import _solve
 from pyhrp.cluster import Cluster
+from pyhrp.hrp import Dendrogram
 
 
 def test_top_level_exports() -> None:
@@ -102,3 +104,27 @@ def test_schur_singular_block_does_not_crash() -> None:
     weights = cluster.portfolio.weights
     assert all(np.isfinite(w) for w in weights.values())
     assert sum(weights.values()) == pytest.approx(1.0)
+
+
+def test_solve_singular_falls_back_to_lstsq() -> None:
+    """_solve returns the minimum-norm least-squares solution for a singular matrix."""
+    m = np.array([[1.0, 2.0], [2.0, 4.0]])  # rank 1, singular
+    b = np.array([1.0, 2.0])
+    x = _solve(m, b)
+    assert np.allclose(m @ x, b)
+    assert np.all(np.isfinite(x))
+
+
+def test_dendrogram_plot_without_linkage_raises() -> None:
+    """plot() needs a linkage matrix and reports a clear error when it is missing."""
+    root = Cluster(2, left=Cluster(0), right=Cluster(1))
+    dendrogram = Dendrogram(root=root, assets=["A", "B"], linkage=None)
+    with pytest.raises(ValueError, match="no linkage matrix to plot"):
+        dendrogram.plot()
+
+
+def test_build_tree_non_finite_off_diagonal_raises() -> None:
+    """build_tree rejects correlation matrices with non-finite off-diagonal entries."""
+    cor = pl.DataFrame({"A": [1.0, np.inf], "B": [np.inf, 1.0]})
+    with pytest.raises(ValueError, match="non-finite values"):
+        build_tree(cor)
