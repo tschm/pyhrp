@@ -111,4 +111,4 @@ clean: ## Clean project artifacts and stale local branches
 
 	@git fetch --prune
 
-	@git branch -vv | awk '/: gone]/{print $$1}' | xargs -r git branch -D
+	@git branch -vv | awk '/: gone]/ && $$1 != "*" && $$1 != "+" {print $$1}' | xargs -r git branch -D

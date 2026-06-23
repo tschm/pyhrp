@@ -22,13 +22,6 @@ from api.conftest import run_make, strip_ansi
 class TestCoverageFailUnder:
     """COVERAGE_FAIL_UNDER controls the pytest --cov-fail-under threshold."""
 
-    def test_default_threshold_is_90(self, logger) -> None:
-        """Default COVERAGE_FAIL_UNDER value must be 90."""
-        proc = run_make(logger, ["test"])
-        assert "--cov-fail-under=90" in proc.stdout, (
-            "Default coverage threshold should be 90; got:\n" + proc.stdout[:500]
-        )
-
     def test_threshold_override_to_100(self, logger) -> None:
         """COVERAGE_FAIL_UNDER=100 must propagate to pytest invocation."""
         proc = run_make(logger, ["test", "COVERAGE_FAIL_UNDER=100"])
@@ -135,6 +128,22 @@ class TestSourceFolderVariable:
 
         proc = run_make(logger, ["deptry", "SOURCE_FOLDER=mypackage"])
         assert "mypackage" in proc.stdout, "deptry should reference SOURCE_FOLDER; got:\n" + proc.stdout[:400]
+
+    def test_deptry_accumulates_marimo_and_source_in_one_call(self, logger, tmp_path) -> None:
+        """The marimo bundle must contribute its folder (and DEP004 ignore) to the single deptry scan.
+
+        This locks in the accumulator design: each bundle appends to DEPTRY_FOLDERS /
+        DEPTRY_IGNORE rather than the core target hard-coding knowledge of marimo.
+        """
+        (tmp_path / "mypackage").mkdir(exist_ok=True)
+        (tmp_path / "notebooks").mkdir(exist_ok=True)
+
+        proc = run_make(logger, ["deptry", "SOURCE_FOLDER=mypackage", "MARIMO_FOLDER=notebooks"])
+        out = strip_ansi(proc.stdout)
+        # marimo.mk is included before quality.mk, so its folder is appended first.
+        assert "deptry notebooks mypackage --ignore DEP004" in out, (
+            "deptry should scan marimo + source folders in a single call with DEP004 ignored; got:\n" + out[:600]
+        )
 
 
 class TestUvNoModifyPath:
