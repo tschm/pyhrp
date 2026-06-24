@@ -13,11 +13,11 @@ pip3 install --upgrade "pip==24.3.1"
 # each frozen fuzzer binary.
 pip3 install .
 
-# PyInstaller does not discover numpy's C-extension submodules on its own, so
-# the frozen fuzzer crashes at runtime with
-# "No module named 'numpy._core._exceptions'". --collect-all pulls in every
-# numpy submodule, data file and shared library. polars and scipy are bundled
-# correctly via the static import graph and PyInstaller's built-in hooks.
+# PyInstaller does not discover the compiled extension modules of numpy/scipy on
+# their own, so the frozen fuzzer crashes at runtime (numpy: "No module named
+# 'numpy._core._exceptions'"; scipy: "No module named 'scipy._cyutility'").
+# --collect-all pulls in every submodule, data file and shared library for both.
+# polars is bundled correctly via the static import graph.
 for fuzzer in tests/fuzz/fuzz_*.py; do
-  compile_python_fuzzer "$fuzzer" --collect-all numpy
+  compile_python_fuzzer "$fuzzer" --collect-all numpy --collect-all scipy
 done
