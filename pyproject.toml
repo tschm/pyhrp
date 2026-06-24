@@ -4,7 +4,7 @@ version = "2.3.2"
 description = "Cluster-based portfolio allocation: HRP, Schur risk parity, and 1/N"
 authors = [{name = "Thomas Schmelzer", email = "thomas.schmelzer@gmail.com"}]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.11"
 dependencies = [
     "numpy>=2.0,<3",
     "plotly>=5,<7",
@@ -15,6 +15,7 @@ license = "MIT"
 license-files = ["LICENSE"]
 classifiers = [
     "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
