@@ -27,4 +27,8 @@ from pyhrp.cluster import Cluster, Portfolio
 
 ---
 
+::: pyhrp.plot
+
+---
+
 ::: pyhrp.treelib
