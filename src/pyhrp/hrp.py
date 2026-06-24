@@ -11,16 +11,18 @@ This module implements the core HRP algorithm and related functions:
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 import numpy as np
-import plotly.graph_objects as go
 import polars as pl
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
 from .algos import risk_parity, schur_risk_parity
 from .cluster import Cluster
+
+if TYPE_CHECKING:
+    import plotly.graph_objects as go
 
 __all__ = ["Dendrogram", "build_tree", "compute_corr", "compute_cov", "hrp", "schur_hrp"]
 
@@ -175,24 +177,14 @@ class Dendrogram:
             raise ValueError("Number of leaves does not match number of assets.")  # noqa: TRY003
 
     def plot(self, **kwargs: object) -> go.Figure:
-        """Build and return a plotly dendrogram figure."""
-        if self.linkage is None:
-            msg = "Dendrogram has no linkage matrix to plot."
-            raise ValueError(msg)
-        ddata = sch.dendrogram(self.linkage, labels=self.assets, no_plot=True, **kwargs)
-        fig = go.Figure()
-        for xs, ys in zip(ddata["icoord"], ddata["dcoord"], strict=False):
-            fig.add_trace(go.Scatter(x=xs, y=ys, mode="lines", line={"color": "steelblue"}, showlegend=False))
-        n = len(self.assets)
-        fig.update_layout(
-            xaxis={
-                "tickmode": "array",
-                "tickvals": [5 + 10 * i for i in range(n)],
-                "ticktext": ddata["ivl"],
-                "tickangle": -90,
-            },
-        )
-        return fig
+        """Build and return a plotly dendrogram figure.
+
+        Delegates to :func:`pyhrp.plot.plot_dendrogram`; the plotly dependency
+        is imported lazily so importing the allocation core stays plotly-free.
+        """
+        from .plot import plot_dendrogram
+
+        return plot_dendrogram(self, **kwargs)
 
     @property
     def ids(self) -> list[int]:
