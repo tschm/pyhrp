@@ -5,6 +5,27 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 and entries are generated from [Conventional Commits](https://www.conventionalcommits.org).
 
+## [2.3.3] - 2026-06-25
+
+### New Features
+- Add ClusterFuzzLite fuzzing scaffold for pyhrp (#711)
+
+### Maintenance
+- Chore(deps)(deps): bump the python-dependencies group with 5 updates
+- Chore(deps)(deps): bump actions/checkout in the github-actions group
+
+### Other Changes
+- Bump rhiza template ref v0.19.3 → v0.19.4
+- Sync Rhiza template v0.19.3 → v0.19.4
+- Merge pull request #707 from tschm/sync/rhiza-v0.19.4
+- Merge pull request #708 from tschm/dependabot/github_actions/github-actions-6a98abd9ac
+- Merge branch 'main' into dependabot/uv/python-dependencies-9ea60807c1
+- Merge pull request #709 from tschm/dependabot/uv/python-dependencies-9ea60807c1
+- Cover remaining branches to reach 100% coverage
+- Merge pull request #710 from tschm/test/100-percent-coverage
+- Support Python 3.11 (#712)
+- Extract plotly dendrogram rendering into pyhrp.plot (#713)
+
 ## [2.3.2] - 2026-06-16
 
 ### Maintenance
@@ -28,6 +49,7 @@ and entries are generated from [Conventional Commits](https://www.conventionalco
 - Merge pull request #705 from tschm/sync/rhiza-v0.19.3
 - Point mkdocstrings at src/ so the book builds without an editable install
 - Merge pull request #706 from tschm/fix/book-mkdocstrings-src-paths
+- Bump version 2.3.1 → 2.3.2
 
 ## [2.3.1] - 2026-06-10
 
