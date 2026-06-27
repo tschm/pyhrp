@@ -64,7 +64,17 @@ _SKIP_DIRS = {".venv", ".git", "node_modules", ".tox", "build", "dist", "__pycac
 
 @dataclass
 class Suppression:
-    """Represents a single suppression comment found in the codebase."""
+    """A single suppression comment found in the codebase.
+
+    Attributes:
+        file: Path to the file containing the suppression.
+        line_no: 1-based line number of the comment.
+        kind: Suppression family label (e.g. ``"noqa"``, ``"nosec"``,
+            ``"type:ignore"``, ``"no cover"``, ``"noinspection"``).
+        codes: The specific rule codes named in the comment, if any
+            (e.g. ``["E501", "F401"]``); empty for blanket suppressions.
+        raw: The verbatim comment text, used for downstream CVE extraction.
+    """
 
     file: str
     line_no: int
@@ -99,6 +109,13 @@ def scan_file(path: Path) -> list[Suppression]:
     Uses Python's ``tokenize`` module so that only actual comment tokens are
     inspected — patterns that appear inside string literals or docstrings are
     correctly ignored.
+
+    Args:
+        path: Path to the Python file to scan.
+
+    Returns:
+        A list of :class:`Suppression` records, one per matching comment line, in
+        source order. Empty if the file cannot be read or fails to tokenize.
     """
     suppressions: list[Suppression] = []
     try:
@@ -134,7 +151,15 @@ def scan_file(path: Path) -> list[Suppression]:
 
 
 def count_non_empty_lines(path: Path) -> int:
-    """Count non-empty lines in a file."""
+    """Count non-empty lines in a file.
+
+    Args:
+        path: Path to the file to measure.
+
+    Returns:
+        The number of lines that contain non-whitespace characters, or ``0`` if
+        the file cannot be read. Used as the denominator for suppression density.
+    """
     try:
         return sum(1 for line in path.read_text(encoding="utf-8", errors="replace").splitlines() if line.strip())
     except OSError:
@@ -156,7 +181,15 @@ _GRADE_THRESHOLDS: list[tuple[float, str]] = [
 
 
 def compute_grade(density: float) -> str:
-    """Return a letter grade based on suppression density (count per 100 lines)."""
+    """Return a letter grade based on suppression density.
+
+    Args:
+        density: Number of suppressions per 100 non-empty lines of code.
+
+    Returns:
+        A letter grade from ``"A+"`` (zero suppressions) down to ``"F"``,
+        derived from :data:`_GRADE_THRESHOLDS`.
+    """
     grade = "F"
     for threshold, letter in _GRADE_THRESHOLDS:
         if density <= threshold:
@@ -347,7 +380,31 @@ def _check_stale_nosec_cves(suppressions: list[Suppression], pip_audit_args: lis
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Run the suppression audit and print a structured report."""
+    """Run the suppression audit and print a structured report.
+
+    Scans the working directory tree for inline suppression comments, prints a
+    per-file report, a histogram by code, and an overall density grade. With
+    ``--fail-stale-nosec-cve`` it additionally cross-checks CVE-tagged ``# nosec``
+    comments against live pip-audit findings and fails on stale ones.
+
+    Args:
+        argv: Argument list to parse (excluding the program name). Defaults to
+            ``None``, in which case ``sys.argv[1:]`` is used by the module entry
+            point. Unrecognised arguments are forwarded to pip-audit.
+
+    Returns:
+        A process exit code: ``0`` on success, ``1`` when stale CVE-tagged
+        ``# nosec`` suppressions are found, or ``2`` when pip-audit fails to run.
+
+    Example:
+        Run via the Makefile (the supported entry point)::
+
+            $ make suppression-audit
+
+        or invoke the module directly, enabling the stale-CVE gate::
+
+            $ python .rhiza/utils/suppression_audit.py --fail-stale-nosec-cve
+    """
     parser = argparse.ArgumentParser(add_help=True)
     parser.add_argument(
         "--fail-stale-nosec-cve",

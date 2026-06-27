@@ -45,6 +45,7 @@ assert_equal() {
     fi
 }
 
+# shellcheck disable=SC2329  # helper kept for tests that assert on output content
 assert_contains() {
     local haystack="$1"
     local needle="$2"
@@ -93,56 +94,6 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 echo -e "${BLUE}=== Shell Script Test Suite ===${NC}"
 echo "Repository: $REPO_ROOT"
 echo ""
-
-# ============================================================================
-# Test Suite: session-start.sh
-# ============================================================================
-echo -e "${YELLOW}Testing: session-start.sh${NC}"
-
-# Test 1: Script has proper shebang
-first_line=$(head -n 1 "$REPO_ROOT/.github/hooks/session-start.sh")
-assert_equal "#!/bin/bash" "$first_line" "session-start.sh has bash shebang"
-
-# Test 2: Script uses strict mode
-if grep -q "set -euo pipefail" "$REPO_ROOT/.github/hooks/session-start.sh"; then
-    TESTS_RUN=$((TESTS_RUN + 1))
-    TESTS_PASSED=$((TESTS_PASSED + 1))
-    if [ "$VERBOSE" = true ]; then
-        echo -e "${GREEN}✓${NC} PASS: session-start.sh uses strict error handling"
-    fi
-else
-    TESTS_RUN=$((TESTS_RUN + 1))
-    TESTS_FAILED=$((TESTS_FAILED + 1))
-    echo -e "${RED}✗${NC} FAIL: session-start.sh missing 'set -euo pipefail'"
-fi
-
-# Test 3: Normal mode with valid environment
-if [ -d "$REPO_ROOT/.venv" ] && command -v uv >/dev/null 2>&1; then
-    output=$(bash "$REPO_ROOT/.github/hooks/session-start.sh" 2>&1) || true
-    assert_contains "$output" "Validating environment" "session-start.sh normal mode runs validation"
-fi
-
-# ============================================================================
-# Test Suite: session-end.sh
-# ============================================================================
-echo -e "${YELLOW}Testing: session-end.sh${NC}"
-
-# Test 4: Script has proper shebang
-first_line=$(head -n 1 "$REPO_ROOT/.github/hooks/session-end.sh")
-assert_equal "#!/bin/bash" "$first_line" "session-end.sh has bash shebang"
-
-# Test 5: Script uses strict mode
-if grep -q "set -euo pipefail" "$REPO_ROOT/.github/hooks/session-end.sh"; then
-    TESTS_RUN=$((TESTS_RUN + 1))
-    TESTS_PASSED=$((TESTS_PASSED + 1))
-    if [ "$VERBOSE" = true ]; then
-        echo -e "${GREEN}✓${NC} PASS: session-end.sh uses strict error handling"
-    fi
-else
-    TESTS_RUN=$((TESTS_RUN + 1))
-    TESTS_FAILED=$((TESTS_FAILED + 1))
-    echo -e "${RED}✗${NC} FAIL: session-end.sh missing 'set -euo pipefail'"
-fi
 
 # ============================================================================
 # Test Suite: bootstrap.sh
@@ -210,12 +161,11 @@ fi
 # ============================================================================
 echo -e "${YELLOW}Testing: Syntax validation${NC}"
 
-# Test 11-13: Validate syntax of all shell scripts
-for script in \
-    "$REPO_ROOT/.devcontainer/bootstrap.sh" \
-    "$REPO_ROOT/.github/hooks/session-start.sh" \
-    "$REPO_ROOT/.github/hooks/session-end.sh"
-do
+# Validate syntax of all shell scripts
+scripts_to_check=(
+    "$REPO_ROOT/.devcontainer/bootstrap.sh"
+)
+for script in "${scripts_to_check[@]}"; do
     script_name=$(basename "$script")
     if bash -n "$script" 2>/dev/null; then
         TESTS_RUN=$((TESTS_RUN + 1))

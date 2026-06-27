@@ -1,7 +1,7 @@
-sha: 7fceeb67cbede92474ec7798b0f2945d844b8b3e
+sha: 1a17313aea5af3d15901a77b18f1bff91c7da3a7
 repo: jebel-quant/rhiza
 host: github
-ref: v0.19.4
+ref: v0.19.6
 include: []
 exclude: []
 templates:
@@ -10,6 +10,7 @@ files:
 - .bandit
 - .claude/commands/rhiza_book.md
 - .claude/commands/rhiza_quality.md
+- .claude/commands/rhiza_release.md
 - .claude/commands/rhiza_update.md
 - .editorconfig
 - .github/CONFIG.md
@@ -21,6 +22,7 @@ files:
 - .github/dependabot.yml
 - .github/pull_request_template.md
 - .github/release.yml
+- .github/rulesets/main-branch-protection.json
 - .github/secret_scanning.yml
 - .github/workflows/rhiza_benchmark.yml
 - .github/workflows/rhiza_book.yml
@@ -51,6 +53,7 @@ files:
 - .rhiza/make.d/custom-env.mk
 - .rhiza/make.d/custom-task.mk
 - .rhiza/make.d/doctor.mk
+- .rhiza/make.d/github.mk
 - .rhiza/make.d/marimo.mk
 - .rhiza/make.d/quality.mk
 - .rhiza/make.d/releasing.mk
@@ -102,5 +105,5 @@ files:
 - ruff.toml
 profiles:
 - github-project
-synced_at: '2026-06-23T04:30:07Z'
+synced_at: '2026-06-27T04:10:49Z'
 strategy: merge
