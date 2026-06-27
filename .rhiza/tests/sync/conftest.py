@@ -56,7 +56,6 @@ def setup_sync_env(logger, root, tmp_path: Path):
         "marimo.mk",
         "presentation.mk",
         "github.mk",
-        "agentic.mk",
         "docker.mk",
     ]
     (tmp_path / ".rhiza" / "make.d").mkdir(parents=True, exist_ok=True)

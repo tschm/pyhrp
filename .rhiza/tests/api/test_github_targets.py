@@ -6,58 +6,50 @@ and emit the expected commands without actually executing them.
 
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
 # Import run_make from local conftest (setup_tmp_makefile is autouse)
 from api.conftest import run_make
 
-_GITHUB_MK = Path(__file__).resolve().parents[3] / ".rhiza" / "make.d" / "github.mk"
-if not _GITHUB_MK.exists():
-    pytest.skip("github.mk not found, skipping github targets tests", allow_module_level=True)
+# Every GitHub helper target defined in github.mk; all must appear in `make help`.
+_GH_TARGETS = (
+    "gh-install",
+    "view-prs",
+    "view-issues",
+    "failed-workflows",
+    "whoami",
+    "workflow-status",
+    "latest-release",
+)
+
+# Map each target to a substring that must appear in its dry-run output, proving
+# the recipe emits the intended command rather than merely parsing. Under `make -n`
+# even @-prefixed recipe lines are printed, so the command text is observable.
+_TARGET_COMMANDS = (
+    ("gh-install", "command -v gh"),
+    ("view-prs", "gh pr list"),
+    ("view-issues", "gh issue list"),
+    ("failed-workflows", "gh run list"),
+    ("whoami", "gh auth status"),
+    ("workflow-status", "gh workflow list"),
+    ("latest-release", "gh release view"),
+)
 
 
 def test_gh_targets_exist(logger):
-    """Verify that GitHub targets are listed in help."""
+    """Verify that every GitHub target is listed in help."""
     result = run_make(logger, ["help"], dry_run=False)
     output = result.stdout
 
-    expected_targets = ["gh-install", "view-prs", "view-issues", "failed-workflows", "whoami"]
-
-    for target in expected_targets:
+    for target in _GH_TARGETS:
         assert target in output, f"Target {target} not found in help output"
 
 
-def test_gh_install_dry_run(logger):
-    """Verify gh-install target dry-run."""
-    result = run_make(logger, ["gh-install"])
-    # In dry-run, we expect to see the shell commands that would be executed.
-    # Since the recipe uses @if, make -n might verify the syntax or show the command if not silenced.
-    # However, with -s (silent), make -n might not show much for @ commands unless they are echoed.
-    # But we mainly want to ensure it runs without error.
+@pytest.mark.parametrize(("target", "expected_command"), _TARGET_COMMANDS)
+def test_gh_target_emits_command(logger, target, expected_command):
+    """Verify each GitHub target dry-runs cleanly and emits its expected command."""
+    result = run_make(logger, [target])
     assert result.returncode == 0
-
-
-def test_view_prs_dry_run(logger):
-    """Verify view-prs target dry-run."""
-    result = run_make(logger, ["view-prs"])
-    assert result.returncode == 0
-
-
-def test_view_issues_dry_run(logger):
-    """Verify view-issues target dry-run."""
-    result = run_make(logger, ["view-issues"])
-    assert result.returncode == 0
-
-
-def test_failed_workflows_dry_run(logger):
-    """Verify failed-workflows target dry-run."""
-    result = run_make(logger, ["failed-workflows"])
-    assert result.returncode == 0
-
-
-def test_whoami_dry_run(logger):
-    """Verify whoami target dry-run."""
-    result = run_make(logger, ["whoami"])
-    assert result.returncode == 0
+    assert expected_command in result.stdout, (
+        f"Target {target} did not emit expected command {expected_command!r}; got:\n{result.stdout}"
+    )
