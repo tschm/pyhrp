@@ -180,9 +180,21 @@ summarise-sync: install-uv ## summarise differences created by sync with templat
 		${UVX_BIN} "rhiza==$(RHIZA_VERSION)" summarise .; \
 	fi
 
+# Minimum coverage percent for rhiza's own utilities (.rhiza/utils) when the
+# rhiza-test suite runs. Override per project, e.g.
+#   make rhiza-test RHIZA_COVERAGE_FAIL_UNDER=100
+RHIZA_COVERAGE_FAIL_UNDER ?= 90
+
 rhiza-test: install ## run rhiza's own tests (if any)
 	@if [ -d ".rhiza/tests" ]; then \
-		${UV_BIN} run pytest .rhiza/tests; \
+		if [ -d ".rhiza/utils" ]; then \
+			${UV_BIN} run pytest .rhiza/tests \
+				--cov=.rhiza/utils \
+				--cov-report=term-missing \
+				--cov-fail-under=$(RHIZA_COVERAGE_FAIL_UNDER); \
+		else \
+			${UV_BIN} run pytest .rhiza/tests; \
+		fi; \
 	else \
 		printf "${YELLOW}[WARN] No .rhiza/tests directory found, skipping rhiza-tests${RESET}\n"; \
 	fi
