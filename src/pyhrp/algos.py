@@ -160,9 +160,9 @@ def _allocate(root: Cluster, assets: list[str], combine: Callable[[Cluster], Clu
 def _children(cluster: Cluster) -> tuple[Cluster, Cluster]:
     """Return the validated left and right children of a non-leaf cluster."""
     if not isinstance(cluster.left, Cluster):
-        raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003
+        raise TypeError("Expected left child to be a Cluster")
     if not isinstance(cluster.right, Cluster):
-        raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003
+        raise TypeError("Expected right child to be a Cluster")
     return cluster.left, cluster.right
 
 
