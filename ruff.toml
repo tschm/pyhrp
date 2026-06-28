@@ -123,6 +123,12 @@ line-ending = "auto"
 
 # File-specific rule exceptions
 [lint.per-file-ignores]
+# Library source - long, descriptive exception messages are intentional at our
+# scale (see the EM note above); express that policy once here instead of
+# scattering inline `# noqa: TRY003` across the modules.
+"src/pyhrp/*.py" = [
+    "TRY003",   # Allow long exception messages in the library source
+]
 # All test code, wherever it lives (project suite under tests/, smoke tests under
 # .rhiza/tests/, and their bundle copies under bundles/). This glob subsumes the
 # project suite; tests/**/*.py below adds project-suite-only allowances on top.

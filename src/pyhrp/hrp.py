@@ -168,13 +168,13 @@ class Dendrogram:
         """
         if self.distance is not None:
             if not isinstance(self.distance, pl.DataFrame):
-                raise TypeError("distance must be a polars DataFrame.")  # noqa: TRY003
+                raise TypeError("distance must be a polars DataFrame.")
 
             if self.distance.columns != list(self.assets):
-                raise ValueError("Distance matrix index/columns must align with assets.")  # noqa: TRY003
+                raise ValueError("Distance matrix index/columns must align with assets.")
 
         if len(self.root.leaves) != len(self.assets):
-            raise ValueError("Number of leaves does not match number of assets.")  # noqa: TRY003
+            raise ValueError("Number of leaves does not match number of assets.")
 
     def plot(self, **kwargs: object) -> go.Figure:
         """Build and return a plotly dendrogram figure.
@@ -209,7 +209,7 @@ def _compute_distance_matrix(corr: pl.DataFrame) -> pl.DataFrame:
 def _bisect_tree(ids: list[int], next_id: int) -> tuple[Cluster, int]:
     """Build tree by recursive bisection."""
     if not ids:
-        raise ValueError("ids must contain at least one node id.")  # noqa: TRY003
+        raise ValueError("ids must contain at least one node id.")
     if len(ids) == 1:
         return Cluster(value=ids[0]), next_id
 
@@ -226,9 +226,9 @@ def _get_linkage(node: Cluster) -> list[list[float]]:
     links_list: list[list[float]] = []
     if node.left is not None and node.right is not None:
         if not isinstance(node.left, Cluster):
-            raise TypeError("Expected left child to be a Cluster")  # noqa: TRY003  # pragma: no cover
+            raise TypeError("Expected left child to be a Cluster")  # pragma: no cover
         if not isinstance(node.right, Cluster):
-            raise TypeError("Expected right child to be a Cluster")  # noqa: TRY003  # pragma: no cover
+            raise TypeError("Expected right child to be a Cluster")  # pragma: no cover
         links_list.extend(_get_linkage(node.left))
         links_list.extend(_get_linkage(node.right))
         links_list.append(
@@ -277,7 +277,7 @@ def build_tree(
         2
     """
     if not isinstance(cor, pl.DataFrame):
-        raise TypeError("Correlation matrix must be a polars DataFrame.")  # noqa: TRY003
+        raise TypeError("Correlation matrix must be a polars DataFrame.")
     if len(cor.columns) < 2:
         msg = "Correlation matrix must contain at least two assets."
         raise ValueError(msg)
