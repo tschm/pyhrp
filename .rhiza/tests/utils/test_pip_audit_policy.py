@@ -4,10 +4,12 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import runpy
 import sys
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
 from test_utils import strip_ansi
 
 
@@ -126,3 +128,20 @@ def test_main_fails_for_runtime_vulnerabilities_and_warns_for_tooling(root, monk
     output = strip_ansi(capsys.readouterr().out)
     assert "[WARN] setuptools==70.0: PYSEC-2024-2 (tooling — not failing build)" in output
     assert "[FAIL] requests==2.0.0: GHSA-abcd, CVE-2024-5678" in output
+
+
+def test_module_entrypoint_exits_with_main_return_code(root, monkeypatch, capsys):
+    """Running the module as __main__ forwards main()'s return code to sys.exit."""
+    module_path = root / ".rhiza" / "utils" / "pip_audit_policy.py"
+
+    monkeypatch.setattr(sys, "argv", ["pip_audit_policy.py"])
+    monkeypatch.setattr(
+        "subprocess.run",
+        lambda *args, **kwargs: SimpleNamespace(returncode=0, stdout="", stderr=""),
+    )
+
+    with pytest.raises(SystemExit) as excinfo:
+        runpy.run_path(str(module_path), run_name="__main__")
+
+    assert excinfo.value.code == 0
+    assert "[OK] pip-audit: no vulnerabilities found" in strip_ansi(capsys.readouterr().out)

@@ -1,7 +1,7 @@
-sha: 1a17313aea5af3d15901a77b18f1bff91c7da3a7
+sha: ff7bd135efaaad8aadf01d41bb60dd8419c015ae
 repo: jebel-quant/rhiza
 host: github
-ref: v0.19.6
+ref: v0.19.9
 include: []
 exclude: []
 templates:
@@ -92,6 +92,8 @@ files:
 - .rhiza/tests/utils/test_suppression_audit.py
 - .rhiza/utils/pip_audit_policy.py
 - .rhiza/utils/suppression_audit.py
+- .rhiza/utils/suppression_parse.py
+- .rhiza/utils/suppression_report.py
 - LICENSE
 - Makefile
 - SECURITY.md
@@ -105,5 +107,5 @@ files:
 - ruff.toml
 profiles:
 - github-project
-synced_at: '2026-06-27T04:10:49Z'
+synced_at: '2026-06-28T18:07:58Z'
 strategy: merge

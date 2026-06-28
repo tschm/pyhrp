@@ -17,6 +17,13 @@ failures surface before the slow test suite — and collect results:
 
 Guidelines:
 
+- Run each gate as a single, bare `make <target>` command — one Bash call per
+  gate. Do **not** pipe (`| tee`, `| tail`), redirect (`2>&1 >`), chain
+  (`make fmt && make typecheck`), or prefix with `cd`. Bare `make <target>`
+  invocations match the allow-listed `Bash(make *)` rule and run without a
+  permission prompt; compound or piped commands do not and will prompt on every
+  gate. Read the full output directly from each call rather than capturing it to
+  a file.
 - Run all gates even after an early failure, so the full picture is visible
   rather than stopping at the first red.
 - If something fails, show the relevant output, diagnose the root cause, and
