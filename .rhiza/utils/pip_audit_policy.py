@@ -1,3 +1,7 @@
+# /// script
+# requires-python = ">=3.12"
+# dependencies = []
+# ///
 """Run pip-audit with a tiered vulnerability policy.
 
 Fails the build for vulnerabilities in runtime dependencies.

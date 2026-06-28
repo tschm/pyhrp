@@ -8,6 +8,7 @@ pytest-xdist>=3.0
 pytest-timeout>=2.0
 PyYAML>=6.0
 defusedxml>=0.7.0
+packaging>=24
 mutmut>=2.0,<3.0
 
 # For property-based testing
