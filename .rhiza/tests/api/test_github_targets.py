@@ -8,8 +8,9 @@ from __future__ import annotations
 
 import pytest
 
-# Import run_make from local conftest (setup_tmp_makefile is autouse)
-from api.conftest import run_make
+# setup_tmp_makefile (autouse) comes from the api/ conftest; run_make is a shared
+# helper imported directly from test_utils.
+from test_utils import run_make
 
 # Every GitHub helper target defined in github.mk; all must appear in `make help`.
 _GH_TARGETS = (
