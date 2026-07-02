@@ -102,6 +102,19 @@ The comparison image above is generated from code in
 uv run --with kaleido book/marimo/demo.py
 ```
 
+## Package layout
+
+The `src/pyhrp/` package is split into small, focused modules:
+
+| Module | Responsibility |
+| --- | --- |
+| `hrp.py` | High-level entry points. Turns a price/return frame into a weighted tree: `compute_cov`/`compute_corr` build the matrices, `build_tree` produces the `Dendrogram`, and `hrp`/`schur_hrp` run the full pipeline end to end. |
+| `algos.py` | The allocation algorithms that size a cluster tree: `risk_parity` (recursive HRP), `schur_risk_parity` (Schur Complementary Allocation), and `one_over_n` (equal weight). |
+| `cluster.py` | Core data structures — `Cluster` (a node in the hierarchical tree) and `Portfolio` (an asset-to-weight mapping with analysis/plot helpers). |
+| `treelib.py` | A minimal generic binary-tree `Node`, kept in-house to avoid a `binarytree` dependency. |
+| `plot.py` | Plotly dendrogram rendering (`plot_dendrogram`), kept separate so the optional plotting dependency does not couple the algorithm modules. |
+| `__init__.py` | Public API surface — re-exports the functions and classes above and exposes `__version__`. |
+
 ## uv
 
 Starting with
