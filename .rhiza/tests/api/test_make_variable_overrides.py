@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import os
 
-from api.conftest import run_make, strip_ansi
+from test_utils import run_make, strip_ansi
 
 
 class TestCoverageFailUnder:
