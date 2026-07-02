@@ -18,15 +18,9 @@ import os
 import pathlib
 import shutil
 import subprocess  # nosec B404 - subprocess module needed for git operations in test fixtures
-import sys
 
 import pytest
-
-tests_root = pathlib.Path(__file__).resolve().parent
-if str(tests_root) not in sys.path:
-    sys.path.insert(0, str(tests_root))
-
-from test_utils import GIT  # noqa: E402
+from test_utils import GIT
 
 MOCK_MAKE_SCRIPT = """#!/usr/bin/env python3
 import sys

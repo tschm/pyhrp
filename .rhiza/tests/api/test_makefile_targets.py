@@ -17,7 +17,8 @@ import re
 from pathlib import Path
 
 import pytest
-from api.conftest import SPLIT_MAKEFILES, run_make, setup_rhiza_git_repo, strip_ansi
+from api.conftest import SPLIT_MAKEFILES
+from test_utils import run_make, setup_rhiza_git_repo, strip_ansi
 
 
 def assert_uvx_command_uses_version(output: str, tmp_path, command_fragment: str):
