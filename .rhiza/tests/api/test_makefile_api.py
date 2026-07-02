@@ -90,8 +90,8 @@ def setup_api_env(logger, root, tmp_path: Path):
         os.chdir(old_cwd)
 
 
-# Import run_make from local conftest
-from api.conftest import run_make  # noqa: E402
+# Imported after the module-level fixture above (hence the E402 exemption).
+from test_utils import run_make  # noqa: E402
 
 
 def test_api_delegation(logger, setup_api_env):

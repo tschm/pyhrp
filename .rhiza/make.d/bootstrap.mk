@@ -37,7 +37,9 @@ install: pre-install install-uv ## install
 	  printf "${BLUE}[INFO] Using existing virtual environment at ${VENV}, skipping creation${RESET}\n"; \
 	fi
 
-	# Install the dependencies from pyproject.toml (if it exists)
+	# Install the dependencies from pyproject.toml (if it exists).
+	# --inexact keeps dev tools from .rhiza/requirements/*.txt (installed below) instead of pruning them each run,
+	# so repeated 'make' targets no longer uninstall and reinstall the whole tool set on every invocation.
 	@if [ -f "pyproject.toml" ]; then \
 	  if [ -f "uv.lock" ]; then \
 	    if ! ${UV_BIN} lock --check >/dev/null 2>&1; then \
@@ -47,10 +49,10 @@ install: pre-install install-uv ## install
 	      exit 1; \
 	    fi; \
 	    printf "${BLUE}[INFO] Installing dependencies from lock file${RESET}\n"; \
-	    ${UV_BIN} sync $(UV_SYNC_ARGS) --frozen || { printf "${RED}[ERROR] Failed to install dependencies${RESET}\n"; exit 1; }; \
+	    ${UV_BIN} sync $(UV_SYNC_ARGS) --inexact --frozen || { printf "${RED}[ERROR] Failed to install dependencies${RESET}\n"; exit 1; }; \
 	  else \
 	    printf "${YELLOW}[WARN] uv.lock not found. Generating lock file and installing dependencies...${RESET}\n"; \
-	    ${UV_BIN} sync $(UV_SYNC_ARGS) || { printf "${RED}[ERROR] Failed to install dependencies${RESET}\n"; exit 1; }; \
+	    ${UV_BIN} sync $(UV_SYNC_ARGS) --inexact || { printf "${RED}[ERROR] Failed to install dependencies${RESET}\n"; exit 1; }; \
 	  fi; \
 	else \
 	  printf "${YELLOW}[WARN] No pyproject.toml found, skipping install${RESET}\n"; \

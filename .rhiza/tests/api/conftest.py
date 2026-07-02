@@ -2,9 +2,10 @@
 
 This conftest provides:
 - setup_tmp_makefile: Copies Makefile and split files to temp dir for isolated testing
-- run_make: Helper to execute make commands with dry-run support (imported from test_utils)
-- setup_rhiza_git_repo: Initialize a git repo configured as rhiza origin (imported from test_utils)
 - SPLIT_MAKEFILES: List of split Makefile paths
+
+Shared helpers (run_make, setup_rhiza_git_repo, strip_ansi) live in test_utils;
+import them from there directly rather than via this module.
 
 Security Notes:
 - S101 (assert usage): Asserts are used in pytest tests to validate conditions
@@ -17,16 +18,9 @@ from __future__ import annotations
 
 import os
 import shutil
-import sys
 from pathlib import Path
 
 import pytest
-
-tests_root = Path(__file__).resolve().parents[1]
-if str(tests_root) not in sys.path:
-    sys.path.insert(0, str(tests_root))
-
-from test_utils import run_make, setup_rhiza_git_repo, strip_ansi  # noqa: E402, F401
 
 # Split Makefile paths that are included in the main Makefile
 # These are now located in .rhiza/make.d/ directory

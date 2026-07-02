@@ -129,8 +129,11 @@ uv run pytest .rhiza/tests/ --cov
 - `git_repo` — Sandboxed git repository (function-scoped)
 
 ### Category-specific fixtures
-- `api/conftest.py` — `setup_tmp_makefile`, `run_make`, `setup_rhiza_git_repo`
+- `api/conftest.py` — `setup_tmp_makefile` fixture (and the `SPLIT_MAKEFILES` constant)
 - `sync/conftest.py` — `setup_sync_env`
+
+Shared helpers (`run_make`, `setup_rhiza_git_repo`, `strip_ansi`) are imported
+directly from `test_utils` — see [Import Patterns](#import-patterns) below.
 
 ## Writing Tests
 
