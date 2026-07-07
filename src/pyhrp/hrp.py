@@ -242,6 +242,53 @@ def _get_linkage(node: Cluster) -> list[list[float]]:
     return links_list
 
 
+def _check_finite_correlations(cor: pl.DataFrame, c: np.ndarray) -> None:
+    """Raise if the correlation matrix contains non-finite values.
+
+    Names the offending assets when the non-finite values sit on the diagonal,
+    since a constant (zero-variance) price series is the usual cause.
+    """
+    bad = [col for col, diag in zip(cor.columns, np.diagonal(c), strict=True) if not np.isfinite(diag)]
+    if bad:
+        msg = (
+            f"Correlation matrix contains non-finite values for assets {bad}; "
+            "constant (zero-variance) price series produce NaN correlations."
+        )
+        raise ValueError(msg)
+    if not np.isfinite(c).all():
+        msg = "Correlation matrix contains non-finite values."
+        raise ValueError(msg)
+
+
+def _validate_correlation_matrix(cor: pl.DataFrame) -> None:
+    """Validate the correlation matrix accepted by :func:`build_tree`.
+
+    Raises:
+        TypeError: If ``cor`` is not a polars DataFrame.
+        ValueError: If it has fewer than two assets or contains non-finite values.
+    """
+    if not isinstance(cor, pl.DataFrame):
+        raise TypeError("Correlation matrix must be a polars DataFrame.")
+    if len(cor.columns) < 2:
+        msg = "Correlation matrix must contain at least two assets."
+        raise ValueError(msg)
+    _check_finite_correlations(cor, cor.to_numpy())
+
+
+def _to_cluster(node: sch.ClusterNode) -> Cluster:
+    """Convert a scipy ClusterNode tree into our Cluster format.
+
+    Args:
+        node (sch.ClusterNode): A node from scipy's hierarchical clustering.
+
+    Returns:
+        Cluster: Equivalent node in our Cluster format.
+    """
+    if node.left is not None and node.right is not None:
+        return Cluster(value=node.id, left=_to_cluster(node.left), right=_to_cluster(node.right))
+    return Cluster(value=node.id)
+
+
 def build_tree(
     cor: pl.DataFrame, method: Literal["single", "complete", "average", "ward"] = "ward", bisection: bool = False
 ) -> Dendrogram:
@@ -276,42 +323,11 @@ def build_tree(
         >>> dg.root.leaf_count
         2
     """
-    if not isinstance(cor, pl.DataFrame):
-        raise TypeError("Correlation matrix must be a polars DataFrame.")
-    if len(cor.columns) < 2:
-        msg = "Correlation matrix must contain at least two assets."
-        raise ValueError(msg)
-    c = cor.to_numpy()
-    bad = [col for col, diag in zip(cor.columns, np.diagonal(c), strict=True) if not np.isfinite(diag)]
-    if bad:
-        msg = (
-            f"Correlation matrix contains non-finite values for assets {bad}; "
-            "constant (zero-variance) price series produce NaN correlations."
-        )
-        raise ValueError(msg)
-    if not np.isfinite(c).all():
-        msg = "Correlation matrix contains non-finite values."
-        raise ValueError(msg)
+    _validate_correlation_matrix(cor)
     dist = _compute_distance_matrix(cor)
     links = sch.linkage(ssd.squareform(dist.to_numpy(), checks=False), method=method)
 
-    # Convert scipy tree to our Cluster format
-    def to_cluster(node: sch.ClusterNode) -> Cluster:
-        """Convert a scipy ClusterNode to our Cluster format.
-
-        Args:
-            node (sch.ClusterNode): A node from scipy's hierarchical clustering
-
-        Returns:
-            Cluster: Equivalent node in our Cluster format
-        """
-        if node.left is not None and node.right is not None:
-            left = to_cluster(node.left)
-            right = to_cluster(node.right)
-            return Cluster(value=node.id, left=left, right=right)
-        return Cluster(value=node.id)
-
-    root = to_cluster(sch.to_tree(links, rd=False))
+    root = _to_cluster(sch.to_tree(links, rd=False))
 
     # Apply bisection if requested
     if bisection:

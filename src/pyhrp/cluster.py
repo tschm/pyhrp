@@ -8,12 +8,15 @@ This module defines the core data structures used in the hierarchical risk parit
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from typing import TYPE_CHECKING
 
 import numpy as np
-import plotly.graph_objects as go
 import polars as pl
 
 from .treelib import Node
+
+if TYPE_CHECKING:
+    import plotly.graph_objects as go
 
 __all__ = ["Cluster", "Portfolio"]
 
@@ -99,7 +102,13 @@ class Portfolio:
 
         Returns:
             go.Figure: The plotly figure
+
+        Note:
+            The plotly dependency is imported lazily so importing the allocation
+            core (which pulls in this module) stays plotly-free.
         """
+        import plotly.graph_objects as go
+
         w = self.weights
         values = [w[n] for n in names]
         fig = go.Figure(go.Bar(x=names, y=values, marker_color="steelblue"))
@@ -140,13 +149,22 @@ class Cluster(Node[int]):
         """
         if self.is_leaf:
             return [self]
-        else:
-            if self.left is None:
-                raise ValueError("Expected left child to exist for non-leaf cluster")
-            if self.right is None:
-                raise ValueError("Expected right child to exist for non-leaf cluster")
-            if not isinstance(self.left, Cluster):
-                raise TypeError(f"Expected left child to be a Cluster for node {self.value}")
-            if not isinstance(self.right, Cluster):
-                raise TypeError(f"Expected right child to be a Cluster for node {self.value}")
-            return self.left.leaves + self.right.leaves
+        left, right = self._child_clusters()
+        return left.leaves + right.leaves
+
+    def _child_clusters(self) -> tuple[Cluster, Cluster]:
+        """Return the validated (left, right) child clusters of a non-leaf node.
+
+        Raises:
+            ValueError: If either child is missing on a non-leaf cluster.
+            TypeError: If either child is not a Cluster.
+        """
+        if self.left is None:
+            raise ValueError("Expected left child to exist for non-leaf cluster")
+        if self.right is None:
+            raise ValueError("Expected right child to exist for non-leaf cluster")
+        if not isinstance(self.left, Cluster):
+            raise TypeError(f"Expected left child to be a Cluster for node {self.value}")
+        if not isinstance(self.right, Cluster):
+            raise TypeError(f"Expected right child to be a Cluster for node {self.value}")
+        return self.left, self.right
