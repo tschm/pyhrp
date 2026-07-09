@@ -92,17 +92,17 @@ typecheck: install ## run ty and/or mypy type checking (TYPECHECKER=ty|mypy|both
 	case "${TYPECHECKER}" in \
 	  ty) \
 	    printf "${BLUE}[INFO] Running ty type checking in:$${typecheck_paths}${RESET}\n"; \
-	    ${UV_BIN} run ty check $${typecheck_paths} \
+	    ${UV_BIN} run --with ty ty check $${typecheck_paths} \
 	    ;; \
 	  mypy) \
 	    printf "${BLUE}[INFO] Running mypy strict type checking in:$${typecheck_paths}${RESET}\n"; \
-	    ${UV_BIN} run mypy --strict $${typecheck_paths} \
+	    ${UV_BIN} run --with mypy mypy --strict $${typecheck_paths} \
 	    ;; \
 	  both) \
 	    printf "${BLUE}[INFO] Running ty type checking in:$${typecheck_paths}${RESET}\n"; \
-	    ${UV_BIN} run ty check $${typecheck_paths} && \
+	    ${UV_BIN} run --with ty ty check $${typecheck_paths} && \
 	    printf "${BLUE}[INFO] Running mypy strict type checking in:$${typecheck_paths}${RESET}\n"; \
-	    ${UV_BIN} run mypy --strict $${typecheck_paths} \
+	    ${UV_BIN} run --with mypy mypy --strict $${typecheck_paths} \
 	    ;; \
 	  *) \
 	    printf "${RED}[ERROR] Invalid TYPECHECKER='${TYPECHECKER}' (expected: ty, mypy, or both)${RESET}\n"; \
