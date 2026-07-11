@@ -1,17 +1,13 @@
-sha: cc162bbe38291955e0aa5f3418c1bcfd10fbba24
+sha: 8e6a8d48b98db05a10b7da67d26fac7ed54508c8
 repo: jebel-quant/rhiza
 host: github
-ref: v1.1.1
+ref: v1.1.3
 include: []
 exclude: []
 templates:
 - legal
 files:
 - .bandit
-- .claude/commands/rhiza_book.md
-- .claude/commands/rhiza_quality.md
-- .claude/commands/rhiza_release.md
-- .claude/commands/rhiza_update.md
 - .editorconfig
 - .github/CONFIG.md
 - .github/DISCUSSION_TEMPLATE/help-wanted.yml
@@ -50,6 +46,7 @@ files:
 - .rhiza/completions/rhiza-completion.zsh
 - .rhiza/make.d/book.mk
 - .rhiza/make.d/bootstrap.mk
+- .rhiza/make.d/completions.mk
 - .rhiza/make.d/custom-env.mk
 - .rhiza/make.d/custom-task.mk
 - .rhiza/make.d/doctor.mk
@@ -62,14 +59,9 @@ files:
 - .rhiza/semgrep.yml
 - .rhiza/tests/README.md
 - .rhiza/tests/conftest.py
-- .rhiza/tests/stress/README.md
-- .rhiza/tests/stress/__init__.py
-- .rhiza/tests/stress/conftest.py
 - .rhiza/tests/test_docstrings.py
-- .rhiza/tests/test_git_repo_fixture.py
 - .rhiza/tests/test_pyproject.py
 - .rhiza/tests/test_readme_validation.py
-- .rhiza/tests/test_utils.py
 - LICENSE
 - Makefile
 - SECURITY.md
@@ -83,5 +75,5 @@ files:
 - ruff.toml
 profiles:
 - github-project
-synced_at: '2026-07-09T12:08:56Z'
+synced_at: '2026-07-11T08:04:04Z'
 strategy: merge

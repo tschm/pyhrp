@@ -17,10 +17,7 @@ The suite is flat — one file per concern:
 - `test_pyproject.py` — validates `pyproject.toml` structure and required fields
 - `test_readme_validation.py` — executes/syntax-checks `README.md` code blocks (see below)
 - `test_docstrings.py` — runs doctests across the modules in your source folder
-- `test_git_repo_fixture.py` — self-test for the shared `git_repo` fixture
-- `conftest.py` — shared fixtures (`root`, `logger`, `git_repo`)
-- `test_utils.py` — shared helpers (`run_make`, `setup_rhiza_git_repo`, `strip_ansi`)
-- `stress/` — scaffolding for optional load/concurrency tests (see [stress/README.md](stress/README.md))
+- `conftest.py` — shared fixtures (`root`, `logger`)
 
 ### Skipping README code blocks with `+RHIZA_SKIP`
 
@@ -53,13 +50,6 @@ make rhiza-test                                  # run this suite (the usual ent
 uv run pytest .rhiza/tests/                       # equivalent, direct invocation
 uv run pytest .rhiza/tests/test_pyproject.py      # a single file
 uv run pytest .rhiza/tests/ -v                    # verbose
-uv run pytest .rhiza/tests/ -m "not stress"       # skip stress tests
-```
-
-Stress tests accept custom parameters (defaults: 100 iterations, 10 workers):
-
-```bash
-uv run pytest .rhiza/tests/stress/ -v --iterations=10
 ```
 
 ## Fixtures
@@ -68,15 +58,8 @@ Defined in `conftest.py` and available to every test without import:
 
 - `root` — repository root path (session-scoped)
 - `logger` — configured logger instance (session-scoped)
-- `git_repo` — sandboxed git repository (function-scoped)
 
-Shared helpers live in `test_utils.py` and are imported directly:
-
-```python
-from test_utils import strip_ansi, run_make, setup_rhiza_git_repo
-```
-
-`.rhiza/tests` is on `pythonpath` (see `pytest.ini`), so `test_utils` imports resolve
+`.rhiza/tests` is on `pythonpath` (see `pytest.ini`), so intra-suite imports resolve
 without any `sys.path` manipulation.
 
 ## Writing Tests
@@ -85,4 +68,3 @@ without any `sys.path` manipulation.
 - Group related tests in classes when appropriate
 - Add docstrings to test modules and complex test functions
 - Use `pytest.mark.skip` for tests that depend on optional features
-- Prefer the `git_repo` fixture over touching the working tree
