@@ -12,6 +12,21 @@ This directory contains shell completion scripts for Bash and Zsh that provide t
 
 ## Installation
 
+### Quick install (recommended)
+
+From the project root:
+
+```bash
+make install-completions              # install for both bash and zsh
+make install-completions SHELL_KIND=zsh   # or just one: bash | zsh | both
+```
+
+This copies the appropriate script into your user completion directory
+(`${XDG_DATA_HOME:-~/.local/share}/bash-completion/completions/make` for bash,
+`${XDG_DATA_HOME:-~/.local/share}/zsh/site-functions/_make` for zsh) and prints
+any follow-up step. Start a new shell afterwards. The manual methods below remain
+available if you prefer to wire it up yourself.
+
 ### Bash
 
 #### Method 1: Source in your shell config
