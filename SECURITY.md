@@ -70,7 +70,6 @@ This project implements several security measures:
 ### Code Scanning
 - **CodeQL**: Automated code scanning for Python and GitHub Actions
 - **Bandit**: Python security linter integrated in CI and pre-commit
-- **pip-audit**: Dependency vulnerability scanning
 - **Secret Scanning**: GitHub secret scanning enabled on this repository
 - **Fuzzing**: ClusterFuzzLite exercises Atheris-based fuzz targets on pull requests and scheduled batch runs
 
