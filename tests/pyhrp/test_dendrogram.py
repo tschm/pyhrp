@@ -489,3 +489,17 @@ def test_build_tree_depth_one_bisection_two_assets() -> None:
 
     cluster = risk_parity(root=dendrogram.root, cov=cov)
     assert sum(cluster.portfolio.weights.values()) == pytest.approx(1.0)
+
+
+def test_dendrogram_one_over_n_wrapper_matches_function() -> None:
+    """Dendrogram.one_over_n delegates to algos.one_over_n on its own tree/assets."""
+    from pyhrp.algos import one_over_n
+
+    root = Cluster(10, left=Cluster(11, left=Cluster(1), right=Cluster(2)), right=Cluster(0))
+    dendrogram = Dendrogram(root=root, assets=["A", "B", "C"])
+
+    via_wrapper = [(lvl, dict(p.weights)) for lvl, p in dendrogram.one_over_n()]
+    via_function = [(lvl, dict(p.weights)) for lvl, p in one_over_n(dendrogram.root, dendrogram.assets)]
+
+    assert via_wrapper == via_function
+    assert sum(via_wrapper[0][1].values()) == pytest.approx(1.0)

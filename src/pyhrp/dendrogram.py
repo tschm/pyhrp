@@ -8,6 +8,7 @@ allocation entry points and stores it in a :class:`Dendrogram`:
 
 from __future__ import annotations
 
+from collections.abc import Generator
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
@@ -16,7 +17,7 @@ import polars as pl
 import scipy.cluster.hierarchy as sch
 import scipy.spatial.distance as ssd
 
-from .cluster import Cluster
+from .cluster import Cluster, Portfolio
 
 if TYPE_CHECKING:
     import plotly.graph_objects as go
@@ -71,6 +72,21 @@ class Dendrogram:
         from .plot import plot_dendrogram
 
         return plot_dendrogram(self, **kwargs)
+
+    def one_over_n(self) -> Generator[tuple[int, Portfolio]]:
+        """Yield the hierarchical 1/N portfolios level by level for this tree.
+
+        Container-level convenience wrapper around :func:`pyhrp.algos.one_over_n`;
+        the allocation core is imported lazily so importing the dendrogram module
+        does not pull in the allocation module.
+
+        Yields:
+            tuple[int, Portfolio]: The level number and the equal-weight portfolio
+            at that level.
+        """
+        from .algos import one_over_n
+
+        yield from one_over_n(self.root, self.assets)
 
     @property
     def ids(self) -> list[int]:
