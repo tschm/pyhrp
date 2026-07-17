@@ -18,7 +18,7 @@ import polars as pl
 from .cluster import Cluster, Portfolio
 
 if TYPE_CHECKING:
-    from .hrp import Dendrogram
+    from .dendrogram import Dendrogram
 
 __all__ = ["one_over_n", "risk_parity", "schur_risk_parity"]
 
