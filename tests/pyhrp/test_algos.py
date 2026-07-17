@@ -221,7 +221,7 @@ def test_one_over_n() -> None:
     dendrogram = Dendrogram(root=root, assets=[a, b, c])
 
     # Collect portfolios from one_over_n algorithm
-    portfolios: list[tuple[int, Portfolio]] = list(one_over_n(dendrogram))
+    portfolios: list[tuple[int, Portfolio]] = list(one_over_n(dendrogram.root, dendrogram.assets))
 
     # Check that we get the expected number of levels
     assert len(portfolios) == len(root.levels)
@@ -259,7 +259,7 @@ def test_one_over_n_large(returns: DataFrame) -> None:
     cor = compute_corr(returns)
     dendrogram = build_tree(cor=cor, method="ward")
 
-    portfolios: list[tuple[int, Portfolio]] = list(one_over_n(dendrogram))
+    portfolios: list[tuple[int, Portfolio]] = list(one_over_n(dendrogram.root, dendrogram.assets))
 
     assert len(portfolios) > 0
     assert len(portfolios) == len(dendrogram.root.levels)
@@ -269,6 +269,23 @@ def test_one_over_n_large(returns: DataFrame) -> None:
         assert set(portfolio.assets) == set(dendrogram.assets)
         for weight in portfolio.weights.values():
             assert weight > 0
+
+
+def test_one_over_n_does_not_mutate_tree() -> None:
+    """one_over_n rebuilds into a local buffer and leaves the input tree untouched."""
+    root = Cluster(10)
+    root.left = Cluster(11)
+    root.right = Cluster(0)
+    root.left.left = Cluster(1)
+    root.left.right = Cluster(2)
+    dendrogram = Dendrogram(root=root, assets=["A", "B", "C"])
+
+    # Exhaust the generator, then confirm the root's own portfolio is still empty
+    # and a second run yields an identical sequence (observable idempotency).
+    first = [(lvl, dict(p.weights)) for lvl, p in one_over_n(dendrogram.root, dendrogram.assets)]
+    assert dendrogram.root.portfolio.weights == {}
+    second = [(lvl, dict(p.weights)) for lvl, p in one_over_n(dendrogram.root, dendrogram.assets)]
+    assert first == second
 
 
 def test_solve_singular_falls_back_to_lstsq() -> None:

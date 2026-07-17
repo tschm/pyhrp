@@ -4,21 +4,29 @@ This module implements various portfolio optimization algorithms:
 - risk_parity: The main hierarchical risk parity algorithm
 - schur_risk_parity: Schur Complementary Allocation (Cotton, arXiv:2411.05807)
 - one_over_n: A simple equal-weight allocation strategy
+
+Allocator contract
+------------------
+All three allocators take the same inputs — a ``Cluster`` tree (``root``) plus
+the asset names — and never mutate the tree they are given: weights are always
+rebuilt from scratch, so every allocator is idempotent and a tree can be reused.
+``risk_parity`` and ``schur_risk_parity`` share the recursive ``_allocate_with``
+scaffolding and each return the fully weighted root ``Cluster``. ``one_over_n``
+intentionally differs in its *output*: it is a generator that yields the
+equal-weight portfolio one tree level at a time (see its docstring), because its
+purpose is to expose the allocation as it deepens rather than a single final
+result.
 """
 
 from __future__ import annotations
 
 from collections.abc import Callable, Generator
 from copy import deepcopy
-from typing import TYPE_CHECKING
 
 import numpy as np
 import polars as pl
 
 from .cluster import Cluster, Portfolio
-
-if TYPE_CHECKING:
-    from .dendrogram import Dendrogram
 
 __all__ = ["one_over_n", "risk_parity", "schur_risk_parity"]
 
@@ -52,17 +60,15 @@ def risk_parity(root: Cluster, cov: pl.DataFrame) -> Cluster:
         >>> round(cluster.portfolio["B"], 1)
         0.8
     """
-    cov_np = cov.to_numpy()
-    index = {name: i for i, name in enumerate(cov.columns)}
 
-    def combine(cluster: Cluster) -> Cluster:
-        """Combine the child portfolios of a cluster via inverse-variance split."""
-        left, right = _children(cluster)
-        v_left = _block_variance(left.portfolio, cov_np, index)
-        v_right = _block_variance(right.portfolio, cov_np, index)
-        return _split(cluster, v_left, v_right)
+    def node_variances(left: Cluster, right: Cluster, cov_np: np.ndarray, index: dict[str, int]) -> tuple[float, float]:
+        """Plain block variance of each child sub-portfolio."""
+        return (
+            _block_variance(left.portfolio, cov_np, index),
+            _block_variance(right.portfolio, cov_np, index),
+        )
 
-    return _allocate(root, cov.columns, combine)
+    return _allocate_with(root, cov, node_variances)
 
 
 def schur_risk_parity(root: Cluster, cov: pl.DataFrame, gamma: float = 0.5) -> Cluster:
@@ -103,13 +109,8 @@ def schur_risk_parity(root: Cluster, cov: pl.DataFrame, gamma: float = 0.5) -> C
         msg = f"gamma must be in [0, 1], got {gamma}"
         raise ValueError(msg)
 
-    cov_np = cov.to_numpy()
-    index = {name: i for i, name in enumerate(cov.columns)}
-
-    def combine(cluster: Cluster) -> Cluster:
-        """Combine the child portfolios of a cluster via a Schur-augmented split."""
-        left, right = _children(cluster)
-
+    def node_variances(left: Cluster, right: Cluster, cov_np: np.ndarray, index: dict[str, int]) -> tuple[float, float]:
+        """Schur-augmented block variance of each child, conditioned on the other."""
         li = [index[a] for a in left.portfolio.assets]
         ri = [index[a] for a in right.portfolio.assets]
 
@@ -126,6 +127,43 @@ def schur_risk_parity(root: Cluster, cov: pl.DataFrame, gamma: float = 0.5) -> C
 
         v_left = float(w_left @ a_aug @ w_left)
         v_right = float(w_right @ d_aug @ w_right)
+        return v_left, v_right
+
+    return _allocate_with(root, cov, node_variances)
+
+
+# Given a node's two children (plus the precomputed covariance array and the
+# column->row index), return the (v_left, v_right) risk pair used to split it.
+NodeVariances = Callable[[Cluster, Cluster, np.ndarray, dict[str, int]], tuple[float, float]]
+
+
+def _allocate_with(root: Cluster, cov: pl.DataFrame, node_variances: NodeVariances) -> Cluster:
+    """Shared scaffolding for the recursive risk-based allocators.
+
+    Builds the numpy covariance array and column index once, then walks the tree
+    bottom-up, splitting each node's weight between its children inversely to the
+    ``(v_left, v_right)`` pair supplied by ``node_variances``. The only thing that
+    distinguishes ``risk_parity`` from ``schur_risk_parity`` is that per-node
+    variance rule; everything else — the ``cov``/``index`` setup, the combine
+    wrapper, and the rebuild-from-scratch traversal — lives here.
+
+    Args:
+        root (Cluster): The root node of the cluster tree.
+        cov (pl.DataFrame): Covariance matrix of asset returns.
+        node_variances (NodeVariances): Per-node rule mapping a node's left/right
+            children (and the precomputed covariance array and column index) to
+            the ``(v_left, v_right)`` risk pair used to split that node.
+
+    Returns:
+        Cluster: The root node with portfolio weights assigned.
+    """
+    cov_np = cov.to_numpy()
+    index = {name: i for i, name in enumerate(cov.columns)}
+
+    def combine(cluster: Cluster) -> Cluster:
+        """Combine the child portfolios of a cluster via an inverse-variance split."""
+        left, right = _children(cluster)
+        v_left, v_right = node_variances(left, right, cov_np, index)
         return _split(cluster, v_left, v_right)
 
     return _allocate(root, cov.columns, combine)
@@ -215,20 +253,30 @@ def _solve(m: np.ndarray, b: np.ndarray) -> np.ndarray:
         return np.asarray(np.linalg.lstsq(m, b, rcond=None)[0])
 
 
-def one_over_n(dendrogram: Dendrogram) -> Generator[tuple[int, Portfolio]]:
-    """Generate portfolios using the 1/N (equal weight) strategy at each tree level.
+def one_over_n(root: Cluster, assets: list[str]) -> Generator[tuple[int, Portfolio]]:
+    """Generate 1/N (equal-weight) portfolios one tree level at a time.
 
-    This function implements a hierarchical 1/N strategy where weights are
-    distributed equally among assets within each cluster at each level of the tree.
-    The weight assigned to each cluster decreases by half at each level.
+    This implements a hierarchical 1/N strategy where weights are distributed
+    equally among the leaves of each cluster, and the weight budget halves at
+    each successive level of the tree.
+
+    Unlike :func:`risk_parity` and :func:`schur_risk_parity` — which rebuild a
+    single final allocation and return the root ``Cluster`` — this allocator is
+    intentionally a **generator**: its purpose is to expose the equal-weight
+    allocation as the tree deepens, yielding one portfolio per level. It shares
+    the sibling input contract (a ``Cluster`` tree plus the asset names) and, like
+    them, does not mutate the tree: weights accumulate in a local buffer, so a
+    leaf that terminates at a shallow level keeps its weight in the deeper levels
+    (each yielded portfolio is therefore a complete allocation over all assets),
+    and re-running on the same tree yields an identical sequence.
 
     Args:
-        dendrogram: A dendrogram object containing the hierarchical clustering tree
-                   and the list of assets
+        root (Cluster): The root node of the cluster tree.
+        assets (list[str]): Asset names; a leaf's value indexes into this list.
 
     Yields:
-        tuple[int, Portfolio]: A tuple containing the level number and the portfolio
-                              at that level
+        tuple[int, Portfolio]: The level number and the (cumulative) equal-weight
+        portfolio at that level.
 
     Examples:
         >>> import polars as pl
@@ -236,12 +284,12 @@ def one_over_n(dendrogram: Dendrogram) -> Generator[tuple[int, Portfolio]]:
         >>> from pyhrp.algos import one_over_n
         >>> cor = pl.DataFrame({"A": [1.0, 0.3], "B": [0.3, 1.0]})
         >>> dg = build_tree(cor, method="ward")
-        >>> levels = list(one_over_n(dg))
+        >>> levels = list(one_over_n(dg.root, dg.assets))
         >>> len(levels) > 0
         True
     """
-    root = dendrogram.root
-    assets = dendrogram.assets
+    # Accumulate into a local buffer so the input tree is never mutated.
+    portfolio = Portfolio()
 
     # Initial weight to distribute
     w: float = 1.0
@@ -251,10 +299,10 @@ def one_over_n(dendrogram: Dendrogram) -> Generator[tuple[int, Portfolio]]:
         for node in level:
             # Distribute weight equally among all leaves in this node
             for leaf in node.leaves:
-                root.portfolio[assets[leaf.value]] = w / node.leaf_count
+                portfolio[assets[leaf.value]] = w / node.leaf_count
 
         # Reduce weight for the next level
         w *= 0.5
 
         # Yield the current level number and a deep copy of the portfolio
-        yield n, deepcopy(root.portfolio)
+        yield n, deepcopy(portfolio)

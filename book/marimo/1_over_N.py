@@ -66,9 +66,7 @@ def _(cor):
 
 @app.cell
 def _(dendrogram) -> None:
-    from pyhrp.algos import one_over_n
-
-    for level, portfolio in one_over_n(dendrogram):
+    for level, portfolio in dendrogram.one_over_n():
         print(f"Level: {level}")
         portfolio.plot(names=dendrogram.names).show()
     return
