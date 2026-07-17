@@ -110,8 +110,8 @@ typecheck: install ## run ty and/or mypy type checking (TYPECHECKER=ty|mypy|both
 	    ;; \
 	esac
 
-# The 'security' target performs security vulnerability scans.
-# Runs bandit to find common security issues in Python source folders that exist.
+# The 'security' target runs bandit to find common security issues in the
+# Python source folders that exist.
 security: install ## run security scans (bandit)
 	@bandit_paths=""; \
 	if [ -d "${SOURCE_FOLDER}" ]; then \
