@@ -1,1 +1,0 @@
-"""Stress tests package."""

@@ -13,7 +13,7 @@ import plotly.graph_objects as go
 import scipy.cluster.hierarchy as sch
 
 if TYPE_CHECKING:
-    from .hrp import Dendrogram
+    from .dendrogram import Dendrogram
 
 __all__ = ["plot_dendrogram"]
 
