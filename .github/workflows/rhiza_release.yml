@@ -127,7 +127,7 @@ jobs:
       tag: ${{ steps.set_tag.outputs.tag }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v6.1.0
         with:
           fetch-depth: 0
 
@@ -212,7 +212,7 @@ jobs:
       attestations: write   # SLSA provenance + SBOM attestations (public repos only)
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v6.1.0
         with:
           fetch-depth: 0
 
@@ -222,7 +222,7 @@ jobs:
           version: "0.11.16"
 
       - name: Configure git auth for private packages
-        uses: jebel-quant/rhiza/.github/actions/configure-git-auth@v1.2.1
+        uses: jebel-quant/rhiza/.github/actions/configure-git-auth@v1.2.2
         with:
           token: ${{ secrets.GH_PAT }}
 
@@ -287,7 +287,7 @@ jobs:
         # The XML format is provided for compatibility but doesn't need separate attestation.
         id: attest-sbom
         if: hashFiles('pyproject.toml') != '' && github.event.repository.private == false
-        uses: actions/attest@v4.1.1
+        uses: actions/attest@v4.2.0
         with:
           subject-path: sbom.cdx.json
           sbom-path: sbom.cdx.json
@@ -342,7 +342,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v6.1.0
         with:
           fetch-depth: 0
 
@@ -393,7 +393,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v6.1.0
         with:
           fetch-depth: 0
 
@@ -431,7 +431,7 @@ jobs:
       # repository-url and password only used for custom feeds, not for PyPI with OIDC
       - name: Publish to PyPI
         if: ${{ steps.check_dist.outputs.should_publish == 'true' }}
-        uses: pypa/gh-action-pypi-publish@v1.14.0
+        uses: pypa/gh-action-pypi-publish@v1.14.1
         with:
           packages-dir: dist/
           skip-existing: true
@@ -450,7 +450,7 @@ jobs:
 
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v6.1.0
         with:
           fetch-depth: 0
 
@@ -529,7 +529,7 @@ jobs:
       image_name: ${{ steps.image_name.outputs.image_name }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v6.1.0
         with:
           fetch-depth: 0
 
@@ -616,7 +616,7 @@ jobs:
       contents: write   # Needed to undraft/publish the GitHub release
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6.0.3
+        uses: actions/checkout@v6.1.0
         with:
           fetch-depth: 0
 
