@@ -140,7 +140,7 @@ class TestProjectUrls:
 
 
 class TestProjectClassifiers:
-    """Tests for [project].classifiers — Python version and licence entries."""
+    """Tests for [project].classifiers — Python version entries."""
 
     @pytest.fixture
     def classifiers(self, project: dict) -> list[str]:
@@ -157,10 +157,17 @@ class TestProjectClassifiers:
             "classifiers must include at least one 'Programming Language :: Python :: 3.X' entry"
         )
 
-    def test_license_classifier_present(self, classifiers: list[str]) -> None:
-        """At least one 'License :: ' classifier must be present."""
+    def test_no_license_classifier(self, project: dict) -> None:
+        """No deprecated 'License :: ' classifier may be present.
+
+        PyPI has deprecated the ``License ::`` trove classifiers in favor of the SPDX
+        ``license`` expression field, so the shipped pyproject must not declare one.
+        """
+        classifiers = project.get("classifiers", [])
         license_classifiers = [c for c in classifiers if c.startswith("License ::")]
-        assert len(license_classifiers) >= 1, "classifiers must include at least one 'License :: ' entry"
+        assert not license_classifiers, (
+            f"classifiers must not include any deprecated 'License :: ' entry; found {license_classifiers}"
+        )
 
 
 class TestDependencyGroups:
