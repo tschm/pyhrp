@@ -139,7 +139,7 @@ class TestProjectUrls:
 
 
 class TestProjectClassifiers:
-    """Tests for [project].classifiers — Python version and licence entries."""
+    """Tests for [project].classifiers — Python version entries."""
 
     @pytest.fixture
     def classifiers(self, project: dict) -> list[str]:
