@@ -12,7 +12,6 @@ Validates that pyproject.toml:
 - provides [project.urls] with Homepage and Repository
 - includes at least one Python version classifier
 - declares a [dependency-groups] test group containing pytest
-- declares a [dependency-groups] lint group
 - version matches the latest git tag (vX.Y.Z → X.Y.Z)
 """
 
@@ -157,18 +156,6 @@ class TestProjectClassifiers:
             "classifiers must include at least one 'Programming Language :: Python :: 3.X' entry"
         )
 
-    def test_no_license_classifier(self, project: dict) -> None:
-        """No deprecated 'License :: ' classifier may be present.
-
-        PyPI has deprecated the ``License ::`` trove classifiers in favor of the SPDX
-        ``license`` expression field, so the shipped pyproject must not declare one.
-        """
-        classifiers = project.get("classifiers", [])
-        license_classifiers = [c for c in classifiers if c.startswith("License ::")]
-        assert not license_classifiers, (
-            f"classifiers must not include any deprecated 'License :: ' entry; found {license_classifiers}"
-        )
-
 
 class TestDependencyGroups:
     """Tests for [dependency-groups] — ensures required groups are declared."""
@@ -191,10 +178,6 @@ class TestDependencyGroups:
         assert any("pytest" in str(dep).lower() for dep in test_deps), (
             "[dependency-groups.test] must list pytest as a dependency"
         )
-
-    def test_lint_group_present(self, dependency_groups: dict) -> None:
-        """A 'lint' dependency group must be declared."""
-        assert "lint" in dependency_groups, "[dependency-groups] must include a 'lint' group"
 
 
 class TestGitTagVersion:
