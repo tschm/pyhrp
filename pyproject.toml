@@ -40,10 +40,6 @@ test = [
     "pytest-xdist>=3.0",
     "pytest-timeout>=2.0",
 ]
-lint = [
-    "mypy>=1.14",
-    "pre-commit>=4.0",
-]
 
 [build-system]
 requires = ["hatchling"]
