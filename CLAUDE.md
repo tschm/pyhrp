@@ -31,14 +31,17 @@ The `src/pyhrp/` package is split into small, focused modules:
 Dependencies flow in one direction, from the generic tree up to the public surface:
 
 ```text
-treelib  ->  cluster  ->  {algos, dendrogram}  ->  hrp  ->  __init__
+treelib  ->  cluster  ->  algos  ->  dendrogram  ->  hrp  ->  __init__
 ```
 
 - `treelib` depends on nothing internal; `cluster.Cluster` subclasses `treelib.Node`.
-- `algos` and `dendrogram` build on `cluster` (and `covariance`); neither imports `hrp`.
+- `algos` builds on `cluster` (and `covariance`) and imports nothing above it.
+- `dendrogram` builds on `cluster` and on `algos`, which backs the `Dendrogram.one_over_n()`
+  convenience wrapper; neither module imports `hrp`.
 - `hrp` composes `covariance` + `dendrogram` + `algos` into the end-to-end pipeline.
 - `plot`/Plotly is imported lazily (inside `Dendrogram.plot`) so importing the allocation
-  core stays plotly-free.
+  core stays plotly-free. This is the one deferred import in the package, and the optional
+  dependency is the whole reason for it — every other edge above is a module-level import.
 
 ### Allocator contract
 

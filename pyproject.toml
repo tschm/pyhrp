@@ -63,3 +63,51 @@ ignore_missing_imports = true
 package_module_name_map = {numpy = "numpy", scipy = "scipy", marimo = "marimo", polars = "polars", plotly = "plotly"}
 ignore = ["DEP004"]
 extend_exclude = [".rhiza"]
+
+# bump-my-version searches .bumpversion.toml, .bumpversion.cfg, setup.cfg and
+# pyproject.toml, in that order. The table has to live in one of them: with no
+# discoverable config it silently falls back to `git describe`, so a release can
+# be cut at a version that already exists.
+#
+# No `current_version` here on purpose — bump-my-version reads [project].version
+# natively, and a second copy only drifts once it goes stale.
+[tool.bumpversion]
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(?:[-]?(?P<release>[a-z]+)[\\.]?(?P<pre_n>\\d+))?(?:\\+build\\.(?P<build_n>\\d+))?"
+serialize = [
+    "{major}.{minor}.{patch}-{release}.{pre_n}+build.{build_n}",
+    "{major}.{minor}.{patch}+build.{build_n}",
+    "{major}.{minor}.{patch}-{release}.{pre_n}",
+    "{major}.{minor}.{patch}",
+]
+search = "{current_version}"
+replace = "{new_version}"
+regex = false
+ignore_missing_version = false
+ignore_missing_files = false
+allow_dirty = false
+# The release flow commits and tags itself, so the changelog lands in the bump
+# commit; a bare `bump-my-version bump` would otherwise add a second commit and
+# a duplicate tag.
+commit = false
+tag = false
+
+[tool.bumpversion.parts.release]
+optional_value = "prod"
+values = [
+    "dev",
+    "alpha",
+    "a",  # PEP 440 short form for alpha
+    "beta",
+    "b",  # PEP 440 short form for beta
+    "rc",
+    "prod",
+]
+
+# Anchored to the [project] table on purpose. `search`/`replace` are applied to
+# EVERY occurrence in the file, so the obvious `version = "{current_version}"`
+# also rewrites any [tool.*] table that happens to share the current number.
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+regex = true
+search = '(?ms)^\[project\]((?:(?!^\[)[\s\S])*?)^version = "{current_version}"'
+replace = '[project]\1version = "{new_version}"'
