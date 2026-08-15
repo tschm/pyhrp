@@ -35,6 +35,12 @@ def hrp(
     This is the main entry point for the HRP algorithm. It calculates returns from prices,
     builds a hierarchical clustering tree if not provided, and applies risk parity weights.
 
+    Note:
+        A ``node`` passed in is weighted in place and returned; see the allocator
+        contract in :mod:`pyhrp.algos`. Passing ``dendrogram.root`` therefore
+        rewrites the portfolios inside that ``Dendrogram``, even though the
+        ``Dendrogram`` itself is a frozen dataclass.
+
     Args:
         prices (pl.DataFrame): Asset price time series (columns are assets, rows are dates)
         node (Cluster, optional): Root node of the hierarchical clustering tree.
@@ -78,6 +84,12 @@ def schur_hrp(
     via Schur complements before splitting risk between clusters. Introduced by Peter Cotton
     (arXiv:2411.05807). At gamma=0 this is identical to HRP; at gamma=1 it recovers the
     global minimum-variance portfolio through the same recursive hierarchy.
+
+    Note:
+        A ``node`` passed in is weighted in place and returned; see the allocator
+        contract in :mod:`pyhrp.algos`. Passing ``dendrogram.root`` therefore
+        rewrites the portfolios inside that ``Dendrogram``, even though the
+        ``Dendrogram`` itself is a frozen dataclass.
 
     Args:
         prices (pl.DataFrame): Asset price time series (columns are assets, rows are dates)

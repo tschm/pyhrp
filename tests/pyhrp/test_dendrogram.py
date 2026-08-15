@@ -23,6 +23,7 @@ from pyhrp.covariance import compute_corr
 from pyhrp.dendrogram import (
     Dendrogram,
     _bisect_tree,
+    _cluster_diameter,
     _compute_distance_matrix,
     _get_linkage,
     build_tree,
@@ -191,8 +192,10 @@ def test_linkage(returns: DataFrame, resource_dir: Path) -> None:
 def test_bisection(returns: DataFrame, resource_dir: Path) -> None:
     """Test the bisection method in the build_tree function.
 
-    This test verifies that the order of node IDs remains consistent
-    when using the bisection method.
+    Verifies both that the order of node IDs stays consistent and that the
+    linkage matrix itself is pinned, the way the non-bisection path is against
+    links.csv above — without the second assertion the whole of _get_linkage is
+    covered but unchecked.
 
     Args:
         returns: DataFrame of asset returns
@@ -201,6 +204,29 @@ def test_bisection(returns: DataFrame, resource_dir: Path) -> None:
     dendrogram = build_tree(cor=compute_corr(returns), method="single", bisection=True)
 
     assert dendrogram.ids == [11, 7, 19, 6, 14, 5, 10, 13, 3, 1, 4, 16, 0, 2, 17, 9, 8, 18, 12, 15]
+
+    np.testing.assert_array_almost_equal(
+        dendrogram.linkage, np.loadtxt(resource_dir / "links_bisection.csv", delimiter=",")
+    )
+
+
+def test_bisection_heights_are_distances(returns: DataFrame) -> None:
+    """The bisection linkage's height column holds distances, not node counts.
+
+    Regression test: it used to carry ``node.size``, so a 20-asset tree produced
+    heights like 3, 5, 9 instead of the correlation distances the axis claims.
+    """
+    cor = compute_corr(returns)
+    dendrogram = build_tree(cor=cor, method="single", bisection=True)
+    assert dendrogram.linkage is not None
+
+    heights = dendrogram.linkage[:, 2]
+    # Correlation distances live in [0, 1] by construction; node counts do not.
+    assert np.all((heights >= 0.0) & (heights <= 1.0))
+
+    # Every height is an actual entry of the distance matrix (a realised pair).
+    distances = set(np.round(_compute_distance_matrix(cor).to_numpy().ravel(), 12))
+    assert set(np.round(heights, 12)) <= distances
 
 
 def test_plot_bisection(returns: DataFrame) -> None:
@@ -280,15 +306,69 @@ def test_bisect_tree_helper_empty_ids() -> None:
         _bisect_tree(ids=[], next_id=0)
 
 
+#: Hand-checkable 4x4 distance matrix used by the linkage-helper tests below.
+#: Leaves {0, 1} sit 0.1 apart, {2, 3} sit 0.2 apart, and the widest pair
+#: overall is (1, 3) at 0.9 — so the three cluster diameters are 0.1, 0.2, 0.9.
+_TOY_DIST = np.array(
+    [
+        [0.0, 0.1, 0.7, 0.8],
+        [0.1, 0.0, 0.6, 0.9],
+        [0.7, 0.6, 0.0, 0.2],
+        [0.8, 0.9, 0.2, 0.0],
+    ]
+)
+
+
+def test_cluster_diameter_of_a_leaf_is_zero() -> None:
+    """A single leaf spans no pair, so its diameter is 0."""
+    assert _cluster_diameter(Cluster(2), _TOY_DIST) == 0.0
+
+
+def test_cluster_diameter_is_the_widest_pair() -> None:
+    """The diameter is the largest pairwise distance under the node."""
+    root, _ = _bisect_tree(ids=[0, 1, 2, 3], next_id=3)
+    left, right = root.left, root.right
+    assert left is not None
+    assert right is not None
+
+    assert _cluster_diameter(left, _TOY_DIST) == pytest.approx(0.1)
+    assert _cluster_diameter(right, _TOY_DIST) == pytest.approx(0.2)
+    assert _cluster_diameter(root, _TOY_DIST) == pytest.approx(0.9)
+
+
 def test_get_linkage_helper() -> None:
-    """Test the module-level _get_linkage helper."""
+    """Test the module-level _get_linkage helper.
+
+    Column 2 must carry the cluster diameter — a cophenetic distance, which is
+    what scipy reads it as — and not the subtree's node count.
+    """
     root, _ = _bisect_tree(ids=[0, 1, 2, 3], next_id=3)
 
-    assert _get_linkage(root) == [
-        [0.0, 1.0, 3.0, 2.0],
-        [2.0, 3.0, 3.0, 2.0],
-        [4.0, 5.0, 7.0, 4.0],
+    assert _get_linkage(root, _TOY_DIST) == [
+        [0.0, 1.0, 0.1, 2.0],
+        [2.0, 3.0, 0.2, 2.0],
+        [4.0, 5.0, 0.9, 4.0],
     ]
+
+
+def test_get_linkage_heights_never_invert(returns: DataFrame) -> None:
+    """A merge is never drawn below the merges it joins.
+
+    Rows are emitted in post-order, so the heights are *not* globally sorted the
+    way scipy's own agglomerative output is. What must hold — and what the
+    cluster diameter guarantees, since a parent's leaf set is a superset of each
+    child's — is that no parent sits below either child, which is what would
+    render as an inversion in the dendrogram.
+    """
+    dendrogram = build_tree(cor=compute_corr(returns), method="single", bisection=True)
+    links = dendrogram.linkage
+    assert links is not None
+
+    n = len(dendrogram.assets)
+    for i, (left, right, height, _count) in enumerate(links):
+        for child in (int(left), int(right)):
+            child_height = 0.0 if child < n else float(links[child - n][2])
+            assert height >= child_height, f"row {i} inverts below cluster {child}"
 
 
 def test_build_tree_with_small_correlation_matrix() -> None:

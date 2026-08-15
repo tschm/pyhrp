@@ -6,6 +6,8 @@ including property-based and numerical edge-case checks.
 
 from __future__ import annotations
 
+from copy import deepcopy
+
 import numpy as np
 import polars as pl
 import pytest
@@ -102,6 +104,50 @@ def test_risk_parity_idempotent() -> None:
     first = dict(risk_parity(root=root, cov=cov).portfolio.weights)
     second = dict(risk_parity(root=root, cov=cov).portfolio.weights)
     assert first == second
+
+
+@pytest.mark.parametrize("allocator", [risk_parity, schur_risk_parity])
+def test_risk_allocators_weight_the_tree_in_place(allocator: object) -> None:
+    """The risk allocators write into the caller's tree and return that same root.
+
+    This is the documented half of the allocator contract that differs from
+    one_over_n (see test_one_over_n_does_not_mutate_tree): risk_parity and
+    schur_risk_parity replace every node's portfolio in place. The tree's
+    *shape* must survive untouched — only the portfolios are rewritten.
+    """
+    cov = pl.DataFrame({"A": [4.0, 0.0], "B": [0.0, 1.0]})
+    left, right = Cluster(0), Cluster(1)
+    root = Cluster(2, left=left, right=right)
+
+    assert root.portfolio.weights == {}
+    result = allocator(root=root, cov=cov)  # type: ignore[operator]
+
+    # The same object comes back, and the caller's own reference now sees weights.
+    assert result is root
+    assert root.portfolio.weights == pytest.approx({"A": 0.2, "B": 0.8})
+    assert left.portfolio.weights == {"A": 1.0}
+    assert right.portfolio.weights == {"B": 1.0}
+
+    # Shape is untouched: no node added, removed or re-parented.
+    assert root.left is left
+    assert root.right is right
+
+
+def test_risk_parity_mutates_the_root_of_a_frozen_dendrogram() -> None:
+    """Dendrogram is frozen, but the Cluster it holds is not.
+
+    Pins the surprise the allocator contract now calls out explicitly: passing
+    dendrogram.root to an allocator rewrites the portfolios inside that
+    dendrogram, while deep-copying the root first keeps it unweighted.
+    """
+    cov = pl.DataFrame({"A": [4.0, 0.0], "B": [0.0, 1.0]})
+    dendrogram = Dendrogram(root=Cluster(2, left=Cluster(0), right=Cluster(1)), assets=["A", "B"])
+
+    risk_parity(root=deepcopy(dendrogram.root), cov=cov)
+    assert dendrogram.root.portfolio.weights == {}, "a deep copy must leave the dendrogram alone"
+
+    risk_parity(root=dendrogram.root, cov=cov)
+    assert dendrogram.root.portfolio.weights == pytest.approx({"A": 0.2, "B": 0.8})
 
 
 def test_risk_parity_zero_variance_split() -> None:

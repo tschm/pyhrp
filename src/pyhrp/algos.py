@@ -8,14 +8,25 @@ This module implements various portfolio optimization algorithms:
 Allocator contract
 ------------------
 All three allocators take the same inputs — a ``Cluster`` tree (``root``) plus
-the asset names — and never mutate the tree they are given: weights are always
-rebuilt from scratch, so every allocator is idempotent and a tree can be reused.
+the asset names — and none of them changes the *shape* of that tree: no node is
+added, removed or re-parented. They differ in where the weights land.
+
 ``risk_parity`` and ``schur_risk_parity`` share the recursive ``_allocate_with``
-scaffolding and each return the fully weighted root ``Cluster``. ``one_over_n``
-intentionally differs in its *output*: it is a generator that yields the
-equal-weight portfolio one tree level at a time (see its docstring), because its
-purpose is to expose the allocation as it deepens rather than a single final
-result.
+scaffolding and write **into the tree they are given**: every node's
+``portfolio`` is replaced rather than accumulated into, and the same root object
+is returned. Replacing makes them idempotent — re-running on an already weighted
+tree, with a different covariance matrix or gamma, gives the same answer as
+running on a fresh one — but the caller's tree *is* modified. Note in particular
+that ``Dendrogram`` is a frozen dataclass while the ``Cluster`` it holds is not:
+passing ``dendrogram.root`` to either allocator rewrites the portfolios inside
+that dendrogram. Pass ``copy.deepcopy(dendrogram.root)`` to keep the original
+tree unweighted.
+
+``one_over_n`` differs on both counts. It accumulates into a local buffer, so it
+leaves the input tree untouched entirely, and its *output* is a generator
+yielding the equal-weight portfolio one tree level at a time (see its
+docstring), because its purpose is to expose the allocation as it deepens rather
+than a single final result.
 """
 
 from __future__ import annotations
@@ -40,15 +51,16 @@ def risk_parity(root: Cluster, cov: pl.DataFrame) -> Cluster:
 
     Note:
         The tree is modified in place: the portfolio of every node is rebuilt
-        from scratch, so the function is idempotent and a tree can be reused
-        with a different covariance matrix.
+        from scratch and ``root`` itself is returned, so the function is
+        idempotent and a tree can be reused with a different covariance matrix.
+        Deep-copy the tree first if you need to keep it unweighted.
 
     Args:
         root (Cluster): The root node of the cluster tree
         cov (pl.DataFrame): Covariance matrix of asset returns
 
     Returns:
-        Cluster: The root node with portfolio weights assigned
+        Cluster: The same root node, with portfolio weights assigned
 
     Examples:
         >>> import polars as pl
@@ -81,8 +93,9 @@ def schur_risk_parity(root: Cluster, cov: pl.DataFrame, gamma: float = 0.5) -> C
 
     Note:
         The tree is modified in place: the portfolio of every node is rebuilt
-        from scratch, so the function is idempotent and a tree can be reused
-        with a different covariance matrix or gamma.
+        from scratch and ``root`` itself is returned, so the function is
+        idempotent and a tree can be reused with a different covariance matrix
+        or gamma. Deep-copy the tree first if you need to keep it unweighted.
 
     Args:
         root (Cluster): The root node of the cluster tree
@@ -90,7 +103,7 @@ def schur_risk_parity(root: Cluster, cov: pl.DataFrame, gamma: float = 0.5) -> C
         gamma (float): Interpolation parameter in [0, 1]. 0 = HRP, 1 = minimum variance.
 
     Returns:
-        Cluster: The root node with portfolio weights assigned
+        Cluster: The same root node, with portfolio weights assigned
 
     Raises:
         ValueError: If gamma is outside the interval [0, 1].
