@@ -46,16 +46,11 @@ Here's a simple example
 
 ```python
 import polars as pl
-from pyhrp import build_tree, compute_cov, compute_corr, risk_parity
+from pyhrp import build_tree, compute_cov, compute_corr, compute_returns, risk_parity
 
 prices = pl.read_csv("tests/resources/stock_prices.csv", try_parse_dates=True).drop("date")
 
-returns = (
-    prices.select(pl.all().pct_change())
-    .filter(pl.any_horizontal(pl.all().is_not_null()))
-    .fill_null(0.0)
-    .fill_nan(0.0)
-)
+returns = compute_returns(prices)
 cov = compute_cov(returns)
 cor = compute_corr(returns)
 
@@ -76,6 +71,47 @@ correlation matrix, and the construction of the dendrogram.
 from pyhrp import hrp
 root = hrp(prices=prices, method="ward", bisection=False)
 
+```
+
+## Schur Complementary Allocation
+
+Plain HRP splits risk between two clusters using only the covariance *within*
+each cluster, discarding the cross-block terms. Schur Complementary Allocation
+(Peter Cotton, [arXiv:2411.05807](https://arxiv.org/abs/2411.05807)) augments each
+sub-block with that discarded information via a Schur complement before splitting,
+and `gamma` controls how much of it is put back:
+
+| `gamma` | Behaviour |
+| --- | --- |
+| `0.0` | No augmentation — identical to plain HRP, weight for weight. |
+| `0.5` | Default. Half the cross-block information is restored; a middle ground that keeps HRP's diversification while trimming portfolio variance. |
+| `1.0` | Full augmentation — recovers the global minimum-variance portfolio, but through the same recursive hierarchy rather than a single unconstrained solve. |
+
+Raising `gamma` trades HRP's robustness for lower in-sample variance, so it is the
+knob to reach for when the covariance estimate is trustworthy. Values outside
+`[0, 1]` raise `ValueError`. Use `schur_hrp` for the end-to-end pipeline, or
+`schur_risk_parity` to size a tree you already built.
+
+```python
+from pyhrp import schur_hrp
+
+conservative = schur_hrp(prices=prices, method="ward", gamma=0.0)
+balanced = schur_hrp(prices=prices, method="ward", gamma=0.5)
+min_variance = schur_hrp(prices=prices, method="ward", gamma=1.0)
+
+print("gamma=0 reproduces HRP:", conservative.portfolio.weights == root.portfolio.weights)
+print(
+    "variance falls as gamma rises:",
+    min_variance.portfolio.variance(cov)
+    < balanced.portfolio.variance(cov)
+    < conservative.portfolio.variance(cov),
+)
+
+```
+
+```result
+gamma=0 reproduces HRP: True
+variance falls as gamma rises: True
 ```
 
 ## Interpreting results
@@ -108,7 +144,7 @@ The `src/pyhrp/` package is split into small, focused modules:
 
 | Module | Responsibility |
 | --- | --- |
-| `hrp.py` | High-level entry points. Turns a price/return frame into a weighted tree: `compute_cov`/`compute_corr` build the matrices, `build_tree` produces the `Dendrogram`, and `hrp`/`schur_hrp` run the full pipeline end to end. |
+| `hrp.py` | High-level entry points. Turns a price/return frame into a weighted tree: `compute_returns`/`compute_cov`/`compute_corr` build the matrices, `build_tree` produces the `Dendrogram`, and `hrp`/`schur_hrp` run the full pipeline end to end. |
 | `algos.py` | The allocation algorithms that size a cluster tree: `risk_parity` (recursive HRP), `schur_risk_parity` (Schur Complementary Allocation), and `one_over_n` (equal weight). |
 | `cluster.py` | Core data structures — `Cluster` (a node in the hierarchical tree) and `Portfolio` (an asset-to-weight mapping with analysis/plot helpers). |
 | `treelib.py` | A minimal generic binary-tree `Node`, kept in-house to avoid a `binarytree` dependency. |
