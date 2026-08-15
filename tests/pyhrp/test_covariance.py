@@ -7,7 +7,27 @@ import polars as pl
 import pytest
 from polars import DataFrame
 
-from pyhrp.covariance import compute_corr, compute_cov
+from pyhrp.covariance import compute_corr, compute_cov, compute_returns
+
+
+def test_compute_returns_simple_returns() -> None:
+    """Simple returns are pct_change, one row shorter than the price frame."""
+    prices = pl.DataFrame({"A": [100.0, 110.0, 99.0], "B": [50.0, 55.0, 44.0]})
+    rets = compute_returns(prices)
+
+    assert rets.shape == (2, 2)
+    assert rets.columns == prices.columns
+    assert rets["A"].to_list() == pytest.approx([0.1, -0.1])
+    assert rets["B"].to_list() == pytest.approx([0.1, -0.2])
+
+
+def test_compute_returns_fills_missing_with_zero() -> None:
+    """Nulls and NaNs from missing or flat prices become zero returns, not holes."""
+    prices = pl.DataFrame({"A": [100.0, None, 110.0], "B": [0.0, 0.0, 50.0]})
+    rets = compute_returns(prices)
+
+    assert rets.null_count().to_numpy().sum() == 0
+    assert not np.isnan(rets.to_numpy()).any()
 
 
 def test_compute_cov_matrix_properties(returns: DataFrame) -> None:

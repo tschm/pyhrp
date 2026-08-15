@@ -5,6 +5,7 @@ supporting building blocks so the public ``pyhrp.hrp`` API is unchanged:
 - hrp: Compute HRP portfolio weights from prices
 - schur_hrp: Compute Schur Complementary Allocation weights from prices
 - build_tree: Build a hierarchical cluster tree (see :mod:`pyhrp.dendrogram`)
+- compute_returns: Simple returns from prices (see :mod:`pyhrp.covariance`)
 - compute_cov / compute_corr: Second-moment estimators (see :mod:`pyhrp.covariance`)
 - Dendrogram: Clustering result container (see :mod:`pyhrp.dendrogram`)
 """
@@ -17,10 +18,10 @@ import polars as pl
 
 from .algos import risk_parity, schur_risk_parity
 from .cluster import Cluster
-from .covariance import _returns, compute_corr, compute_cov
+from .covariance import compute_corr, compute_cov, compute_returns
 from .dendrogram import Dendrogram, build_tree
 
-__all__ = ["Dendrogram", "build_tree", "compute_corr", "compute_cov", "hrp", "schur_hrp"]
+__all__ = ["Dendrogram", "build_tree", "compute_corr", "compute_cov", "compute_returns", "hrp", "schur_hrp"]
 
 
 def hrp(
@@ -56,7 +57,7 @@ def hrp(
         >>> round(sum(root.portfolio.weights.values()), 6)
         1.0
     """
-    returns = _returns(prices)
+    returns = compute_returns(prices)
     cov = compute_cov(returns)
     cor = compute_corr(returns)
     node = node or build_tree(cor, method=method, bisection=bisection).root
@@ -98,7 +99,7 @@ def schur_hrp(
         >>> round(sum(root.portfolio.weights.values()), 6)
         1.0
     """
-    returns = _returns(prices)
+    returns = compute_returns(prices)
     cov = compute_cov(returns)
     cor = compute_corr(returns)
     node = node or build_tree(cor, method=method, bisection=bisection).root
