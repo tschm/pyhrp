@@ -162,7 +162,7 @@ def _allocate_with(root: Cluster, cov: pl.DataFrame, node_variances: NodeVarianc
 
     def combine(cluster: Cluster) -> Cluster:
         """Combine the child portfolios of a cluster via an inverse-variance split."""
-        left, right = _children(cluster)
+        left, right = cluster._child_clusters()
         v_left, v_right = node_variances(left, right, cov_np, index)
         return _split(cluster, v_left, v_right)
 
@@ -189,19 +189,10 @@ def _allocate(root: Cluster, assets: list[str], combine: Callable[[Cluster], Clu
         root.portfolio[assets[int(root.value)]] = 1.0
         return root
 
-    left, right = _children(root)
+    left, right = root._child_clusters()
     root.left = _allocate(left, assets, combine)
     root.right = _allocate(right, assets, combine)
     return combine(root)
-
-
-def _children(cluster: Cluster) -> tuple[Cluster, Cluster]:
-    """Return the validated left and right children of a non-leaf cluster."""
-    if not isinstance(cluster.left, Cluster):
-        raise TypeError("Expected left child to be a Cluster")
-    if not isinstance(cluster.right, Cluster):
-        raise TypeError("Expected right child to be a Cluster")
-    return cluster.left, cluster.right
 
 
 def _block_variance(portfolio: Portfolio, cov_np: np.ndarray, index: dict[str, int]) -> float:
@@ -227,7 +218,7 @@ def _split(cluster: Cluster, v_left: float, v_right: float) -> Cluster:
     Returns:
         Cluster: The parent cluster with portfolio weights assigned
     """
-    left, right = _children(cluster)
+    left, right = cluster._child_clusters()
     total = v_left + v_right
     alpha_left = v_right / total if total > 0 else 0.5
     alpha_right = 1.0 - alpha_left

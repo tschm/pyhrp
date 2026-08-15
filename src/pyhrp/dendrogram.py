@@ -124,18 +124,15 @@ def _get_linkage(node: Cluster) -> list[list[float]]:
     """Convert tree structure back to linkage matrix format."""
     links_list: list[list[float]] = []
     if node.left is not None and node.right is not None:
-        if not isinstance(node.left, Cluster):
-            raise TypeError("Expected left child to be a Cluster")  # pragma: no cover
-        if not isinstance(node.right, Cluster):
-            raise TypeError("Expected right child to be a Cluster")  # pragma: no cover
-        links_list.extend(_get_linkage(node.left))
-        links_list.extend(_get_linkage(node.right))
+        left, right = node._child_clusters()
+        links_list.extend(_get_linkage(left))
+        links_list.extend(_get_linkage(right))
         links_list.append(
             [
-                float(node.left.value),
-                float(node.right.value),
+                float(left.value),
+                float(right.value),
                 float(node.size),
-                float(len(node.left.leaves) + len(node.right.leaves)),
+                float(len(left.leaves) + len(right.leaves)),
             ]
         )
     return links_list
