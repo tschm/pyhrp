@@ -63,6 +63,19 @@ class TestNode:
         assert node2.leaves == [leaf4, leaf5]
         assert leaf3.leaves == [leaf3]
 
+    def test_leaves_half_populated(self) -> None:
+        """A non-leaf node with only one child descends into the child that exists."""
+        # A node with only a left child: the right branch is skipped
+        child = Node(value=2)
+        left_only = Node(value=1, left=child)
+        assert left_only.is_leaf is False
+        assert left_only.leaves == [child]
+
+        # A node with only a right child: the left branch is skipped
+        right_only = Node(value=1, right=child)
+        assert right_only.is_leaf is False
+        assert right_only.leaves == [child]
+
     def test_levels(self) -> None:
         """Test the levels property."""
         # Create a simple tree
