@@ -39,18 +39,30 @@ treelib  ->  cluster  ->  algos  ->  dendrogram  ->  hrp  ->  __init__
 - `dendrogram` builds on `cluster` and on `algos`, which backs the `Dendrogram.one_over_n()`
   convenience wrapper; neither module imports `hrp`.
 - `hrp` composes `covariance` + `dendrogram` + `algos` into the end-to-end pipeline.
-- `plot`/Plotly is imported lazily (inside `Dendrogram.plot`) so importing the allocation
-  core stays plotly-free. This is the one deferred import in the package, and the optional
-  dependency is the whole reason for it — every other edge above is a module-level import.
+- Plotly is imported lazily so importing the allocation core stays plotly-free. There are
+  exactly two deferred imports in the package, and the optional dependency is the whole
+  reason for both: `dendrogram.py` imports `.plot` inside `Dendrogram.plot`, and
+  `cluster.py` imports `plotly.graph_objects` inside `Portfolio.plot`. Every edge in the
+  layering chain above is a module-level import — the first of these two is the only
+  deferred *internal* edge.
 
 ### Allocator contract
 
 The three allocators in `algos.py` share one contract: each takes a `Cluster` tree (`root`)
-plus the asset names, and never mutates the tree — weights are rebuilt from scratch, so every
-allocator is idempotent and a tree can be reused. `risk_parity` and `schur_risk_parity` share the
-`_allocate_with` scaffolding and return the fully weighted root `Cluster`. `one_over_n`
-intentionally differs only in its output: it is a generator yielding the equal-weight portfolio
-one tree level at a time (`Dendrogram.one_over_n()` is the container-level convenience wrapper).
+plus the asset names, and none of them changes the shape of that tree — no node is added,
+removed or re-parented. They differ in where the weights land.
+
+`risk_parity` and `schur_risk_parity` share the `_allocate_with` scaffolding and write into
+the tree they are given: every node's `portfolio` is replaced rather than accumulated into,
+and the same root `Cluster` is returned. Replacing is what makes them idempotent — re-running
+on an already weighted tree gives the same answer as running on a fresh one — but the caller's
+tree *is* modified. `Dendrogram` is a frozen dataclass while the `Cluster` it holds is not, so
+passing `dendrogram.root` to an allocator (directly, or as `hrp(prices, node=...)`) rewrites
+the portfolios inside that dendrogram; deep-copy the root first to keep it unweighted.
+
+`one_over_n` differs on both counts: it accumulates into a local buffer, so it leaves the input
+tree untouched entirely, and its output is a generator yielding the equal-weight portfolio one
+tree level at a time (`Dendrogram.one_over_n()` is the container-level convenience wrapper).
 
 ## Development commands
 

@@ -120,18 +120,52 @@ def _bisect_tree(ids: list[int], next_id: int) -> tuple[Cluster, int]:
     return Cluster(value=next_id, left=left, right=right), next_id
 
 
-def _get_linkage(node: Cluster) -> list[list[float]]:
-    """Convert tree structure back to linkage matrix format."""
+def _cluster_diameter(node: Cluster, dist: np.ndarray) -> float:
+    """Largest pairwise distance between any two leaves under ``node``.
+
+    This is the merge height used for the bisection tree's linkage rows. The
+    diameter is monotone along the tree — a parent's leaf set is a superset of
+    each child's, so its maximum can only grow — which is what scipy's linkage
+    format requires of its distance column.
+
+    Args:
+        node (Cluster): The subtree whose leaves span the cluster.
+        dist (np.ndarray): Square distance matrix indexed by leaf value.
+
+    Returns:
+        float: The cluster diameter; 0.0 for a single leaf.
+    """
+    idx = [int(leaf.value) for leaf in node.leaves]
+    if len(idx) < 2:
+        return 0.0
+    return float(dist[np.ix_(idx, idx)].max())
+
+
+def _get_linkage(node: Cluster, dist: np.ndarray) -> list[list[float]]:
+    """Convert tree structure back to linkage matrix format.
+
+    Rows are emitted in post-order, matching the id assignment in
+    :func:`_bisect_tree`, so row ``i`` defines the cluster with id ``n + i``.
+    Column 2 carries the cluster diameter (see :func:`_cluster_diameter`),
+    because scipy reads that column as a cophenetic merge distance.
+
+    Args:
+        node (Cluster): The subtree to linearise.
+        dist (np.ndarray): Square distance matrix indexed by leaf value.
+
+    Returns:
+        list[list[float]]: Rows of ``[left id, right id, height, leaf count]``.
+    """
     links_list: list[list[float]] = []
     if node.left is not None and node.right is not None:
         left, right = node._child_clusters()
-        links_list.extend(_get_linkage(left))
-        links_list.extend(_get_linkage(right))
+        links_list.extend(_get_linkage(left, dist))
+        links_list.extend(_get_linkage(right, dist))
         links_list.append(
             [
                 float(left.value),
                 float(right.value),
-                float(node.size),
+                _cluster_diameter(node, dist),
                 float(len(left.leaves) + len(right.leaves)),
             ]
         )
@@ -230,6 +264,6 @@ def build_tree(
         # Rebuild tree using bisection
         leaf_ids: list[int] = [int(node.value) for node in root.leaves]
         root, _ = _bisect_tree(ids=leaf_ids, next_id=max(leaf_ids))
-        links = np.array(_get_linkage(root))
+        links = np.array(_get_linkage(root, dist.to_numpy()))
 
     return Dendrogram(root=root, linkage=links, method=method, distance=dist, assets=cor.columns)
