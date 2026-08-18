@@ -122,15 +122,11 @@ line-ending = "auto"
 
 # File-specific rule exceptions
 [lint.per-file-ignores]
-# Library source - long, descriptive exception messages are intentional at our
-# scale (see the EM note above); express that policy once here instead of
-# scattering inline `# noqa: TRY003` across the modules.
-"src/pyhrp/*.py" = [
-    "TRY003",   # Allow long exception messages in the library source
-]
-# All test code, wherever it lives (project suite under tests/, smoke tests under
-# .rhiza/tests/, and their bundle copies under bundles/). This glob subsumes the
-# project suite; tests/**/*.py below adds project-suite-only allowances on top.
+# All test code, wherever it lives (the project suite under tests/, and the bundle
+# copies under bundles/). This glob subsumes the project suite; tests/**/*.py below adds
+# project-suite-only allowances on top. It used to cover a third tree, `.rhiza/tests/`,
+# which the template synced; since #1540 the rhiza checks are an installed dependency and
+# there is no template-owned Python in a consumer's tree to exempt.
 "**/tests/**/*.py" = [
     "ANN",   # tests prioritize readability and fixtures over strict annotation coverage
     "S101",  # assert is the test idiom
@@ -138,7 +134,8 @@ line-ending = "auto"
     "S607",  # partial executable paths (git, make) are intentional in test drivers
     "ARG",   # pytest fixtures are requested by name for their side effects, not always read
 ]
-# Project test suite only — allowances the synced .rhiza/tests should not inherit
+# Project test suite only — allowances the broader glob above should not hand to the
+# bundle copies under bundles/
 "tests/**/*.py" = [
     "RUF002",  # docstrings quote prose with typographic unicode (e.g. en dash)
     "RUF012",  # pytest class attributes are conventionally bare mutables, not ClassVar
