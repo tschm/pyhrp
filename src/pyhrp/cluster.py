@@ -160,11 +160,15 @@ class Cluster(Node[int]):
             TypeError: If either child is not a Cluster.
         """
         if self.left is None:
-            raise ValueError("Expected left child to exist for non-leaf cluster")
+            msg = "Expected left child to exist for non-leaf cluster"
+            raise ValueError(msg)
         if self.right is None:
-            raise ValueError("Expected right child to exist for non-leaf cluster")
+            msg = "Expected right child to exist for non-leaf cluster"
+            raise ValueError(msg)
         if not isinstance(self.left, Cluster):
-            raise TypeError(f"Expected left child to be a Cluster for node {self.value}")
+            msg = f"Expected left child to be a Cluster for node {self.value}"
+            raise TypeError(msg)
         if not isinstance(self.right, Cluster):
-            raise TypeError(f"Expected right child to be a Cluster for node {self.value}")
+            msg = f"Expected right child to be a Cluster for node {self.value}"
+            raise TypeError(msg)
         return self.left, self.right
