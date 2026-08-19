@@ -147,10 +147,21 @@ class Cluster(Node[int]):
         Returns:
             list[Cluster]: List of all leaf nodes reachable from this cluster
         """
-        if self.is_leaf:
-            return [self]
-        left, right = self._child_clusters()
-        return left.leaves + right.leaves
+        # Iterative for the same reason as Node.leaves, and still validating each
+        # non-leaf node through _child_clusters() so a malformed tree raises here
+        # rather than yielding a silently short leaf list.
+        result: list[Cluster] = []
+        stack: list[Cluster] = [self]
+        while stack:
+            node = stack.pop()
+            if node.is_leaf:
+                result.append(node)
+                continue
+            left, right = node._child_clusters()
+            # Right first, so the left subtree is emitted first.
+            stack.append(right)
+            stack.append(left)
+        return result
 
     def _child_clusters(self) -> tuple[Cluster, Cluster]:
         """Return the validated (left, right) child clusters of a non-leaf node.

@@ -197,15 +197,33 @@ def _allocate(root: Cluster, assets: list[str], combine: Callable[[Cluster], Clu
     Returns:
         Cluster: The input node with portfolio weights assigned
     """
-    if root.is_leaf:
-        root.portfolio = Portfolio()
-        root.portfolio[assets[int(root.value)]] = 1.0
-        return root
+    # Iterative post-order rather than recursion: a chain-degenerate tree is as deep
+    # as the universe is wide, and recursing here capped the number of assets that
+    # could be allocated. Pass one collects nodes parent-before-child (validating
+    # each non-leaf as it goes, so a malformed tree still raises before any weight is
+    # written); reversing that order guarantees both children hold a portfolio before
+    # their parent combines them.
+    order: list[Cluster] = []
+    stack: list[Cluster] = [root]
+    while stack:
+        node = stack.pop()
+        order.append(node)
+        if not node.is_leaf:
+            left, right = node._child_clusters()
+            stack.append(left)
+            stack.append(right)
 
-    left, right = root._child_clusters()
-    root.left = _allocate(left, assets, combine)
-    root.right = _allocate(right, assets, combine)
-    return combine(root)
+    for node in reversed(order):
+        if node.is_leaf:
+            node.portfolio = Portfolio()
+            node.portfolio[assets[int(node.value)]] = 1.0
+        else:
+            # combine() replaces node.portfolio in place; the return value is the
+            # same node, which is why the recursive form's reassignment of
+            # root.left/root.right was always a no-op.
+            combine(node)
+
+    return root
 
 
 def _block_variance(portfolio: Portfolio, cov_np: np.ndarray, index: dict[str, int]) -> float:
