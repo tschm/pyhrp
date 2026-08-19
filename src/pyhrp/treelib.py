@@ -58,14 +58,23 @@ class Node(Generic[T]):
         Returns:
             List[Node]: List of all leaf nodes
         """
-        if self.is_leaf:
-            return [self]
-
+        # Iterative depth-first walk with an explicit stack: the leaf order is the
+        # same left-to-right order the recursive form produced, but the traversal
+        # depth is bounded by the heap rather than by sys.getrecursionlimit(). A
+        # chain-degenerate cluster tree is as deep as it is wide, so recursing here
+        # put a ceiling on the number of assets the package could handle.
         result: list[Node[T]] = []
-        if self.left:
-            result.extend(self.left.leaves)
-        if self.right:
-            result.extend(self.right.leaves)
+        stack: list[Node[T]] = [self]
+        while stack:
+            node = stack.pop()
+            if node.is_leaf:
+                result.append(node)
+                continue
+            # Right first, so the left subtree is popped and emitted first.
+            if node.right is not None:
+                stack.append(node.right)
+            if node.left is not None:
+                stack.append(node.left)
 
         return result
 
@@ -109,12 +118,9 @@ class Node(Generic[T]):
         Returns:
             int: Total number of nodes
         """
-        size = 1  # Count this node
-        if self.left:
-            size += self.left.size
-        if self.right:
-            size += self.right.size
-        return size
+        # Counts via __iter__, which is already an iterative level-order walk, so
+        # this inherits its freedom from the recursion limit.
+        return sum(1 for _ in self)
 
     def __iter__(self) -> Iterator[Node[T]]:
         """Iterate through all nodes in the tree in level-order.

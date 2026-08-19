@@ -33,7 +33,13 @@ from pyhrp.dendrogram import (
 @st.composite
 def covariance_matrices(draw: st.DrawFn) -> pl.DataFrame:
     """Generate symmetric positive-definite covariance matrices."""
-    n_assets = draw(st.integers(min_value=2, max_value=8))
+    # Ceiling raised from 8 to 24. At 8 every generated tree was at most 8 deep, so
+    # no property could reach the deep-tree behaviour that the recursive traversals
+    # used to break on -- 100% branch coverage held while a 1200-asset universe
+    # crashed. Both properties build with single linkage, which chains, so 24 assets
+    # reach depths in the teens and above. Fixed-size chain regressions below cover
+    # the realistic-universe end, which is far too slow to generate 200 times.
+    n_assets = draw(st.integers(min_value=2, max_value=24))
     base = draw(
         hnp.arrays(
             dtype=np.float64,
@@ -583,3 +589,38 @@ def test_dendrogram_one_over_n_wrapper_matches_function() -> None:
 
     assert via_wrapper == via_function
     assert sum(via_wrapper[0][1].values()) == pytest.approx(1.0)
+
+
+def _chain_correlation(n_assets: int) -> pl.DataFrame:
+    """Correlations decaying with index distance, which single linkage chains.
+
+    Produces a tree of depth ``n_assets`` instead of the ``log2`` depth of a balanced
+    tree, which is what makes it useful for exercising the tree traversals at depth.
+    """
+    idx = np.arange(n_assets)
+    corr = 0.99 ** np.abs(idx[:, None] - idx[None, :]).astype(float)
+    np.fill_diagonal(corr, 1.0)
+    return pl.DataFrame(dict(zip([f"A{i}" for i in range(n_assets)], corr, strict=True)))
+
+
+def test_build_tree_handles_a_deep_chain_tree() -> None:
+    """build_tree and the tree traversals should survive a chain far deeper than the stack.
+
+    Regression test: _to_cluster, Cluster.leaves and Node.size were recursive, so a
+    chain-degenerate tree raised RecursionError at roughly 1000 assets -- before any
+    allocation was reached. This asserts the whole read path over such a tree.
+    """
+    n_assets = 1500
+    cor = _chain_correlation(n_assets)
+
+    dendrogram = build_tree(cor=cor, method="single", bisection=False)
+    root = dendrogram.root
+
+    # A chain, not just a big tree: depth equals the number of assets.
+    assert len(root.levels) == n_assets
+    # Each formerly recursive traversal, at depth.
+    assert len(root.leaves) == n_assets
+    assert root.leaf_count == n_assets
+    assert root.size == 2 * n_assets - 1
+    assert dendrogram.assets == cor.columns
+    assert sorted(dendrogram.names) == sorted(cor.columns)

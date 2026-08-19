@@ -219,9 +219,35 @@ def _to_cluster(node: sch.ClusterNode) -> Cluster:
     Returns:
         Cluster: Equivalent node in our Cluster format.
     """
-    if node.left is not None and node.right is not None:
-        return Cluster(value=node.id, left=_to_cluster(node.left), right=_to_cluster(node.right))
-    return Cluster(value=node.id)
+    # Two passes instead of recursion. scipy's tree is as deep as the linkage is
+    # unbalanced -- single linkage chains, so depth grows with the asset count --
+    # and recursing here raised RecursionError before allocation was ever reached.
+    #
+    # Pass one collects nodes parent-before-child; reversing that order visits every
+    # child before its parent, which is what building bottom-up requires.
+    order: list[sch.ClusterNode] = []
+    stack: list[sch.ClusterNode] = [node]
+    while stack:
+        current = stack.pop()
+        order.append(current)
+        if current.left is not None and current.right is not None:
+            stack.append(current.left)
+            stack.append(current.right)
+
+    # Pass two builds each Cluster once its children exist. scipy assigns every
+    # node a unique id, so the id is a safe key for the partially built tree.
+    converted: dict[int, Cluster] = {}
+    for current in reversed(order):
+        if current.left is not None and current.right is not None:
+            converted[current.id] = Cluster(
+                value=current.id,
+                left=converted[current.left.id],
+                right=converted[current.right.id],
+            )
+        else:
+            converted[current.id] = Cluster(value=current.id)
+
+    return converted[node.id]
 
 
 def build_tree(

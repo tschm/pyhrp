@@ -26,7 +26,13 @@ from pyhrp.treelib import Node
 @st.composite
 def covariance_matrices(draw: st.DrawFn) -> pl.DataFrame:
     """Generate symmetric positive-definite covariance matrices."""
-    n_assets = draw(st.integers(min_value=2, max_value=8))
+    # Ceiling raised from 8 to 24. At 8 every generated tree was at most 8 deep, so
+    # no property could reach the deep-tree behaviour that the recursive traversals
+    # used to break on -- 100% branch coverage held while a 1200-asset universe
+    # crashed. Both properties build with single linkage, which chains, so 24 assets
+    # reach depths in the teens and above. Fixed-size chain regressions below cover
+    # the realistic-universe end, which is far too slow to generate 200 times.
+    n_assets = draw(st.integers(min_value=2, max_value=24))
     base = draw(
         hnp.arrays(
             dtype=np.float64,
@@ -398,3 +404,41 @@ def test_risk_parity_near_singular_covariance_matrix() -> None:
     assert np.all(weights >= 0.0)
     assert np.all(weights <= 1.0)
     assert float(weights.sum()) == pytest.approx(1.0, rel=1e-6, abs=1e-6)
+
+
+def _chain_correlation(n_assets: int) -> pl.DataFrame:
+    """Correlations decaying with index distance, which single linkage chains.
+
+    Single linkage merges nearest neighbours one at a time on this structure, so the
+    resulting tree is a chain of depth ``n_assets`` rather than the ``log2`` depth a
+    balanced tree would have. That is what makes it the right shape for exercising
+    deep-tree behaviour.
+    """
+    idx = np.arange(n_assets)
+    corr = 0.99 ** np.abs(idx[:, None] - idx[None, :]).astype(float)
+    np.fill_diagonal(corr, 1.0)
+    return pl.DataFrame(dict(zip([f"A{i}" for i in range(n_assets)], corr, strict=True)))
+
+
+def test_risk_parity_allocates_a_deep_chain_tree() -> None:
+    """risk_parity should allocate a chain-degenerate tree far deeper than the stack.
+
+    Regression test: single linkage on decaying correlations builds a tree whose depth
+    equals the asset count, and the recursive traversals raised RecursionError from
+    about 1000 assets -- an ordinary equity universe. 1500 exceeds that comfortably
+    while staying fast, since the traversals are now iterative.
+    """
+    n_assets = 1500
+    cor = _chain_correlation(n_assets)
+    root = build_tree(cor=cor, method="single", bisection=False).root
+
+    # Depth really is the asset count, i.e. the tree is a chain and not merely large.
+    assert len(root.levels) == n_assets
+
+    cluster = risk_parity(root=root, cov=cor)
+    weights = np.array(list(cluster.portfolio.weights.values()))
+
+    assert len(weights) == n_assets
+    assert np.all(np.isfinite(weights))
+    assert np.all(weights >= 0.0)
+    assert float(weights.sum()) == pytest.approx(1.0, rel=1e-9)
