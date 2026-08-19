@@ -1,8 +1,17 @@
 repository: "jebel-quant/rhiza"
-ref: "v1.3.4"
+ref: "v1.4.2"
 
 profiles:
   - github-project
 
 templates:
   - legal
+
+# Paths the template ships but this repo owns outright. Written as destination
+# paths — where the file lands here, not where it sits in the template.
+exclude:
+  - .github/DISCUSSION_TEMPLATE
+  - .github/ISSUE_TEMPLATE
+  - .github/CONFIG.md
+  - .github/workflows/rhiza_mutation.yml
+  - .github/workflows/rhiza_fuzzing.yml

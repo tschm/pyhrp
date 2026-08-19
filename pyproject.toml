@@ -48,6 +48,44 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/pyhrp"]
 
+[tool.rhiza-task]
+# Settings for the task runner that replaced the synced make layer in rhiza v1.4.0.
+# Read as layer 3 of rhiza-task's resolution order (defaults -> .rhiza/.env ->
+# pyproject.toml -> RHIZA_* environment). Only entries that differ from the CLI's
+# defaults belong here; `uvx rhiza-task print <setting>` shows what one resolves to.
+
+# This repo keeps its Marimo notebooks in book/marimo, not the CLI default of
+# docs/notebooks. `book` exports them to docs/notebooks/*.html, which is what
+# mkdocs.yml's nav references, and rhiza_marimo.yml reads this setting via
+# `rhiza-task print marimo_folder` to build its notebook matrix.
+marimo-folder = "book/marimo"
+
+# CLAUDE.md documents 100% coverage as a hard invariant. The `test` task passes
+# --cov-fail-under on the command line, which outranks [tool.coverage.report]
+# fail_under below, so leaving this at the default 90 would quietly weaken the
+# gate while the config file still claimed 100. Keep the two in step.
+coverage-fail-under = 100
+
+# The retired python.mk had `TYPECHECKER ?= both`; the CLI defaults to `ty` alone,
+# so a bare migration would have dropped `mypy --strict` from this repo's typecheck
+# gate -- the one CLAUDE.md and the README describe. `both` is also stricter here
+# than it was under make: the shell `case` let mypy's exit status win, so a ty
+# failure could pass, where the CLI raises on each run.
+typechecker = "both"
+
+# The retired quality.mk pinned `RHIZA_CHECKS_VERSION ?= 0.2.1`; the CLI defaults to
+# v0.2.0, so a bare migration would have *downgraded* the conformance checks -- the
+# drift the pin exists to prevent. Bumping it is a separate upgrade decision.
+pytest-rhiza = "pytest-rhiza @ git+https://github.com/Jebel-Quant/pytest-rhiza@v0.2.1"
+
+# Not set, on purpose:
+#   source-folder      -- the default `src` is already this repo's layout.
+#   layers             -- `python` is detected from pyproject.toml.
+#   mkdocs-extra-packages -- the old root Makefile carried
+#       `MKDOCS_EXTRA_PACKAGES = --with 'mkdocstrings[python]'` for the API reference;
+#       rhiza-task 0.3.1 makes mkdocstrings[python] the default, so the override is
+#       now redundant rather than lost. Restore it here if that default ever changes.
+
 [tool.coverage.run]
 branch = true
 
