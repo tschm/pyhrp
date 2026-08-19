@@ -6,3 +6,10 @@ profiles:
 
 templates:
   - legal
+
+# Paths the template ships but this repo owns outright. Written as destination
+# paths — where the file lands here, not where it sits in the template.
+exclude:
+  - .github/DISCUSSION_TEMPLATE
+  - .github/ISSUE_TEMPLATE
+  - .github/CONFIG.md
