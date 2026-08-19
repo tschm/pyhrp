@@ -1,7 +1,7 @@
-sha: 0db4dadf0577a3fcaed7881419682f349e5f98c5
+sha: 31e1a11237419f746770c5339f8aa468fd1c0deb
 repo: jebel-quant/rhiza
 host: github
-ref: v1.3.4
+ref: v1.4.2
 include: []
 exclude: []
 templates:
@@ -35,24 +35,10 @@ files:
 - .gitignore
 - .pre-commit-config.yaml
 - .python-version
-- .rhiza/.env
-- .rhiza/.gitignore
 - .rhiza/CODE_OF_CONDUCT.md
 - .rhiza/CONTRIBUTING.md
-- .rhiza/make.d/book.mk
-- .rhiza/make.d/bootstrap.mk
-- .rhiza/make.d/custom-env.mk
-- .rhiza/make.d/custom-task.mk
-- .rhiza/make.d/doctor.mk
-- .rhiza/make.d/github.mk
-- .rhiza/make.d/marimo.mk
-- .rhiza/make.d/python.mk
-- .rhiza/make.d/quality.mk
-- .rhiza/make.d/test.mk
-- .rhiza/rhiza.mk
 - .rhiza/semgrep.yml
 - LICENSE
-- Makefile
 - SECURITY.md
 - cliff.toml
 - docs/assets/rhiza-logo.svg
@@ -63,5 +49,5 @@ files:
 - pytest.ini
 - ruff.toml
 - tests/test_rhiza_packaging.py
-synced_at: '2026-08-18T19:44:02Z'
+synced_at: '2026-08-19T07:54:48Z'
 strategy: merge
