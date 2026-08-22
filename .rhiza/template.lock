@@ -5,11 +5,7 @@ ref: v1.5.0
 include: []
 exclude:
 - SECURITY.md
-- .github/DISCUSSION_TEMPLATE
-- .github/ISSUE_TEMPLATE
 - .github/CONFIG.md
-- .github/workflows/rhiza_mutation.yml
-- .github/workflows/rhiza_fuzzing.yml
 templates:
 - legal
 profiles:

@@ -11,11 +11,8 @@ templates:
 # paths — where the file lands here, not where it sits in the template.
 exclude:
   # SECURITY.md makes factual claims about THIS repo's security posture (which scanners,
-  # which release protections). Only the repo knows which are true -- the template shipped a
-  # fuzzing claim that was false here -- so the file is owned here, not template-managed.
+  # which release protections). Only the repo knows which are true, so the file is owned
+  # here rather than template-managed.
   - SECURITY.md
-  - .github/DISCUSSION_TEMPLATE
-  - .github/ISSUE_TEMPLATE
+  # Contributor-facing GitHub meta doc: this repo's own, not the template's generic version.
   - .github/CONFIG.md
-  - .github/workflows/rhiza_mutation.yml
-  - .github/workflows/rhiza_fuzzing.yml
