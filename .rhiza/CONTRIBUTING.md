@@ -143,7 +143,7 @@ Append `!` after the type/scope and add a `BREAKING CHANGE:` footer:
 ```
 feat!: rename make target from `book` to `docs`
 
-BREAKING CHANGE: `make book` no longer exists; use `make docs`.
+BREAKING CHANGE: the `sync` make target no longer exists; use `/rhiza:update`.
 ```
 
 ## Code style
