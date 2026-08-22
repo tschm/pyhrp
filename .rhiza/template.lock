@@ -4,6 +4,7 @@ host: github
 ref: v1.4.2
 include: []
 exclude:
+- SECURITY.md
 - .github/DISCUSSION_TEMPLATE
 - .github/ISSUE_TEMPLATE
 - .github/CONFIG.md
@@ -36,7 +37,6 @@ files:
 - .rhiza/CONTRIBUTING.md
 - .rhiza/semgrep.yml
 - LICENSE
-- SECURITY.md
 - cliff.toml
 - docs/assets/rhiza-logo.svg
 - docs/development/MARIMO.md
