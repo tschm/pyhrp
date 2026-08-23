@@ -37,14 +37,14 @@ vector. This paper documents the construction the package actually performs ---
 the correlation-to-distance map, the linkage and bisection trees, the recursive
 inverse-variance split, and the Schur augmentation of the two child blocks ---
 and reports what that construction produces on the twenty-asset panel shipped
-with the test suite. Three claims from the package's own documentation are
-examined numerically. Two hold: the Schur allocator at $\gamma=0$ reproduces HRP
-bit for bit, and every allocation is a long-only portfolio summing to one. The
-third does not hold in the generality in which it is stated: neither the claim
-that $\gamma=1$ recovers the global minimum-variance portfolio nor the claim
-that variance decreases monotonically in $\gamma$ survives contact with the
-implementation, and we give a two-asset counterexample to the first and a
-$76/200$ failure rate for the second. The gap is in the split rule, which stays
+with the test suite. Of three claims the package documents about its Schur
+allocator, one holds exactly and two do not. The one that holds is worth
+relying on: at $\gamma=0$ the Schur allocator reproduces HRP bit for bit, so it
+is a safe drop-in. The two that fail are stated without qualification in the
+package's own documentation --- that $\gamma=1$ recovers the global
+minimum-variance portfolio, and that variance falls monotonically in $\gamma$ ---
+and we give a two-asset counterexample to the first and a $76/200$ failure rate
+for the second. The gap is in the split rule, which stays
 inverse-variance at every $\gamma$; we make its consequences precise, since a
 user choosing $\gamma$ is choosing between two behaviours that the
 documentation currently conflates.
