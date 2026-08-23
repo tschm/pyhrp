@@ -8,13 +8,32 @@
 \usepackage{amssymb}
 \usepackage{booktabs}
 \usepackage{microtype}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
 \usepackage{xcolor}
 \usepackage[round]{natbib}
 \usepackage[hidelinks]{hyperref}
 
 \newcommand{\code}[1]{\texttt{#1}}
+
+% A numbered, ruled algorithm block in base LaTeX. The `algorithm` and
+% `algorithmicx` packages are not in the TeX Live subset the paper workflow
+% installs (texlive-latex-extra ships neither; they sit in texlive-science),
+% so the environment is defined here rather than pulled in.
+\newcounter{algo}
+\newenvironment{algobox}[2]{%
+  \par\addvspace{\medskipamount}%
+  \refstepcounter{algo}\label{#2}%
+  \noindent\rule{\linewidth}{0.8pt}\par\nobreak\vspace{2pt}%
+  \noindent\textbf{Algorithm \thealgo.} #1\par\nobreak\vspace{2pt}%
+  \noindent\rule{\linewidth}{0.4pt}\par\nobreak\vspace{2pt}%
+  \begin{list}{\arabic{algoline}:}{%
+    \usecounter{algoline}%
+    \setlength{\leftmargin}{2.2em}\setlength{\labelwidth}{1.6em}%
+    \setlength{\itemsep}{1pt}\setlength{\parsep}{0pt}\setlength{\topsep}{2pt}}%
+}{%
+  \end{list}\nobreak\vspace{2pt}%
+  \noindent\rule{\linewidth}{0.8pt}\par\addvspace{\medskipamount}%
+}
+\newcounter{algoline}
 \DeclareMathOperator{\diag}{diag}
 \DeclareMathOperator*{\argmin}{arg\,min}
 
@@ -179,25 +198,20 @@ where $\oplus$ concatenates over disjoint asset sets. Since $\alpha_\ell +
 \alpha_r = 1$ and both are non-negative, the invariant that a node's weights are
 non-negative and sum to one propagates from the leaves to the root.
 
-\begin{algorithm}[t]
-\caption{Allocation on a cluster tree}
-\label{alg:alloc}
-\begin{algorithmic}[1]
-\Require root $\rho$, covariance $\Sigma$, variance rule $\nu$
-\State $\mathcal{O} \gets$ nodes of $\rho$ in pre-order (iterative, parent before child)
-\For{$v$ in reverse($\mathcal{O}$)}
-  \If{$v$ is a leaf}
-    \State $w_v \gets \{\, \mathrm{asset}(v) : 1 \,\}$
-  \Else
-    \State $(v_\ell, v_r) \gets \nu(\ell, r, \Sigma)$
-      \Comment{Eq.~\eqref{eq:blockvar} for HRP, Eq.~\eqref{eq:schur} for Schur}
-    \State $w_v \gets \alpha_\ell w_\ell \oplus \alpha_r w_r$
-      \Comment{Eq.~\eqref{eq:split}}
-  \EndIf
-\EndFor
-\State \Return $\rho$
-\end{algorithmic}
-\end{algorithm}
+\begin{algobox}{Allocation on a cluster tree}{alg:alloc}
+\item[] \textbf{Input:} root $\rho$, covariance $\Sigma$, per-node variance rule $\nu$.
+\item $\mathcal{O} \gets$ nodes of $\rho$ in pre-order, collected with an explicit
+      stack so that every parent precedes its children.
+\item For each $v \in \mathrm{reverse}(\mathcal{O})$:
+      \begin{itemize}
+        \item if $v$ is a leaf, set $w_v \gets \{\, \mathrm{asset}(v) : 1 \,\}$;
+        \item otherwise compute $(v_\ell, v_r) \gets \nu(\ell, r, \Sigma)$ ---
+              Eq.~\eqref{eq:blockvar} for HRP, Eq.~\eqref{eq:schur} for Schur ---
+              and set $w_v \gets \alpha_\ell w_\ell \oplus \alpha_r w_r$ by
+              Eq.~\eqref{eq:split}.
+      \end{itemize}
+\item Return $\rho$.
+\end{algobox}
 
 Algorithm~\ref{alg:alloc} is the whole allocator. Reversing a pre-order walk
 guarantees that both children carry a portfolio before their parent needs one,
