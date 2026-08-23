@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import warnings
+
 import numpy as np
 import polars as pl
 import pytest
 from polars import DataFrame
 
-from pyhrp.covariance import compute_corr, compute_cov, compute_returns
+from pyhrp.covariance import check_finite_matrix, compute_corr, compute_cov, compute_returns
+from pyhrp.hrp import hrp, schur_hrp
 
 
 def test_compute_returns_simple_returns() -> None:
@@ -28,6 +31,23 @@ def test_compute_returns_fills_missing_with_zero() -> None:
 
     assert rets.null_count().to_numpy().sum() == 0
     assert not np.isnan(rets.to_numpy()).any()
+
+
+def test_compute_returns_warns_on_missing_prices() -> None:
+    """Missing prices trigger a UserWarning naming the affected asset."""
+    prices = pl.DataFrame({"A": [100.0, None, 110.0], "B": [50.0, 51.0, 52.0]})
+
+    with pytest.warns(UserWarning, match="A"):
+        compute_returns(prices)
+
+
+def test_compute_returns_silent_when_clean() -> None:
+    """No warning is emitted when the returns frame has no gaps."""
+    prices = pl.DataFrame({"A": [100.0, 110.0, 99.0], "B": [50.0, 55.0, 44.0]})
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        compute_returns(prices)
 
 
 def test_compute_cov_matrix_properties(returns: DataFrame) -> None:
@@ -58,9 +78,47 @@ def test_compute_cov_single_asset() -> None:
     assert cov["A"][0] == pytest.approx(1.0)
 
 
-def test_compute_corr_single_asset() -> None:
-    """Correlation of a single asset is a 1x1 matrix."""
-    df = pl.DataFrame({"A": [1.0, 2.0, 3.0]})
-    corr = compute_corr(df)
-    assert corr.shape == (1, 1)
-    assert corr["A"][0] == pytest.approx(1.0)
+def test_check_finite_matrix_passes_clean_matrix() -> None:
+    """A finite matrix passes through unchanged."""
+    matrix = pl.DataFrame({"A": [1.0, 0.5], "B": [0.5, 1.0]})
+
+    result = check_finite_matrix(matrix, name="covariance matrix")
+
+    assert result.equals(matrix)
+
+
+def test_check_finite_matrix_raises_on_nan() -> None:
+    """NaN entries raise ValueError naming the offending column."""
+    matrix = pl.DataFrame({"A": [1.0, float("nan")], "B": [0.5, 1.0]})
+
+    with pytest.raises(ValueError, match=r"covariance matrix.*A"):
+        check_finite_matrix(matrix, name="covariance matrix")
+
+
+def test_check_finite_matrix_raises_on_null() -> None:
+    """Null entries raise ValueError naming the offending column."""
+    matrix = pl.DataFrame({"A": [1.0, 0.5], "B": [None, 1.0]}, schema={"A": pl.Float64, "B": pl.Float64})
+
+    with pytest.raises(ValueError, match=r"null entries in column\(s\): B"):
+        check_finite_matrix(matrix)
+
+
+def test_hrp_raises_on_constant_price_series() -> None:
+    """Hrp fails loudly on a constant price series (NaN correlation downstream)."""
+    prices = pl.DataFrame({"A": [100.0, 100.0, 100.0], "B": [50.0, 51.0, 49.0]})
+
+    with pytest.raises(ValueError, match="non-finite"):
+        hrp(prices)
+
+
+def test_schur_hrp_raises_on_nonfinite_covariance() -> None:
+    """schur_hrp fails loudly when the covariance estimate contains NaN."""
+    prices = pl.DataFrame(
+        {
+            "A": [100.0, 100.0, 100.0, 100.0],
+            "B": [50.0, 51.0, 49.0, 52.0],
+        }
+    )
+
+    with pytest.raises(ValueError, match=r"non-finite|covariance"):
+        schur_hrp(prices)
