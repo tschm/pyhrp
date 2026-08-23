@@ -35,8 +35,9 @@ def test_compute_returns_fills_missing_with_zero() -> None:
 
 def test_compute_returns_warns_on_missing_prices() -> None:
     """Missing prices trigger a UserWarning naming the affected asset."""
-    prices = pl.DataFrame({"A": [100.0, None, 110.0], "B": [50.0, 51.0, 52.0]})
-
+    # A NaN price produces NaN returns that survive the leading-row drop,
+    # so column A is flagged before being zero-filled.
+    prices = pl.DataFrame({"A": [100.0, float("nan"), 110.0], "B": [50.0, 51.0, 52.0]})
     with pytest.warns(UserWarning, match="A"):
         compute_returns(prices)
 

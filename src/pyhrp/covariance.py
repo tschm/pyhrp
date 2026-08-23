@@ -40,7 +40,7 @@ def _warn_on_missing_returns(returns: pl.DataFrame) -> None:
 
 
 def compute_returns(prices: pl.DataFrame) -> pl.DataFrame:
-    """Compute simple returns from prices.
+    r"""Compute simple returns from prices.
 
     Drops leading all-null rows produced by pct_change and fills remaining
     nulls/NaNs (e.g. from missing prices) with zero returns.
@@ -70,7 +70,7 @@ def compute_returns(prices: pl.DataFrame) -> pl.DataFrame:
         >>> import polars as pl
         >>> from pyhrp.covariance import compute_returns
         >>> prices = pl.DataFrame({"A": [100.0, 110.0, 99.0]})
-        >>> compute_returns(prices)["A"].to_list()
+        >>> compute_returns(prices)[\"A\"].to_list()
         [0.1, -0.1]
     """
     raw = prices.select(pl.all().pct_change()).filter(pl.any_horizontal(pl.all().is_not_null()))
