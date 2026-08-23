@@ -10,9 +10,8 @@ templates:
   # the `paper` bundle, whose docs/paper/README.md explains the layout the workflow expects.
   - github-paper
   - legal
+  - github-paper
 
-# Paths the template ships but this repo owns outright. Written as destination
-# paths — where the file lands here, not where it sits in the template.
 exclude:
   # SECURITY.md makes factual claims about THIS repo's security posture (which scanners,
   # which release protections). Only the repo knows which are true, so the file is owned
