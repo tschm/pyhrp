@@ -25,10 +25,9 @@ nav:
 # command intentionally no longer installs the package editable, so a src-layout
 # project must point the handler at src/ itself.
 #
-# The check that pins that behaviour used to live at
-# .rhiza/tests/integration/test_docs_targets.py; rhiza v1.4.x moved the bundled
-# checks out of .rhiza/tests/ and into the pytest-rhiza package this repo pins in
-# [tool.rhiza-task], so cite the package rather than a path that no longer exists.
+# The check pinning that behaviour ships with the pytest-rhiza package this repo
+# pins in [tool.rhiza-task] (rhiza v1.4.x moved the bundled checks out of
+# .rhiza/tests/ into that package).
 plugins:
   - search
   - mkdocstrings:
