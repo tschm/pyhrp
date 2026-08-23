@@ -5,6 +5,10 @@ profiles:
   - github-project
 
 templates:
+  # Ships .github/workflows/rhiza_paper.yml, which compiles docs/paper/*.tex into a PDF
+  # published as a workflow artifact (and, via the book, as a docs-site asset). Pulls in
+  # the `paper` bundle, whose docs/paper/README.md explains the layout the workflow expects.
+  - github-paper
   - legal
   - github-paper
 

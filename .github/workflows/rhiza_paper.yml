@@ -1,0 +1,44 @@
+# This file is part of the jebel-quant/rhiza repository
+# (https://github.com/jebel-quant/rhiza).
+#
+# Workflow: Paper
+#
+# Purpose: Compile the LaTeX paper (docs/paper/*.tex) to a PDF and publish it
+#          as a downloadable workflow artifact. The durable copy is published by
+#          the book: `paper` is a prerequisite of `book`, and docs/paper/ sits
+#          inside the docs tree, so the PDF ships as a site asset.
+#
+#          It no longer pushes to an orphan `paper` branch (rhiza #1494): that
+#          ref cannot coexist with any `paper/<topic>` branch, so the push failed
+#          in exactly the repositories most likely to have one. A repository that
+#          still has the branch gets a warning naming it; delete it when nothing
+#          links to it.
+#
+# Trigger: On push/PR to main/master when docs/paper/** changes, or manual dispatch.
+
+name: "(RHIZA) PAPER"
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'docs/paper/**'
+      - '.github/workflows/rhiza_paper.yml'
+  pull_request:
+    branches: [ main, master ]
+    paths:
+      - 'docs/paper/**'
+      - '.github/workflows/rhiza_paper.yml'
+  workflow_dispatch:
+
+jobs:
+  paper:
+    uses: jebel-quant/rhiza/.github/workflows/rhiza_paper.yml@v1.5.0
+    secrets: inherit
+    # `contents: read` only. The `write` scope this stub used to grant existed solely for
+    # the retired branch push; compiling and uploading an artifact need no write access.
+    permissions:
+      contents: read
