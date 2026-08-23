@@ -10,7 +10,6 @@ templates:
   # the `paper` bundle, whose docs/paper/README.md explains the layout the workflow expects.
   - github-paper
   - legal
-  - github-paper
 
 exclude:
   # SECURITY.md makes factual claims about THIS repo's security posture (which scanners,
