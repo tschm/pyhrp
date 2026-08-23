@@ -1,0 +1,533 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=2.6cm]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{xcolor}
+\usepackage[round]{natbib}
+\usepackage[hidelinks]{hyperref}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+% A numbered, ruled algorithm block in base LaTeX. The `algorithm` and
+% `algorithmicx` packages are not in the TeX Live subset the paper workflow
+% installs (texlive-latex-extra ships neither; they sit in texlive-science),
+% so the environment is defined here rather than pulled in.
+\newcounter{algo}
+\newenvironment{algobox}[2]{%
+  \par\addvspace{\medskipamount}%
+  \refstepcounter{algo}\label{#2}%
+  \noindent\rule{\linewidth}{0.8pt}\par\nobreak\vspace{2pt}%
+  \noindent\textbf{Algorithm \thealgo.} #1\par\nobreak\vspace{2pt}%
+  \noindent\rule{\linewidth}{0.4pt}\par\nobreak\vspace{2pt}%
+  \begin{list}{\arabic{algoline}:}{%
+    \usecounter{algoline}%
+    \setlength{\leftmargin}{2.2em}\setlength{\labelwidth}{1.6em}%
+    \setlength{\itemsep}{1pt}\setlength{\parsep}{0pt}\setlength{\topsep}{2pt}}%
+}{%
+  \end{list}\nobreak\vspace{2pt}%
+  \noindent\rule{\linewidth}{0.8pt}\par\addvspace{\medskipamount}%
+}
+\newcounter{algoline}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+\title{\code{pyhrp}: Hierarchical Risk Parity and Schur Complementary
+Allocation on an Explicit Cluster Tree}
+
+\author{Thomas Schmelzer\thanks{\url{https://github.com/tschm/pyhrp}}}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+\code{pyhrp} is a small Python package that implements Hierarchical Risk Parity
+(HRP) and its Schur-complement extension by allocating weights on an
+\emph{explicit}, inspectable binary tree rather than by returning a bare weight
+vector. This paper documents the construction the package actually performs ---
+the correlation-to-distance map, the linkage and bisection trees, the recursive
+inverse-variance split, and the Schur augmentation of the two child blocks ---
+and reports what that construction produces on the twenty-asset panel shipped
+with the test suite. Of three claims the package documents about its Schur
+allocator, one holds exactly and two do not. The one that holds is worth
+relying on: at $\gamma=0$ the Schur allocator reproduces HRP bit for bit, so it
+is a safe drop-in. The two that fail are stated without qualification in the
+package's own documentation --- that $\gamma=1$ recovers the global
+minimum-variance portfolio, and that variance falls monotonically in $\gamma$ ---
+and we give a two-asset counterexample to the first and a $76/200$ failure rate
+for the second. The gap is in the split rule, which stays
+inverse-variance at every $\gamma$; we make its consequences precise, since a
+user choosing $\gamma$ is choosing between two behaviours that the
+documentation currently conflates.
+\end{abstract}
+
+\section{Introduction}
+
+Mean-variance optimisation \citep{markowitz1952} inverts a covariance matrix.
+That inversion is the source of both its appeal and its notorious instability:
+the smallest eigenvalues of an estimated covariance matrix are the least well
+determined, and inversion weights them most heavily, so small changes in the
+input produce large changes in the output \citep{michaud1989}. The standard
+responses are to improve the estimate --- shrinkage \citep{ledoit2004} --- or to
+abandon the optimisation --- equal weights \citep{demiguel2009}.
+
+Hierarchical Risk Parity \citep{lopezdeprado2016} takes a third route. It never
+inverts anything. Instead it uses the correlation matrix twice, and only in ways
+that are robust to estimation noise: once to build a hierarchy over the assets
+by agglomerative clustering, and once to compute sub-portfolio variances, which
+are quadratic forms rather than solves. Weights fall out of a recursive top-down
+split of a unit budget between the two children of every node, inversely
+proportional to each child's variance. The result is long-only by construction,
+sums to one without a constraint being imposed, and requires no expected returns.
+
+The idea that a correlation matrix over financial assets carries hierarchical
+structure predates HRP \citep{mantegna1999}; HRP's contribution is to make that
+structure the allocation mechanism rather than a visualisation.
+
+\subsection{What this package adds}
+
+\code{pyhrp} makes the tree a first-class object. \code{hrp()} returns the root
+\code{Cluster} of the weighted tree, not a weight series, so the intermediate
+allocation at every node remains available for inspection: which cluster
+received what fraction of the budget, and how that fraction was subdivided. The
+weight vector is one attribute of the root, recovered as
+\code{root.portfolio.weights}.
+
+Three allocators share that tree and the same input contract:
+
+\begin{itemize}
+  \item \code{risk\_parity} --- HRP as published: split by the plain block
+        variance of each child.
+  \item \code{schur\_risk\_parity} --- split by a Schur-augmented block variance
+        \citep{cotton2024}, interpolating with a parameter $\gamma \in [0,1]$.
+  \item \code{one\_over\_n} --- a hierarchical equal-weight allocation,
+        exposed as a generator that yields one complete portfolio per tree
+        level, so the allocation can be watched as the hierarchy deepens.
+\end{itemize}
+
+Section~\ref{sec:method} states the construction, Section~\ref{sec:impl}
+describes the implementation choices that are not implied by the mathematics,
+and Section~\ref{sec:results} reports numerical results, including the two
+documentation claims that do not hold.
+
+\section{Method}
+\label{sec:method}
+
+Let $R \in \mathbb{R}^{T \times N}$ be a matrix of simple returns for $N$ assets
+over $T$ periods, with sample covariance $\Sigma \in \mathbb{R}^{N \times N}$
+and sample correlation $C \in \mathbb{R}^{N \times N}$.
+
+\subsection{From correlation to a tree}
+
+Correlations are turned into distances by the standard map
+\begin{equation}
+  d_{ij} = \sqrt{\frac{1 - C_{ij}}{2}},
+  \label{eq:dist}
+\end{equation}
+clipped to $[0,1]$ before the square root and with an exactly zero diagonal.
+Perfectly correlated assets sit at distance $0$, uncorrelated assets at
+$1/\sqrt{2}$, perfectly anticorrelated assets at $1$.
+
+The condensed form of $d$ is passed to SciPy's agglomerative clustering
+\citep{virtanen2020} under one of four linkage methods --- \code{single},
+\code{complete}, \code{average} or \code{ward} \citep{ward1963}, the default.
+The resulting linkage matrix is converted into a binary tree of \code{Cluster}
+nodes, each leaf carrying the column index of one asset.
+
+The correlation matrix is validated before use. Fewer than two assets, or any
+non-finite entry, raises. A non-finite diagonal entry is reported with the
+offending asset named, because the cause is almost always a constant price
+series, whose zero variance makes its correlations undefined.
+
+\paragraph{The bisection variant.}
+Setting \code{bisection=True} keeps only the \emph{leaf order} that the chosen
+linkage induces and discards the tree shape. The ordered list of leaves is then
+split in half, recursively, until singletons remain. This is closer to the
+construction described in the original HRP paper, and it produces a balanced
+tree by definition: depth is $\lceil \log_2 N \rceil$ regardless of how
+chain-like the linkage was.
+
+A bisection tree has no linkage matrix of its own, so one is rebuilt for
+plotting. The merge height assigned to an internal node is its \emph{cluster
+diameter},
+\begin{equation}
+  h(v) = \max_{i,j \in \mathrm{leaves}(v)} d_{ij},
+\end{equation}
+which is monotone along the tree --- a parent's leaf set contains each child's,
+so its maximum can only grow --- and monotonicity is exactly what SciPy requires
+of that column.
+
+\subsection{The recursive split}
+
+Every node holds a \code{Portfolio}: a mapping from asset name to weight. A leaf
+holds its own asset at weight $1$. An internal node combines its children.
+
+For an internal node $v$ with children $\ell$ and $r$, let $w_\ell$ and $w_r$
+denote the child portfolios --- each already a unit-sum allocation over its own
+leaf set --- and let $\Sigma_\ell$, $\Sigma_r$ be the corresponding diagonal
+blocks of $\Sigma$. Define the child variances
+\begin{equation}
+  v_\ell = w_\ell^{\top} \Sigma_\ell w_\ell,
+  \qquad
+  v_r = w_r^{\top} \Sigma_r w_r .
+  \label{eq:blockvar}
+\end{equation}
+The budget of $v$ is split
+\begin{equation}
+  \alpha_\ell = \frac{v_r}{v_\ell + v_r},
+  \qquad
+  \alpha_r = 1 - \alpha_\ell = \frac{v_\ell}{v_\ell + v_r},
+  \label{eq:split}
+\end{equation}
+so that $\alpha_\ell v_\ell = \alpha_r v_r$: the two children contribute equally
+to the parent, up to the cross term, which this rule ignores. If both variances
+vanish --- riskless sub-portfolios --- the split is $\alpha_\ell = \alpha_r =
+1/2$ rather than undefined. The node's portfolio is
+\begin{equation}
+  w_v = \alpha_\ell \, w_\ell \oplus \alpha_r \, w_r ,
+\end{equation}
+where $\oplus$ concatenates over disjoint asset sets. Since $\alpha_\ell +
+\alpha_r = 1$ and both are non-negative, the invariant that a node's weights are
+non-negative and sum to one propagates from the leaves to the root.
+
+\begin{algobox}{Allocation on a cluster tree}{alg:alloc}
+\item[] \textbf{Input:} root $\rho$, covariance $\Sigma$, per-node variance rule $\nu$.
+\item $\mathcal{O} \gets$ nodes of $\rho$ in pre-order, collected with an explicit
+      stack so that every parent precedes its children.
+\item For each $v \in \mathrm{reverse}(\mathcal{O})$:
+      \begin{itemize}
+        \item if $v$ is a leaf, set $w_v \gets \{\, \mathrm{asset}(v) : 1 \,\}$;
+        \item otherwise compute $(v_\ell, v_r) \gets \nu(\ell, r, \Sigma)$ ---
+              Eq.~\eqref{eq:blockvar} for HRP, Eq.~\eqref{eq:schur} for Schur ---
+              and set $w_v \gets \alpha_\ell w_\ell \oplus \alpha_r w_r$ by
+              Eq.~\eqref{eq:split}.
+      \end{itemize}
+\item Return $\rho$.
+\end{algobox}
+
+Algorithm~\ref{alg:alloc} is the whole allocator. Reversing a pre-order walk
+guarantees that both children carry a portfolio before their parent needs one,
+which is what makes a single bottom-up pass sufficient.
+
+\subsection{Schur complementary allocation}
+
+Equation~\eqref{eq:blockvar} uses only the diagonal blocks of $\Sigma$. The
+cross-block covariance between the two children is discarded --- at every node,
+at every level. Schur Complementary Allocation \citep{cotton2024} restores part
+of it.
+
+Write the covariance restricted to the union of the two children's assets in
+block form,
+\begin{equation}
+  \Sigma_v =
+  \begin{pmatrix}
+    A & B \\
+    B^{\top} & D
+  \end{pmatrix},
+\end{equation}
+with $A$ the left block and $D$ the right. The augmented blocks are
+\begin{equation}
+  A_\gamma = A - \gamma \, B D^{-1} B^{\top},
+  \qquad
+  D_\gamma = D - \gamma \, B^{\top} A^{-1} B,
+  \label{eq:aug}
+\end{equation}
+and the split then uses
+\begin{equation}
+  v_\ell = w_\ell^{\top} A_\gamma \, w_\ell,
+  \qquad
+  v_r = w_r^{\top} D_\gamma \, w_r .
+  \label{eq:schur}
+\end{equation}
+At $\gamma=0$ this is Eq.~\eqref{eq:blockvar} unchanged. At $\gamma=1$ the
+augmented blocks are the Schur complements of $D$ and $A$ in $\Sigma_v$, each
+group's covariance \emph{conditioned} on the other. Intermediate $\gamma$
+interpolates linearly in the correction term.
+
+Both augmentations require a solve against a covariance block. Collinear assets
+make those blocks singular, so the implementation falls back from
+\code{np.linalg.solve} to the minimum-norm least-squares solution when the solve
+raises, which keeps Eq.~\eqref{eq:aug} defined rather than propagating an
+exception out of a recursion.
+
+Note what is \emph{not} changed: the split rule. Equation~\eqref{eq:split}
+remains inverse-variance for every $\gamma$. Section~\ref{sec:claims} shows why
+that matters.
+
+\subsection{Hierarchical \texorpdfstring{$1/N$}{1/N}}
+
+The third allocator ignores $\Sigma$. At level $n$ of the tree it distributes a
+budget $2^{-n}$ equally among the leaves of each node at that level, accumulates
+into a running portfolio, and yields a copy. A leaf that terminates early keeps
+the weight it was given, so each yielded portfolio is a complete allocation over
+all assets and the sequence shows how the equal-weight allocation refines as the
+hierarchy is descended.
+
+\section{Implementation}
+\label{sec:impl}
+
+The package is about 1{,}200 lines of Python over eight modules, dependent only
+on NumPy \citep{harris2020}, SciPy \citep{virtanen2020}, Polars \citep{polars}
+and Plotly. Covariance and correlation frames are Polars DataFrames whose
+columns name the assets; the allocators translate names to indices once and
+then work on NumPy arrays.
+
+\paragraph{Iterative traversal, not recursion.}
+Both the SciPy-tree conversion and the allocation walk are written as explicit
+two-pass stack loops. This is not stylistic. Single linkage chains: on noisy
+data its tree depth grows with $N$ rather than with $\log N$, and the recursive
+forms of these two functions raised \code{RecursionError} on universes that the
+mathematics handles without complaint. The iterative form removes the asset
+count as a limit.
+
+\paragraph{The allocator contract.}
+\code{risk\_parity} and \code{schur\_risk\_parity} write \emph{into} the tree
+they are given and return the same root. Every node's portfolio is replaced
+rather than accumulated into, which makes them idempotent: re-running on an
+already weighted tree --- with a different covariance matrix, or a different
+$\gamma$ --- gives the same answer as running on a fresh one. The cost is that
+the caller's tree is modified. \code{Dendrogram} is a frozen dataclass, but the
+\code{Cluster} it holds is not, so passing \code{dendrogram.root} to an
+allocator rewrites the portfolios inside that dendrogram; a caller who needs the
+unweighted tree must deep-copy it. \code{one\_over\_n} differs on both counts:
+it accumulates into a local buffer, leaving the input untouched, and yields
+rather than returns.
+
+\paragraph{Numerical conventions.}
+Returns are simple returns from prices, with leading all-null rows dropped and
+remaining nulls and NaNs filled with zero. Covariance and correlation are the
+plain sample estimators (\code{np.cov}, \code{np.corrcoef}). No shrinkage is
+applied anywhere: the package's robustness claim rests on avoiding the
+inversion, not on regularising the estimate.
+
+\section{Numerical results}
+\label{sec:results}
+
+All numbers below come from the twenty-asset daily price panel shipped in the
+test suite as \code{tests/resources/stock\_prices.csv} ($320$ observations,
+$20$ assets). Variances are of daily returns; annualised volatility multiplies
+by $\sqrt{252}$. We report the effective number of positions
+$N_{\mathrm{eff}} = 1 / \sum_i w_i^2$ as a concentration measure --- it equals
+$N$ for equal weights and $1$ for a single position.
+
+\subsection{Tree construction}
+
+\begin{table}[t]
+\centering
+\caption{HRP allocations on the twenty-asset panel, by linkage method and tree
+construction. \emph{Bisect} rebuilds the tree by halving the linkage leaf order.}
+\label{tab:linkage}
+\begin{tabular}{llrrrr}
+\toprule
+Linkage & Bisect & Variance & Ann.\ vol. & $N_{\mathrm{eff}}$ & $\max_i w_i$ \\
+\midrule
+\code{single}   & no  & $6.388 \times 10^{-5}$ & $0.1269$ & $7.82$  & $0.2245$ \\
+\code{single}   & yes & $5.325 \times 10^{-5}$ & $0.1158$ & $13.63$ & $0.1308$ \\
+\code{complete} & no  & $5.255 \times 10^{-5}$ & $0.1151$ & $11.82$ & $0.1591$ \\
+\code{complete} & yes & $5.131 \times 10^{-5}$ & $0.1137$ & $13.00$ & $0.1288$ \\
+\code{average}  & no  & $6.047 \times 10^{-5}$ & $0.1234$ & $10.21$ & $0.2042$ \\
+\code{average}  & yes & $5.702 \times 10^{-5}$ & $0.1199$ & $15.39$ & $0.1003$ \\
+\code{ward}     & no  & $5.478 \times 10^{-5}$ & $0.1175$ & $13.27$ & $0.1377$ \\
+\code{ward}     & yes & $5.397 \times 10^{-5}$ & $0.1166$ & $14.05$ & $0.1238$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:linkage} shows the choice of linkage mattering roughly as much as
+one would expect from the geometry. \code{single} linkage is the outlier: its
+chaining produces the most concentrated allocation of the eight
+($N_{\mathrm{eff}} = 7.82$ against $13.27$ for \code{ward}) and the highest
+variance. This is the mechanism, not an accident --- an unbalanced tree splits a
+budget unevenly by construction, because a deep leaf has been halved more often
+than a shallow one.
+
+Bisection improves every method on both measures here, and improves
+\code{single} most (variance $-17\%$, $N_{\mathrm{eff}}$ from $7.82$ to
+$13.63$), which is consistent with balance being what it supplies. We would not
+read the uniform improvement as general: this is one panel, and the ordering of
+two allocators on one covariance estimate is not evidence about their ordering
+out of sample.
+
+\subsection{The Schur parameter}
+
+\begin{table}[t]
+\centering
+\caption{Schur complementary allocation on the same panel, \code{ward} linkage,
+as $\gamma$ varies. The last row is the global minimum-variance portfolio,
+which allows short positions, for reference.}
+\label{tab:gamma}
+\begin{tabular}{lrrrr}
+\toprule
+& Variance & Ann.\ vol. & $N_{\mathrm{eff}}$ & $\max_i w_i$ \\
+\midrule
+$\gamma = 0.00$ & $5.478 \times 10^{-5}$ & $0.1175$ & $13.27$ & $0.1377$ \\
+$\gamma = 0.25$ & $5.473 \times 10^{-5}$ & $0.1174$ & $13.24$ & $0.1381$ \\
+$\gamma = 0.50$ & $5.467 \times 10^{-5}$ & $0.1174$ & $13.20$ & $0.1385$ \\
+$\gamma = 0.75$ & $5.459 \times 10^{-5}$ & $0.1173$ & $13.15$ & $0.1390$ \\
+$\gamma = 1.00$ & $5.449 \times 10^{-5}$ & $0.1172$ & $13.08$ & $0.1397$ \\
+\midrule
+GMV (long/short) & $4.137 \times 10^{-5}$ & $0.1021$ & $4.37$ & $0.2438$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:gamma} is the central empirical result of this paper, and it is
+mostly a null one. Moving $\gamma$ from $0$ to $1$ --- from no cross-block
+information to the full Schur complement --- reduces the portfolio variance by
+$0.53\%$ and the annualised volatility by $3$ basis points. The allocation
+barely moves: the largest weight changes by $0.002$, and $N_{\mathrm{eff}}$
+falls from $13.27$ to $13.08$.
+
+The reference row explains why that is worth stating. The global
+minimum-variance portfolio on this covariance matrix has variance
+$4.137 \times 10^{-5}$, a quarter below the $\gamma=1$ allocation, and it is a
+visibly different object: $N_{\mathrm{eff}} = 4.37$, and it holds short
+positions (its smallest weight is $-0.132$). Whatever $\gamma$ interpolates
+towards in this implementation, on this panel it is not that portfolio.
+
+\subsection{Three documented claims, examined}
+\label{sec:claims}
+
+The package documents three properties of the Schur allocator. We tested each.
+
+\paragraph{$\gamma=0$ reproduces HRP exactly. Confirmed.}
+The two allocators agree to the last bit on this panel: the maximum absolute
+weight difference over the twenty assets is exactly $0$, not merely below a
+tolerance. This is structural rather than fortunate --- at $\gamma=0$
+Eq.~\eqref{eq:aug} leaves $A$ and $D$ untouched, so the two code paths compute
+the same floating-point expression --- and it makes \code{schur\_hrp} a safe
+drop-in for \code{hrp}.
+
+\paragraph{$\gamma=1$ recovers the minimum-variance portfolio. Not as stated.}
+Table~\ref{tab:gamma} already shows the two portfolios differing substantially
+on the twenty-asset panel. The reason is visible in a case small enough to check
+by hand. Take
+\begin{equation}
+  \Sigma = \begin{pmatrix} 4 & 1.5 \\ 1.5 & 1 \end{pmatrix},
+\end{equation}
+and the two-leaf tree. The global minimum-variance portfolio is
+$w^{\star} = (-0.25,\, 1.25)$; the Schur allocator at $\gamma=1$ returns
+$(0.2,\, 0.8)$.
+
+The mechanism is Eq.~\eqref{eq:split}. Augmenting the blocks changes
+\emph{which} variances are compared, but the comparison is still an
+inverse-variance split, and an inverse-variance split of two sub-portfolios is
+not the minimum-variance combination of them --- the minimum-variance weight for
+two correlated blocks depends on their covariance, and no reweighting of the
+diagonal blocks alone can reproduce it. A further consequence: because both
+$\alpha$'s in Eq.~\eqref{eq:split} are non-negative, the output is long-only for
+every $\gamma$, while the minimum-variance portfolio generally is not. The two
+cannot coincide whenever $w^{\star}$ has a negative entry, whatever $\gamma$
+does.
+
+We are describing a gap between this implementation and the sentence in its own
+documentation, not disputing \citet{cotton2024}; recovering minimum variance
+requires the split itself to become a minimum-variance solve, which
+Eq.~\eqref{eq:split} never becomes.
+
+\paragraph{Variance falls as $\gamma$ rises. True here, not in general.}
+It holds on the shipped panel, monotonically, as Table~\ref{tab:gamma} shows.
+It is not a property of the algorithm. Over $200$ synthetic eight-asset panels
+($60$ observations each, independent Gaussian log-returns; see
+Appendix~\ref{app:repro}), the variance failed to be non-increasing in $\gamma$
+in $76$ cases --- $38\%$. In the first such case the variance \emph{rose}
+monotonically, from $1.0367 \times 10^{-5}$ at $\gamma=0$ to $1.0401
+\times 10^{-5}$ at $\gamma=1$, an increase of $0.33\%$.
+
+The effect is small in both directions, which is the practical point:
+$\gamma$ is a weak knob on this construction. A user who reads
+``raising $\gamma$ trades robustness for lower in-sample variance'' should not
+expect the trade to be reliably available.
+
+\section{Limitations}
+
+The covariance estimator is the plain sample one. On a universe whose asset
+count approaches its observation count this estimator is badly conditioned, and
+while HRP never inverts it, the block variances of Eq.~\eqref{eq:blockvar} are
+still computed from it and the Schur augmentation of Eq.~\eqref{eq:aug} does
+solve against it. Shrinkage \citep{ledoit2004} is left to the caller, who may
+pass any covariance frame.
+
+The allocation is unconditionally long-only and fully invested. There is no
+provision for weight caps, turnover limits, transaction costs, leverage, or a
+risk-free asset, and no rebalancing logic: the package maps one covariance
+estimate to one allocation. Nothing here evaluates HRP as a strategy. All
+variances reported are in-sample, computed against the same covariance matrix
+that produced the weights, and are properties of the construction rather than
+evidence about performance --- the out-of-sample question that motivates HRP
+\citep{lopezdeprado2016} is outside what this package measures.
+
+\section{Conclusion}
+
+Allocating on an explicit tree costs little and buys inspectability: the
+intermediate budget of every cluster survives in the returned object, which
+makes an HRP allocation auditable in a way a weight vector is not. The
+construction is otherwise faithful to the published algorithm, and the two
+variants the package adds behave as follows on the panel it ships. Bisection is
+a real improvement in balance, and most valuable exactly where the linkage tree
+is worst. The Schur parameter $\gamma$ is a much weaker instrument than its
+documentation suggests: it moves the allocation by fractions of a percent, its
+variance reduction is not monotone across panels, and its $\gamma=1$ endpoint is
+not the minimum-variance portfolio, because the split rule it feeds stays
+inverse-variance throughout. Users should treat $\gamma$ as a small perturbation
+of HRP rather than as a dial between HRP and minimum variance, and the
+documentation should say so.
+
+\appendix
+
+\section{Reproducibility}
+\label{app:repro}
+
+Every number in Section~\ref{sec:results} was produced with \code{pyhrp} 2.3.3
+and the panel in the repository. Tables~\ref{tab:linkage} and~\ref{tab:gamma}:
+
+\begin{verbatim}
+import numpy as np, polars as pl
+from pyhrp import hrp, schur_hrp, compute_returns, compute_cov
+
+prices = pl.read_csv("tests/resources/stock_prices.csv",
+                     try_parse_dates=True).drop("date")
+cov = compute_cov(compute_returns(prices))
+
+for method in ["single", "complete", "average", "ward"]:
+    for bisection in [False, True]:
+        root = hrp(prices=prices, method=method, bisection=bisection)
+        w = np.array(list(root.portfolio.weights.values()))
+        print(method, bisection, root.portfolio.variance(cov),
+              1 / np.sum(w ** 2), w.max())
+
+for gamma in [0.0, 0.25, 0.5, 0.75, 1.0]:
+    root = schur_hrp(prices=prices, method="ward", gamma=gamma)
+    print(gamma, root.portfolio.variance(cov))
+\end{verbatim}
+
+The minimum-variance reference row is
+$w^{\star} \propto \Sigma^{-1} \mathbf{1}$, normalised to sum to one. The
+monotonicity experiment of Section~\ref{sec:claims}:
+
+\begin{verbatim}
+rng = np.random.default_rng(0)
+violations = 0
+for _ in range(200):
+    X = rng.standard_normal((60, 8))
+    p = pl.DataFrame({f"A{i}": 100 * np.exp(np.cumsum(X[:, i] * 0.01))
+                      for i in range(8)})
+    c = compute_cov(compute_returns(p))
+    v = [schur_hrp(prices=p, method="ward", gamma=g).portfolio.variance(c)
+         for g in (0.0, 0.5, 1.0)]
+    violations += not (v[0] >= v[1] >= v[2] - 1e-18)
+print(violations, "/ 200")
+\end{verbatim}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}
