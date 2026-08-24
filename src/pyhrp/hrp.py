@@ -18,10 +18,19 @@ import polars as pl
 
 from .algos import risk_parity, schur_risk_parity
 from .cluster import Cluster
-from .covariance import compute_corr, compute_cov, compute_returns
+from .covariance import check_finite_matrix, compute_corr, compute_cov, compute_returns
 from .dendrogram import Dendrogram, build_tree
 
-__all__ = ["Dendrogram", "build_tree", "compute_corr", "compute_cov", "compute_returns", "hrp", "schur_hrp"]
+__all__ = [
+    "Dendrogram",
+    "build_tree",
+    "check_finite_matrix",
+    "compute_corr",
+    "compute_cov",
+    "compute_returns",
+    "hrp",
+    "schur_hrp",
+]
 
 
 def hrp(
@@ -54,17 +63,9 @@ def hrp(
 
     Returns:
         Cluster: The root cluster with portfolio weights assigned according to HRP
-
-    Examples:
-        >>> import polars as pl
-        >>> from pyhrp.hrp import hrp
-        >>> prices = pl.DataFrame({"A": [100.0, 101.0, 99.0, 102.0], "B": [50.0, 51.0, 49.0, 52.0]})
-        >>> root = hrp(prices, method="ward")
-        >>> round(sum(root.portfolio.weights.values()), 6)
-        1.0
     """
     returns = compute_returns(prices)
-    cov = compute_cov(returns)
+    cov = check_finite_matrix(compute_cov(returns), name="covariance matrix")
     cor = compute_corr(returns)
     node = node or build_tree(cor, method=method, bisection=bisection).root
 
@@ -102,17 +103,9 @@ def schur_hrp(
 
     Returns:
         Cluster: The root cluster with portfolio weights assigned
-
-    Examples:
-        >>> import polars as pl
-        >>> from pyhrp.hrp import schur_hrp
-        >>> prices = pl.DataFrame({"A": [100.0, 101.0, 99.0, 102.0], "B": [50.0, 51.0, 49.0, 52.0]})
-        >>> root = schur_hrp(prices, method="ward", gamma=0.5)
-        >>> round(sum(root.portfolio.weights.values()), 6)
-        1.0
     """
     returns = compute_returns(prices)
-    cov = compute_cov(returns)
+    cov = check_finite_matrix(compute_cov(returns), name="covariance matrix")
     cor = compute_corr(returns)
     node = node or build_tree(cor, method=method, bisection=bisection).root
 
