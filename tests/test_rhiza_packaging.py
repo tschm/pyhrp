@@ -42,6 +42,7 @@ from pathlib import Path
 import pytest
 
 # tests/ sits at the project root, so the parent of this file's directory is the root.
+#
 # `.absolute()`, never `.resolve()`. In a synced project the difference is nil, but in
 # rhiza's own repository this file is a *symlink* into `bundles/python-core/tests/`, and
 # `.resolve()` follows it — making the "project root" come out as `bundles/python-core`,
@@ -68,24 +69,28 @@ def _project_table() -> dict:
 
 
 def test_the_installed_version_matches_pyproject() -> None:
-    r"""The distribution installed in the environment must match the declared version.
+    """The distribution installed in the environment must match the declared version.
 
     Skips rather than fails when the project is not installed as a distribution at all —
-    a ``uv`` *virtual* project (no ``[build-system]``, ``source = {{ virtual = \".\" }}`` in
+    a ``uv`` *virtual* project (no ``[build-system]``, ``source = {{ virtual = "." }}`` in
     the lockfile) has no metadata to read, and rhiza's own repository is one. That is a
     real configuration, not a broken one, so it is not this test's business.
     """
     project = _project_table()
+
     name = project.get("name")
     if not isinstance(name, str) or not name.strip():
         pytest.skip("[project].name is missing or not a plain string")
+
     declared = project.get("version")
     if not isinstance(declared, str):
         pytest.skip("[project].version is dynamic — there is no static value to compare")
+
     try:
         found = installed_version(name)
     except PackageNotFoundError:
         pytest.skip(f"{name!r} is not installed as a distribution (a virtual project has no metadata)")
+
     assert found == declared, (
         f"pyproject.toml declares version {declared!r} but the installed {name!r} reports "
         f"{found!r}. The environment is stale or the build backend is picking up a different "

@@ -12,6 +12,7 @@ dependencies = [
     "scipy>=1.11",
 ]
 license = "MIT"
+license-files = ["LICENSE"]
 classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -49,30 +50,48 @@ packages = ["src/pyhrp"]
 
 [tool.rhiza-task]
 # Settings for the task runner that replaced the synced make layer in rhiza v1.4.0.
-# Read as layer 3 of rhiza-task's resolution order (defaults -> .rhiza/.env -> pyproject.toml -> RHIZA_* environment). Only entries that differ from the CLI's defaults belong here; `uvx rhiza-task print <setting>` shows what one resolves to.
+# Read as layer 3 of rhiza-task's resolution order (defaults -> .rhiza/.env ->
+# pyproject.toml -> RHIZA_* environment). Only entries that differ from the CLI's
+# defaults belong here; `uvx rhiza-task print <setting>` shows what one resolves to.
 
-# This repo keeps its Marimo notebooks in book/marimo, not the CLI default of docs/notebooks. `book` exports them to docs/notebooks/*.html, which is what mkdocs.yml's nav references, and rhiza_marimo.yml reads this setting via `rhiza-task print marimo_folder` to build its notebook matrix.
+# This repo keeps its Marimo notebooks in book/marimo, not the CLI default of
+# docs/notebooks. `book` exports them to docs/notebooks/*.html, which is what
+# mkdocs.yml's nav references, and rhiza_marimo.yml reads this setting via
+# `rhiza-task print marimo_folder` to build its notebook matrix.
 marimo-folder = "book/marimo"
 
-# CLAUDE.md documents 100% coverage as a hard invariant. The `test` task passes --cov-fail-under on the command line, which outranks [tool.coverage.report] fail_under below, so leaving this at the default 90 would quietly weaken the gate while the config file still claimed 100. Keep the two in step.
+# CLAUDE.md documents 100% coverage as a hard invariant. The `test` task passes
+# --cov-fail-under on the command line, which outranks [tool.coverage.report]
+# fail_under below, so leaving this at the default 90 would quietly weaken the
+# gate while the config file still claimed 100. Keep the two in step.
 coverage-fail-under = 100
 
-# The retired python.mk had `TYPECHECKER ?= both`; the CLI defaults to `ty` alone, so a bare migration would have dropped `mypy --strict` from this repo's typecheck gate -- the one CLAUDE.md and the README describe. `both` is also stricter here than it was under make: the shell `case` let mypy's exit status win, so a ty failure could pass, where the CLI raises on each run.
+# The retired python.mk had `TYPECHECKER ?= both`; the CLI defaults to `ty` alone,
+# so a bare migration would have dropped `mypy --strict` from this repo's typecheck
+# gate -- the one CLAUDE.md and the README describe. `both` is also stricter here
+# than it was under make: the shell `case` let mypy's exit status win, so a ty
+# failure could pass, where the CLI raises on each run.
 typechecker = "both"
 
-# The retired quality.mk pinned `RHIZA_CHECKS_VERSION ?= 0.2.1`; the CLI defaults to v0.2.0, so a bare migration would have *downgraded* the conformance checks -- the drift the pin exists to prevent. Bumping it is a separate upgrade decision.
+# The retired quality.mk pinned `RHIZA_CHECKS_VERSION ?= 0.2.1`; the CLI defaults to
+# v0.2.0, so a bare migration would have *downgraded* the conformance checks -- the
+# drift the pin exists to prevent. Bumping it is a separate upgrade decision.
 pytest-rhiza = "pytest-rhiza @ git+https://github.com/Jebel-Quant/pytest-rhiza@v0.2.1"
 
 # Not set, on purpose:
 #   source-folder      -- the default `src` is already this repo's layout.
 #   layers             -- `python` is detected from pyproject.toml.
-#   mkdocs-extra-packages -- the old root Makefile carried `MKDOCS_EXTRA_PACKAGES = --with 'mkdocstrings[python]'` for the API reference; rhiza-task 0.3.1 makes mkdocstrings[python] the default, so the override is now redundant rather than lost. Restore it here if that default ever changes.
+#   mkdocs-extra-packages -- the old root Makefile carried
+#       `MKDOCS_EXTRA_PACKAGES = --with 'mkdocstrings[python]'` for the API reference;
+#       rhiza-task 0.3.1 makes mkdocstrings[python] the default, so the override is
+#       now redundant rather than lost. Restore it here if that default ever changes.
 
 [tool.coverage.run]
 branch = true
 
 [tool.coverage.report]
-# CLAUDE.md states 100% coverage as a CI-enforced invariant; keep the gate and the documented invariant identical so a regression cannot pass silently.
+# CLAUDE.md states 100% coverage as a CI-enforced invariant; keep the gate and
+# the documented invariant identical so a regression cannot pass silently.
 fail_under = 100
 
 [tool.mypy]
@@ -85,26 +104,53 @@ ignore_missing_imports = true
 
 [tool.deptry]
 package_module_name_map = {numpy = "numpy", scipy = "scipy", marimo = "marimo", polars = "polars", plotly = "plotly"}
-ignore = [["DEP004"]]
+ignore = ["DEP004"]
 extend_exclude = [".rhiza"]
 
+# bump-my-version searches .bumpversion.toml, .bumpversion.cfg, setup.cfg and
+# pyproject.toml, in that order. The table has to live in one of them: with no
+# discoverable config it silently falls back to `git describe`, so a release can
+# be cut at a version that already exists.
+#
+# No `current_version` here on purpose — bump-my-version reads [project].version
+# natively, and a second copy only drifts once it goes stale.
 [tool.bumpversion]
+parse = "(?P<major>\\d+)\\.(?P<minor>\\d+)\\.(?P<patch>\\d+)(?:[-]?(?P<release>[a-z]+)[\\.]?(?P<pre_n>\\d+))?(?:\\+build\\.(?P<build_n>\\d+))?"
+serialize = [
+    "{major}.{minor}.{patch}-{release}.{pre_n}+build.{build_n}",
+    "{major}.{minor}.{patch}+build.{build_n}",
+    "{major}.{minor}.{patch}-{release}.{pre_n}",
+    "{major}.{minor}.{patch}",
+]
 search = "{current_version}"
 replace = "{new_version}"
 regex = false
 ignore_missing_version = false
 ignore_missing_files = false
 allow_dirty = false
-# The release flow commits and tags itself, so the changelog lands in the bump commit; a bare `bump-my-version bump` would otherwise add a second commit and a duplicate tag.
+# The release flow commits and tags itself, so the changelog lands in the bump
+# commit; a bare `bump-my-version bump` would otherwise add a second commit and
+# a duplicate tag.
 commit = false
 tag = false
 
-[[tool.bumpversion.parts.release]]
+[tool.bumpversion.parts.release]
 optional_value = "prod"
-values = ["dev", "alpha", "a", "beta", "b", "rc", "prod"]
+values = [
+    "dev",
+    "alpha",
+    "a",  # PEP 440 short form for alpha
+    "beta",
+    "b",  # PEP 440 short form for beta
+    "rc",
+    "prod",
+]
 
+# Anchored to the [project] table on purpose. `search`/`replace` are applied to
+# EVERY occurrence in the file, so the obvious `version = "{current_version}"`
+# also rewrites any [tool.*] table that happens to share the current number.
 [[tool.bumpversion.files]]
 filename = "pyproject.toml"
 regex = true
-search = '(?ms)^\\[project\\]((?:(?!^\\[)[\\s\\S])*?)^version = "{current_version}"'
-replace = '[project]\\1version = "{new_version}"'
+search = '(?ms)^\[project\]((?:(?!^\[)[\s\S])*?)^version = "{current_version}"'
+replace = '[project]\1version = "{new_version}"'
