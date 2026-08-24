@@ -36,7 +36,7 @@ on:
 
 jobs:
   paper:
-    uses: jebel-quant/rhiza/.github/workflows/rhiza_paper.yml@v1.5.1
+    uses: jebel-quant/rhiza/.github/workflows/rhiza_paper.yml@v1.5.2
     secrets: inherit
     # `contents: read` only. The `write` scope this stub used to grant existed solely for
     # the retired branch push; compiling and uploading an artifact need no write access.
