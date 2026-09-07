@@ -55,13 +55,12 @@ cov = compute_cov(returns)
 cor = compute_corr(returns)
 
 # Compute the dendrogram based on the correlation matrix and Ward's metric
-dendrogram = build_tree(cor, method='ward')
+dendrogram = build_tree(cor, method="ward")
 dendrogram.plot()
 
 # Compute the weights on the dendrogram
 root = risk_parity(root=dendrogram.root, cov=cov)
 root.portfolio.plot(names=dendrogram.names)
-
 ```
 
 For your convenience you can bypass the construction of the covariance and
@@ -69,8 +68,8 @@ correlation matrix, and the construction of the dendrogram.
 
 ```python
 from pyhrp import hrp
-root = hrp(prices=prices, method="ward", bisection=False)
 
+root = hrp(prices=prices, method="ward", bisection=False)
 ```
 
 ## Schur Complementary Allocation
@@ -102,11 +101,8 @@ min_variance = schur_hrp(prices=prices, method="ward", gamma=1.0)
 print("gamma=0 reproduces HRP:", conservative.portfolio.weights == root.portfolio.weights)
 print(
     "variance falls as gamma rises:",
-    min_variance.portfolio.variance(cov)
-    < balanced.portfolio.variance(cov)
-    < conservative.portfolio.variance(cov),
+    min_variance.portfolio.variance(cov) < balanced.portfolio.variance(cov) < conservative.portfolio.variance(cov),
 )
-
 ```
 
 ```result
@@ -128,7 +124,6 @@ variance = root.portfolio.variance(cov)
 # You can drill deeper into the tree
 left = root.left
 right = root.right
-
 ```
 
 The comparison image above is generated from code in
