@@ -259,6 +259,13 @@ def build_tree(
     hierarchical clustering, and returns a Dendrogram object containing the
     resulting tree structure.
 
+    Note:
+        There is no limit on the depth of the resulting tree. That matters because
+        ``method="single"`` chains: on smoothly decaying correlations it produces a
+        tree of depth *n* rather than *O(log n)*, so an ordinary equity universe can
+        exceed Python's recursion limit. Tree construction and every traversal that
+        walks the result are iterative for exactly that reason.
+
     Args:
         cor (pl.DataFrame): Correlation matrix of asset returns (columns are assets)
         method (Literal["single", "complete", "average", "ward"]): Linkage method for hierarchical clustering
