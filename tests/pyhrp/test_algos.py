@@ -7,6 +7,7 @@ including property-based and numerical edge-case checks.
 from __future__ import annotations
 
 from copy import deepcopy
+from typing import Literal
 
 import numpy as np
 import polars as pl
@@ -43,6 +44,18 @@ def covariance_matrices(draw: st.DrawFn) -> pl.DataFrame:
     cov = base @ base.T + np.eye(n_assets) * 1e-6
     assets = [f"A{i}" for i in range(n_assets)]
     return pl.DataFrame(dict(zip(assets, cov, strict=True)))
+
+
+# The four linkage methods build_tree accepts. Drawing the method rather than pinning
+# "single" lets the properties cover every tree shape the function can produce; "single"
+# is the chaining-prone one, so the fixed-size regressions below pin it deliberately
+# instead of leaving deep trees to the luck of generation.
+LinkageMethod = Literal["single", "complete", "average", "ward"]
+
+
+def linkage_methods() -> st.SearchStrategy[LinkageMethod]:
+    """Draw one of the linkage methods accepted by :func:`build_tree`."""
+    return st.sampled_from(["single", "complete", "average", "ward"])
 
 
 def test_riskparity() -> None:
@@ -351,15 +364,15 @@ def test_solve_singular_falls_back_to_lstsq() -> None:
 
 @pytest.mark.property
 @settings(deadline=None, max_examples=200)
-@given(cov=covariance_matrices())
-def test_risk_parity_property_weights(cov: pl.DataFrame) -> None:
-    """risk_parity should produce normalized long-only weights."""
+@given(cov=covariance_matrices(), method=linkage_methods())
+def test_risk_parity_property_weights(cov: pl.DataFrame, method: LinkageMethod) -> None:
+    """risk_parity should produce normalized long-only weights, whatever the linkage."""
     cov_np = cov.to_numpy()
     std = np.sqrt(np.diag(cov_np))
     corr = cov_np / np.outer(std, std)
     np.fill_diagonal(corr, 1.0)
     cor = pl.DataFrame(dict(zip(cov.columns, corr, strict=True)))
-    root = build_tree(cor=cor, method="single", bisection=False).root
+    root = build_tree(cor=cor, method=method, bisection=False).root
 
     cluster = risk_parity(root=root, cov=cov)
     weights = np.array(list(cluster.portfolio.weights.values()))
@@ -425,10 +438,10 @@ def test_risk_parity_allocates_a_deep_chain_tree() -> None:
 
     Regression test: single linkage on decaying correlations builds a tree whose depth
     equals the asset count, and the recursive traversals raised RecursionError from
-    about 1000 assets -- an ordinary equity universe. 1500 exceeds that comfortably
-    while staying fast, since the traversals are now iterative.
+    about 1000 assets -- an ordinary equity universe. 2000 is twice the default
+    recursion limit, and runs in seconds now that the traversals are iterative.
     """
-    n_assets = 1500
+    n_assets = 2000
     cor = _chain_correlation(n_assets)
     root = build_tree(cor=cor, method="single", bisection=False).root
 

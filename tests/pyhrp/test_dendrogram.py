@@ -6,8 +6,10 @@ Dendrogram dataclass (validation, ordering properties, immutability).
 
 from __future__ import annotations
 
+import math
 from dataclasses import FrozenInstanceError
 from pathlib import Path
+from typing import Literal
 
 import numpy as np
 import polars as pl
@@ -62,6 +64,18 @@ def correlation_matrices(draw: st.DrawFn) -> pl.DataFrame:
     np.fill_diagonal(corr, 1.0)
     assets = cov.columns
     return pl.DataFrame(dict(zip(assets, corr, strict=True)))
+
+
+# The four linkage methods build_tree accepts. Drawing the method rather than pinning
+# "single" lets the properties cover every tree shape the function can produce; "single"
+# is the chaining-prone one, so the fixed-size regressions below pin it deliberately
+# instead of leaving deep trees to the luck of generation.
+LinkageMethod = Literal["single", "complete", "average", "ward"]
+
+
+def linkage_methods() -> st.SearchStrategy[LinkageMethod]:
+    """Draw one of the linkage methods accepted by :func:`build_tree`."""
+    return st.sampled_from(["single", "complete", "average", "ward"])
 
 
 class TestDendrogram:
@@ -550,10 +564,10 @@ def test_compute_distance_matrix_clipping() -> None:
 
 @pytest.mark.property
 @settings(deadline=None, max_examples=200)
-@given(cor=correlation_matrices())
-def test_build_tree_property_valid_corr_matrix(cor: pl.DataFrame) -> None:
-    """build_tree should accept valid random correlation matrices."""
-    dendrogram = build_tree(cor=cor, method="single", bisection=False)
+@given(cor=correlation_matrices(), method=linkage_methods())
+def test_build_tree_property_valid_corr_matrix(cor: pl.DataFrame, method: LinkageMethod) -> None:
+    """build_tree should accept valid random correlation matrices under any linkage."""
+    dendrogram = build_tree(cor=cor, method=method, bisection=False)
 
     assert dendrogram.linkage is not None
     assert dendrogram.assets == cor.columns
@@ -608,9 +622,10 @@ def test_build_tree_handles_a_deep_chain_tree() -> None:
 
     Regression test: _to_cluster, Cluster.leaves and Node.size were recursive, so a
     chain-degenerate tree raised RecursionError at roughly 1000 assets -- before any
-    allocation was reached. This asserts the whole read path over such a tree.
+    allocation was reached. This asserts the whole read path over such a tree at 2000
+    assets, comfortably past the default recursion limit and a realistic equity universe.
     """
-    n_assets = 1500
+    n_assets = 2000
     cor = _chain_correlation(n_assets)
 
     dendrogram = build_tree(cor=cor, method="single", bisection=False)
@@ -624,3 +639,24 @@ def test_build_tree_handles_a_deep_chain_tree() -> None:
     assert root.size == 2 * n_assets - 1
     assert dendrogram.assets == cor.columns
     assert sorted(dendrogram.names) == sorted(cor.columns)
+
+
+def test_build_tree_bisection_stays_shallow_on_a_deep_chain() -> None:
+    """The bisection path must stay balanced on an input that chains under single linkage.
+
+    _bisect_tree and _get_linkage are the two traversals still written recursively, and
+    that is only safe because bisection halves the id list at every step: the tree it
+    builds is balanced by construction, so its depth is log2(n) however degenerate the
+    linkage tree it replaces was. This pins that reasoning at a size where a chain would
+    blow the stack.
+    """
+    n_assets = 2000
+    cor = _chain_correlation(n_assets)
+
+    dendrogram = build_tree(cor=cor, method="single", bisection=True)
+
+    # Balanced, not chained: log2(2000) is just under 11, so 12 levels including the root.
+    assert len(dendrogram.root.levels) == math.ceil(math.log2(n_assets)) + 1
+    assert len(dendrogram.root.leaves) == n_assets
+    assert dendrogram.linkage is not None
+    assert dendrogram.linkage.shape == (n_assets - 1, 4)
