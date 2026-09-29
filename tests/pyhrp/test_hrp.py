@@ -229,25 +229,29 @@ def test_schur_singular_block_does_not_crash() -> None:
 
 
 def test_notebooks() -> None:
-    """Test notebooks execute and expose expected typed outputs."""
+    """Test notebooks execute and expose a marimo app."""
     repo_root = Path(__file__).resolve().parents[2]
     notebooks_dir = repo_root / "book" / "marimo"
-    prices_path = repo_root / "tests" / "resources" / "stock_prices.csv"
 
     for py_file in notebooks_dir.glob("*.py"):
         namespace = runpy.run_path(str(py_file))
+        assert "app" in namespace
 
-        if py_file.name == "demo.py":
-            prices = namespace["_load_prices"](prices_path)
-            returns = prices.select(pl.all().pct_change()).drop_nulls()
-            cov, cor = namespace["_compute_cov_and_corr"](returns)
-            root = namespace["risk_parity"](namespace["build_tree"](cor, method="ward").root, cov)
 
-            assert isinstance(root, Cluster)
-            assert isinstance(root.portfolio.weights, dict)
-            assert root.portfolio.weights
-            weights = list(root.portfolio.weights.values())
-            assert abs(sum(weights) - 1.0) < 1e-9, "HRP weights must sum to 1.0"
-            assert all(0.0 <= w <= 1.0 for w in weights), "All HRP weights must be in [0, 1]"
-        else:
-            assert "app" in namespace
+def test_demo_script() -> None:
+    """Test the README demo script computes valid HRP weights."""
+    repo_root = Path(__file__).resolve().parents[2]
+    prices_path = repo_root / "tests" / "resources" / "stock_prices.csv"
+    namespace = runpy.run_path(str(repo_root / "book" / "scripts" / "demo.py"))
+
+    prices = namespace["_load_prices"](prices_path)
+    returns = prices.select(pl.all().pct_change()).drop_nulls()
+    cov, cor = namespace["_compute_cov_and_corr"](returns)
+    root = namespace["risk_parity"](namespace["build_tree"](cor, method="ward").root, cov)
+
+    assert isinstance(root, Cluster)
+    assert isinstance(root.portfolio.weights, dict)
+    assert root.portfolio.weights
+    weights = list(root.portfolio.weights.values())
+    assert abs(sum(weights) - 1.0) < 1e-9, "HRP weights must sum to 1.0"
+    assert all(0.0 <= w <= 1.0 for w in weights), "All HRP weights must be in [0, 1]"

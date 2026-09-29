@@ -127,10 +127,10 @@ right = root.right
 ```
 
 The comparison image above is generated from code in
-`book/marimo/demo.py`. Regenerate it with:
+`book/scripts/demo.py`. Regenerate it with:
 
 ```bash
-uv run --with kaleido book/marimo/demo.py
+uv run --with kaleido book/scripts/demo.py
 ```
 
 ## Package layout
