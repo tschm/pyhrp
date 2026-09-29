@@ -5,6 +5,87 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 and entries are generated from [Conventional Commits](https://www.conventionalcommits.org).
 
+## [2.3.4] - 2026-09-29
+
+### Bug Fixes
+- Make bumpversion config discoverable, hoist dendrogram -> algos import (#765)
+- Enforce the documented 100% coverage invariant and de-duplicate child validation (#768)
+- Bisection linkage distances, and correct the allocator contract (#776)
+- Hoist exception messages to satisfy TRY003 after rhiza v1.3.4 (#779)
+- Make the tree traversals iterative so deep chains no longer overflow the stack (#785)
+- Close out the deep-tree gaps in #782/#783 (#806)
+- Move demo.py out of the marimo notebook folder (#809)
+
+### Documentation
+- Add package layout / module-responsibility overview (#724)
+- Cite pytest-rhiza instead of removed .rhiza/tests path (#789)
+- Add a paper on the HRP and Schur allocators (#794)
+- Link the compiled paper from the book nav (#795)
+
+### Maintenance
+- Chore(deps)(deps): bump the github-actions group with 3 updates (#715)
+- Chore(deps-dev)(deps-dev): bump marimo in the python-dependencies group (#716)
+- Consolidate src/ TRY003 suppressions into a ruff per-file-ignore (#719)
+- Update rhiza to v1.0.0 (#720)
+- Update rhiza to v1.0.1 (#722)
+- Chore(deps)(deps): bump polars in the python-dependencies group (#721)
+- Chore(deps)(deps): bump the github-actions group with 12 updates (#725)
+- Chore(deps-dev)(deps-dev): bump the python-dependencies group with 2 updates (#728)
+- *(core)* Decouple plotly from allocation core and simplify build_tree (#729)
+- Update rhiza to v1.1.0 (#730)
+- Update rhiza to v1.1.1 (#732)
+- Update rhiza to v1.1.3 (#733)
+- Chore(deps)(deps): bump the python-dependencies group with 4 updates (#734)
+- Normalize .rhiza/template.yml (repository/ref notation, legal templates) (#735)
+- Drop rhiza-tools tooling from make targets (#736)
+- Remove rhiza benchmark and mutation workflows (#737)
+- Remove .rhiza/make.d/releasing.mk (#738)
+- Update rhiza to v1.2.1 (#741)
+- Split hrp.py into submodules and mirror test layout 1:1 (#742)
+- Chore(deps)(deps): bump the python-dependencies group with 2 updates (#748)
+- Chore(deps)(deps): bump the github-actions group with 13 updates (#747)
+- *(pyproject)* Drop License classifiers in favour of SPDX (PEP 639) (#749)
+- Chore(deps)(deps): bump docker/login-action in the github-actions group (#750)
+- Chore(deps)(deps): bump the python-dependencies group with 4 updates (#751)
+- Update rhiza to v1.2.5 (#753)
+- Chore(deps-dev)(deps-dev): bump the python-dependencies group with 2 updates (#755)
+- Chore(deps)(deps): bump the github-actions group with 3 updates (#754)
+- Drop the lint dependency group (#756)
+- Update rhiza to v1.3.2 (#758)
+- Chore(deps)(deps): bump pymdown-extensions from 10.21.3 to 11.0.1 (#759)
+- Update rhiza to v1.3.3 (#762)
+- Chore(deps)(deps): bump the python-dependencies group with 2 updates (#761)
+- Chore(deps)(deps): bump the github-actions group with 2 updates (#760)
+- Chore(deps-dev)(deps-dev): bump hypothesis (#777)
+- Update rhiza to v1.3.4 (#778)
+- Replace .rhiza/.env with repo-owned Makefile overrides (MARIMO_FOLDER, coverage gate) (#780)
+- Update rhiza to v1.4.2, migrating to the rhiza-task shim (#781)
+- Retire the leftover fuzzing scaffold (#786)
+- Update rhiza to v1.5.0 (#787)
+- Prune exclude entries the template no longer ships (#788)
+- Add the github-paper bundle (#792)
+- Update rhiza to v1.5.1 (#793)
+- Update rhiza to v1.5.2 (#796)
+- Update rhiza to v1.6.0 (#798)
+- Chore(deps-dev)(deps-dev): bump the python-dependencies group with 2 updates (#799)
+- Update rhiza to v1.7.1 (#800)
+- Chore(deps)(deps): bump the python-dependencies group with 2 updates (#801)
+- Update rhiza to v1.8.0 (#802)
+- Derive the version from the git tag with hatch-vcs (#803)
+- Chore(deps-dev)(deps-dev): bump the python-dependencies group with 2 updates (#804)
+- Chore(deps)(deps): bump the python-dependencies group with 3 updates (#805)
+- Chore(deps)(deps): bump anyio from 4.14.0 to 4.14.2 (#807)
+- Chore(deps-dev)(deps-dev): bump the python-dependencies group with 2 updates (#808)
+
+### Other Changes
+- Sync Rhiza template v0.19.4 → v0.19.6 (#714)
+- Sync Rhiza template v0.19.6 → v0.19.9 (#717)
+- Align allocator contract, de-duplicate scaffolding, add CLAUDE.md (#746)
+- Delete .clusterfuzzlite directory (#757)
+- Fix both /rhiza:quality findings: public compute_returns and Schur docs (#771)
+- Add github-paper template to configuration (#791)
+- Docs warning guard (#797)
+
 ## [2.3.3] - 2026-06-25
 
 ### New Features
