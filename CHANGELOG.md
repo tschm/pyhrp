@@ -5,6 +5,14 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com),
 and entries are generated from [Conventional Commits](https://www.conventionalcommits.org).
 
+## [2.3.5] - 2026-09-29
+
+### Maintenance
+- Update rhiza to v1.9.0 (#812)
+
+### Other Changes
+- Remove Rhiza badge from README (#811)
+
 ## [2.3.4] - 2026-09-29
 
 ### Bug Fixes
