@@ -116,6 +116,24 @@ def test_risk_parity_non_cluster_right() -> None:
         risk_parity(root, cov)
 
 
+@pytest.mark.parametrize("allocator", [risk_parity, schur_risk_parity])
+def test_risk_allocators_reject_a_tree_smaller_than_the_universe(allocator: object) -> None:
+    """A tree with fewer leaves than covariance columns raises instead of dropping assets."""
+    cov = pl.DataFrame({"A": [1.0, 0.0, 0.0], "B": [0.0, 1.0, 0.0], "C": [0.0, 0.0, 1.0]})
+    root = Cluster(3, left=Cluster(0), right=Cluster(1))
+    with pytest.raises(ValueError, match="expected 3 leaves"):
+        allocator(root, cov)  # type: ignore[operator]
+
+
+@pytest.mark.parametrize("allocator", [risk_parity, schur_risk_parity])
+def test_risk_allocators_reject_a_tree_larger_than_the_universe(allocator: object) -> None:
+    """A tree with more leaves than covariance columns raises ValueError, not IndexError."""
+    cov = pl.DataFrame({"A": [1.0, 0.0], "B": [0.0, 1.0]})
+    root = Cluster(4, left=Cluster(0), right=Cluster(3, left=Cluster(1), right=Cluster(2)))
+    with pytest.raises(ValueError, match="expected 2 leaves"):
+        allocator(root, cov)  # type: ignore[operator]
+
+
 def test_risk_parity_idempotent() -> None:
     """Repeated allocation on the same tree yields identical weights."""
     cov = pl.DataFrame({"A": [4.0, 0.0], "B": [0.0, 1.0]})
