@@ -169,7 +169,20 @@ def _allocate_with(root: Cluster, cov: pl.DataFrame, node_variances: NodeVarianc
 
     Returns:
         Cluster: The root node with portfolio weights assigned.
+
+    Raises:
+        ValueError: If the tree's leaves do not index the covariance columns one-to-one.
     """
+    # A leaf's value indexes into cov.columns, so a tree built for a different universe
+    # would either silently drop assets or fail with a bare IndexError deep in the walk.
+    leaf_values = sorted(int(leaf.value) for leaf in root.leaves)
+    if leaf_values != list(range(len(cov.columns))):
+        msg = (
+            f"Cluster tree does not match the covariance matrix: expected {len(cov.columns)} leaves "
+            f"indexing columns 0..{len(cov.columns) - 1}, got {len(leaf_values)} leaves with values {leaf_values}"
+        )
+        raise ValueError(msg)
+
     cov_np = cov.to_numpy()
     index = {name: i for i, name in enumerate(cov.columns)}
 
