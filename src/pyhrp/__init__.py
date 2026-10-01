@@ -9,7 +9,9 @@ import importlib.metadata
 
 from .algos import one_over_n, risk_parity, schur_risk_parity
 from .cluster import Cluster, Portfolio
-from .hrp import Dendrogram, build_tree, compute_corr, compute_cov, compute_returns, hrp, schur_hrp
+from .covariance import compute_corr, compute_cov, compute_returns
+from .dendrogram import Dendrogram, build_tree
+from .hrp import hrp, schur_hrp
 
 __version__ = importlib.metadata.version("pyhrp")
 
