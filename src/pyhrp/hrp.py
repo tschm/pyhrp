@@ -1,13 +1,13 @@
 """Hierarchical Risk Parity (HRP) allocation entry points.
 
-This module exposes the top-level allocation functions and re-exports the
-supporting building blocks so the public ``pyhrp.hrp`` API is unchanged:
+This module owns the top-level allocation functions:
 - hrp: Compute HRP portfolio weights from prices
 - schur_hrp: Compute Schur Complementary Allocation weights from prices
-- build_tree: Build a hierarchical cluster tree (see :mod:`pyhrp.dendrogram`)
-- compute_returns: Simple returns from prices (see :mod:`pyhrp.covariance`)
-- compute_cov / compute_corr: Second-moment estimators (see :mod:`pyhrp.covariance`)
-- Dendrogram: Clustering result container (see :mod:`pyhrp.dendrogram`)
+
+For backward compatibility the supporting building blocks stay importable from
+``pyhrp.hrp``, but they are owned (and exported) by the modules that define them:
+- build_tree, Dendrogram: see :mod:`pyhrp.dendrogram`
+- compute_returns, compute_cov, compute_corr: see :mod:`pyhrp.covariance`
 """
 
 from __future__ import annotations
@@ -18,25 +18,45 @@ import polars as pl
 
 from .algos import risk_parity, schur_risk_parity
 from .cluster import Cluster
-from .covariance import check_finite_matrix, compute_corr, compute_cov, compute_returns
-from .dendrogram import Dendrogram, build_tree
+from .covariance import check_finite_matrix, compute_returns
+from .covariance import compute_corr as compute_corr
+from .covariance import compute_cov as compute_cov
+from .dendrogram import Dendrogram as Dendrogram
+from .dendrogram import build_tree as build_tree
 
-__all__ = [
-    "Dendrogram",
-    "build_tree",
-    "check_finite_matrix",
-    "compute_corr",
-    "compute_cov",
-    "compute_returns",
-    "hrp",
-    "schur_hrp",
-]
+__all__ = ["hrp", "schur_hrp"]
+
+Method = Literal["single", "complete", "average", "ward"]
+
+
+def _prepare(
+    prices: pl.DataFrame, node: Cluster | None, method: Method, bisection: bool
+) -> tuple[pl.DataFrame, Cluster]:
+    """Turn prices into the covariance matrix and the cluster tree the allocators need.
+
+    The correlation matrix is only computed when no ``node`` is supplied, since it
+    is used for nothing but building the tree.
+
+    Args:
+        prices (pl.DataFrame): Asset price time series (columns are assets, rows are dates)
+        node (Cluster, optional): Root of a prebuilt cluster tree, used as-is if given
+        method (Method): Linkage method passed to :func:`build_tree`
+        bisection (bool): Whether to use bisection for tree construction
+
+    Returns:
+        tuple[pl.DataFrame, Cluster]: The (finite) covariance matrix and the tree root
+    """
+    returns = compute_returns(prices)
+    cov = check_finite_matrix(compute_cov(returns), name="covariance matrix")
+    if node is None:
+        node = build_tree(compute_corr(returns), method=method, bisection=bisection).root
+    return cov, node
 
 
 def hrp(
     prices: pl.DataFrame,
     node: Cluster | None = None,
-    method: Literal["single", "complete", "average", "ward"] = "ward",
+    method: Method = "ward",
     bisection: bool = False,
 ) -> Cluster:
     """Compute the hierarchical risk parity portfolio weights.
@@ -64,18 +84,14 @@ def hrp(
     Returns:
         Cluster: The root cluster with portfolio weights assigned according to HRP
     """
-    returns = compute_returns(prices)
-    cov = check_finite_matrix(compute_cov(returns), name="covariance matrix")
-    cor = compute_corr(returns)
-    node = node or build_tree(cor, method=method, bisection=bisection).root
-
+    cov, node = _prepare(prices, node, method, bisection)
     return risk_parity(root=node, cov=cov)
 
 
 def schur_hrp(
     prices: pl.DataFrame,
     node: Cluster | None = None,
-    method: Literal["single", "complete", "average", "ward"] = "ward",
+    method: Method = "ward",
     bisection: bool = False,
     gamma: float = 0.5,
 ) -> Cluster:
@@ -104,9 +120,5 @@ def schur_hrp(
     Returns:
         Cluster: The root cluster with portfolio weights assigned
     """
-    returns = compute_returns(prices)
-    cov = check_finite_matrix(compute_cov(returns), name="covariance matrix")
-    cor = compute_corr(returns)
-    node = node or build_tree(cor, method=method, bisection=bisection).root
-
+    cov, node = _prepare(prices, node, method, bisection)
     return schur_risk_parity(root=node, cov=cov, gamma=gamma)
