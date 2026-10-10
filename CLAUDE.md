@@ -21,7 +21,8 @@ The `src/pyhrp/` package is split into small, focused modules:
 | `algos.py` | The allocation algorithms that size a cluster tree: `risk_parity` (recursive HRP), `schur_risk_parity` (Schur Complementary Allocation), and `one_over_n` (equal weight). |
 | `cluster.py` | Core data structures — `Cluster` (a node in the hierarchical tree) and `Portfolio` (an asset-to-weight mapping with analysis/plot helpers). |
 | `covariance.py` | `compute_returns` turns a price frame into simple returns; `compute_cov`/`compute_corr` turn that returns frame into covariance/correlation matrices. |
-| `dendrogram.py` | `build_tree` plus the `Dendrogram` container (the clustering result and its plotting/ordering helpers). |
+| `dendrogram.py` | `build_tree` plus the `Dendrogram` container (the clustering result and its plotting/ordering helpers); `build_tree_from_operator` builds the tree from a covariance operator, matrix-free (Prim's MST) for single linkage. |
+| `operators.py` | The `CovarianceOperator` protocol (`n`, `diag`, `block_matvec`, `solve_free`, `rcond_free` — the cvx-linalg `SymmetricOperator` surface, satisfied structurally), the `DenseCovariance` adapter a DataFrame is wrapped in, and the singular-block guard `solve_block`. |
 | `treelib.py` | A minimal generic binary-tree `Node`, kept in-house to avoid a `binarytree` dependency. |
 | `plot.py` | Plotly dendrogram rendering (`plot_dendrogram`), kept separate so the optional plotting dependency does not couple the algorithm modules. |
 | `__init__.py` | Public API surface — re-exports the functions and classes above and exposes `__version__`. |
@@ -32,9 +33,14 @@ Dependencies flow in one direction, from the generic tree up to the public surfa
 
 ```text
 treelib  ->  cluster  ->  algos  ->  dendrogram  ->  hrp  ->  __init__
+operators  ->  algos, dendrogram
 ```
 
 - `treelib` depends on nothing internal; `cluster.Cluster` subclasses `treelib.Node`.
+- `operators` depends on nothing internal. The allocators reach the covariance only through it:
+  a DataFrame is wrapped in `DenseCovariance`, and any object with the five protocol members
+  (e.g. a cvx-linalg `FactorOperator` or `GramOperator`) is used as-is. cvx-linalg is a dev
+  dependency only, for the tests.
 - `algos` builds on `cluster` (and `covariance`) and imports nothing above it.
 - `dendrogram` builds on `cluster` and on `algos`, which backs the `Dendrogram.one_over_n()`
   convenience wrapper; neither module imports `hrp`.
@@ -54,7 +60,10 @@ removed or re-parented. They differ in where the weights land.
 
 `risk_parity` and `schur_risk_parity` share the `_allocate_with` scaffolding and write into
 the tree they are given: every node's `portfolio` is replaced rather than accumulated into,
-and the same root `Cluster` is returned. Replacing is what makes them idempotent — re-running
+and the same root `Cluster` is returned. The walk holds one weight per asset (each subtree is a
+contiguous slice of the leaf order), and a node stores only its split share; its `portfolio`
+is rebuilt from the shares below it on first access and then cached. Storing a portfolio per
+node would be quadratic in memory on the chain-shaped trees single linkage builds. Replacing is what makes them idempotent — re-running
 on an already weighted tree gives the same answer as running on a fresh one — but the caller's
 tree *is* modified. `Dendrogram` is a frozen dataclass while the `Cluster` it holds is not, so
 passing `dendrogram.root` to an allocator (directly, or as `hrp(prices, node=...)`) rewrites

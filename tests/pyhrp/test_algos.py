@@ -1,26 +1,29 @@
 """Tests for the portfolio optimization algorithms.
 
-Covers risk_parity, schur_risk_parity, one_over_n and the _solve helper,
+Covers risk_parity, schur_risk_parity and one_over_n,
 including property-based and numerical edge-case checks.
 """
 
 from __future__ import annotations
 
+import tracemalloc
 from copy import deepcopy
 from typing import Literal
 
 import numpy as np
 import polars as pl
 import pytest
+from cvx.linalg import FactorOperator, GramOperator
 from hypothesis import given, settings
 from hypothesis import strategies as st
 from hypothesis.extra import numpy as hnp
 from polars import DataFrame
 
-from pyhrp.algos import _solve, one_over_n, risk_parity, schur_risk_parity
+from pyhrp.algos import one_over_n, risk_parity, schur_risk_parity
 from pyhrp.cluster import Cluster, Portfolio
 from pyhrp.covariance import compute_corr, compute_cov
 from pyhrp.dendrogram import Dendrogram, build_tree
+from pyhrp.operators import DenseCovariance
 from pyhrp.treelib import Node
 
 
@@ -371,15 +374,6 @@ def test_one_over_n_does_not_mutate_tree() -> None:
     assert first == second
 
 
-def test_solve_singular_falls_back_to_lstsq() -> None:
-    """_solve returns the minimum-norm least-squares solution for a singular matrix."""
-    m = np.array([[1.0, 2.0], [2.0, 4.0]])  # rank 1, singular
-    b = np.array([1.0, 2.0])
-    x = _solve(m, b)
-    assert np.allclose(m @ x, b)
-    assert np.all(np.isfinite(x))
-
-
 @pytest.mark.property
 @settings(deadline=None, max_examples=200)
 @given(cov=covariance_matrices(), method=linkage_methods())
@@ -473,3 +467,88 @@ def test_risk_parity_allocates_a_deep_chain_tree() -> None:
     assert np.all(np.isfinite(weights))
     assert np.all(weights >= 0.0)
     assert float(weights.sum()) == pytest.approx(1.0, rel=1e-9)
+
+
+# --- covariance operators -------------------------------------------------------
+
+
+def _factor_problem(n: int = 30, k: int = 3, seed: int = 4) -> tuple[FactorOperator, pl.DataFrame, Cluster]:
+    """A factor covariance as an operator and as a DataFrame, with a single-linkage tree."""
+    rng = np.random.default_rng(seed)
+    u = rng.standard_normal((n, k))
+    d = rng.uniform(0.5, 2.0, n)
+    sigma = np.diag(d) + u @ u.T
+    names = [f"A{i}" for i in range(n)]
+    cov = pl.DataFrame(dict(zip(names, sigma, strict=True)))
+    vol = np.sqrt(np.diag(sigma))
+    cor = pl.DataFrame(dict(zip(names, sigma / np.outer(vol, vol), strict=True)))
+    return FactorOperator(d, u, np.eye(k)), cov, build_tree(cor, method="single").root
+
+
+def test_risk_parity_on_a_factor_operator_matches_dense() -> None:
+    """risk_parity on a FactorOperator gives the DataFrame weights."""
+    op, cov, root = _factor_problem()
+    dense = risk_parity(deepcopy(root), cov).portfolio.weights
+    matrix_free = risk_parity(root, op, assets=cov.columns).portfolio.weights
+    assert matrix_free.keys() == dense.keys()
+    np.testing.assert_allclose(list(matrix_free.values()), list(dense.values()), atol=1e-14)
+
+
+@pytest.mark.parametrize("gamma", [0.0, 0.5, 1.0])
+def test_schur_risk_parity_on_a_factor_operator_matches_dense(gamma: float) -> None:
+    """schur_risk_parity on a FactorOperator (Woodbury block solves) gives the DataFrame weights."""
+    op, cov, root = _factor_problem()
+    dense = schur_risk_parity(deepcopy(root), cov, gamma=gamma).portfolio.weights
+    matrix_free = schur_risk_parity(root, op, gamma=gamma, assets=cov.columns).portfolio.weights
+    np.testing.assert_allclose(list(matrix_free.values()), list(dense.values()), atol=1e-13)
+
+
+def test_schur_risk_parity_on_a_singular_gram_operator() -> None:
+    """With fewer observations than assets the singular blocks fall back to least squares, as dense does."""
+    rng = np.random.default_rng(5)
+    x = rng.standard_normal((8, 20))
+    xc = (x - x.mean(axis=0)) / np.sqrt(7.0)
+    sigma = xc.T @ xc
+    names = [f"A{i}" for i in range(20)]
+    cov = pl.DataFrame(dict(zip(names, sigma, strict=True)))
+    vol = np.sqrt(np.diag(sigma))
+    root = build_tree(pl.DataFrame(dict(zip(names, sigma / np.outer(vol, vol), strict=True))), method="single").root
+    dense = schur_risk_parity(deepcopy(root), cov, gamma=0.5).portfolio.weights
+    matrix_free = schur_risk_parity(root, GramOperator(xc), gamma=0.5, assets=names).portfolio.weights
+    np.testing.assert_allclose(list(matrix_free.values()), list(dense.values()), atol=1e-12)
+
+
+def test_risk_parity_on_an_operator_defaults_to_positional_names() -> None:
+    """Without names an operator's assets are labelled by position."""
+    root = Cluster(2, left=Cluster(0), right=Cluster(1))
+    weights = risk_parity(root, DenseCovariance(np.diag([4.0, 1.0]))).portfolio.weights
+    assert weights == pytest.approx({"0": 0.2, "1": 0.8})
+
+
+def test_risk_parity_rejects_a_tree_for_another_operator() -> None:
+    """The leaf check applies to an operator's dimension too."""
+    root = Cluster(2, left=Cluster(0), right=Cluster(1))
+    with pytest.raises(ValueError, match="does not match the covariance"):
+        risk_parity(root, DenseCovariance(np.eye(3)))
+
+
+def test_risk_parity_memory_is_linear_on_a_chain_tree() -> None:
+    """Allocating a chain tree holds one weight per asset, not one portfolio per node.
+
+    Regression test: every node used to store its own portfolio, which on a chain of
+    n assets is n**2 / 2 entries -- 5 GB at 20,000 assets. 2000 assets would need
+    about 2 million dict entries (well over 100 MB); the allocation now stays at a
+    few MB. A rank-one factor operator keeps the covariance itself out of the count
+    (a dense backend materialises each block it multiplies).
+    """
+    n_assets = 2000
+    cor = _chain_correlation(n_assets)
+    root = build_tree(cor=cor, method="single", bisection=False).root
+    op = FactorOperator(np.ones(n_assets), np.full((n_assets, 1), 0.5), np.eye(1))
+    tracemalloc.start()
+    try:
+        risk_parity(root, op, assets=cor.columns)
+        peak = tracemalloc.get_traced_memory()[1]
+    finally:
+        tracemalloc.stop()
+    assert peak < 5 * 2**20
