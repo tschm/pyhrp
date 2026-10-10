@@ -215,6 +215,19 @@ toml = [
 ]
 
 [[package]]
+name = "cvx-linalg"
+version = "1.1.2"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "numpy", version = "2.5.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/99/85/9315f75dfb1f901f8c224c5d9bdff455c5c4a3a7ae4c5847126e29ddd93f/cvx_linalg-1.1.2.tar.gz", hash = "sha256:4c1497147af11986a34bfeb5e2972052730952e167679ef0aea6d7b630ba7c56", size = 43880, upload-time = "2026-10-01T07:27:22.565Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/14/1c/9be411ebfce2a73c09644cdc459456ac876ea3c1599b0ebe000ba7ba07ca/cvx_linalg-1.1.2-py3-none-any.whl", hash = "sha256:a852a5a73566cd92fca8d36c0230c19e9e14cde30c6e60097293aef446785b49", size = 57279, upload-time = "2026-10-01T07:27:21.299Z" },
+]
+
+[[package]]
 name = "docutils"
 version = "0.23"
 source = { registry = "https://pypi.org/simple" }
@@ -930,6 +943,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "cvx-linalg" },
     { name = "hypothesis", extra = ["numpy"] },
     { name = "kaleido" },
     { name = "marimo" },
@@ -953,6 +967,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "cvx-linalg", specifier = ">=1.1.2" },
     { name = "hypothesis", specifier = ">=6.150.0" },
     { name = "hypothesis", extras = ["numpy"], specifier = ">=6.150.0" },
     { name = "kaleido", specifier = ">=1.3.0" },

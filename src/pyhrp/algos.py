@@ -31,18 +31,19 @@ than a single final result.
 
 from __future__ import annotations
 
-from collections.abc import Callable, Generator
+from collections.abc import Callable, Generator, Sequence
 from copy import deepcopy
 
 import numpy as np
 import polars as pl
 
-from .cluster import Cluster, Portfolio
+from .cluster import Cluster, Portfolio, _portfolio
+from .operators import CovarianceOperator, as_operator, solve_block
 
 __all__ = ["one_over_n", "risk_parity", "schur_risk_parity"]
 
 
-def risk_parity(root: Cluster, cov: pl.DataFrame) -> Cluster:
+def risk_parity(root: Cluster, cov: pl.DataFrame | CovarianceOperator, assets: Sequence[str] | None = None) -> Cluster:
     """Compute hierarchical risk parity weights for a cluster tree.
 
     This is the main algorithm for hierarchical risk parity. It recursively
@@ -55,9 +56,16 @@ def risk_parity(root: Cluster, cov: pl.DataFrame) -> Cluster:
         idempotent and a tree can be reused with a different covariance matrix.
         Deep-copy the tree first if you need to keep it unweighted.
 
+    The covariance is reached only through block products, one per child of
+    every node, so a factor or Gram :class:`~pyhrp.operators.CovarianceOperator`
+    allocates without forming the ``n x n`` matrix.
+
     Args:
         root (Cluster): The root node of the cluster tree
-        cov (pl.DataFrame): Covariance matrix of asset returns
+        cov (pl.DataFrame | CovarianceOperator): Covariance matrix of asset returns,
+            as a DataFrame or as an operator
+        assets (Sequence[str], optional): Asset names for an operator ``cov``;
+            defaults to ``"0", "1", ...``. A DataFrame names its own assets.
 
     Returns:
         Cluster: The same root node, with portfolio weights assigned
@@ -73,17 +81,19 @@ def risk_parity(root: Cluster, cov: pl.DataFrame) -> Cluster:
         0.8
     """
 
-    def node_variances(left: Cluster, right: Cluster, cov_np: np.ndarray, index: dict[str, int]) -> tuple[float, float]:
+    def node_variances(left: Block, right: Block, op: CovarianceOperator) -> tuple[float, float]:
         """Plain block variance of each child sub-portfolio."""
-        return (
-            _block_variance(left.portfolio, cov_np, index),
-            _block_variance(right.portfolio, cov_np, index),
-        )
+        return _block_variance(left, op), _block_variance(right, op)
 
-    return _allocate_with(root, cov, node_variances)
+    return _allocate_with(root, cov, node_variances, assets)
 
 
-def schur_risk_parity(root: Cluster, cov: pl.DataFrame, gamma: float = 0.5) -> Cluster:
+def schur_risk_parity(
+    root: Cluster,
+    cov: pl.DataFrame | CovarianceOperator,
+    gamma: float = 0.5,
+    assets: Sequence[str] | None = None,
+) -> Cluster:
     """Compute Schur Complementary Allocation weights for a cluster tree.
 
     An extension of HRP introduced by Peter Cotton (arXiv:2411.05807) that augments
@@ -97,10 +107,19 @@ def schur_risk_parity(root: Cluster, cov: pl.DataFrame, gamma: float = 0.5) -> C
         idempotent and a tree can be reused with a different covariance matrix
         or gamma. Deep-copy the tree first if you need to keep it unweighted.
 
+    The Schur terms need, per node, the two cross-block products
+    ``Sigma[L, R] w_R`` and ``Sigma[R, L] w_L`` and one solve against each
+    child's principal block, which a factor operator does by Woodbury in
+    ``O(|C| k**2)`` rather than ``O(|C|**3)``. The block quadratic forms
+    ``B D^{-1} B^T`` are never formed: only their action on the child weights is.
+
     Args:
         root (Cluster): The root node of the cluster tree
-        cov (pl.DataFrame): Covariance matrix of asset returns
+        cov (pl.DataFrame | CovarianceOperator): Covariance matrix of asset returns,
+            as a DataFrame or as an operator
         gamma (float): Interpolation parameter in [0, 1]. 0 = HRP, 1 = minimum variance.
+        assets (Sequence[str], optional): Asset names for an operator ``cov``;
+            defaults to ``"0", "1", ...``. A DataFrame names its own assets.
 
     Returns:
         Cluster: The same root node, with portfolio weights assigned
@@ -122,50 +141,63 @@ def schur_risk_parity(root: Cluster, cov: pl.DataFrame, gamma: float = 0.5) -> C
         msg = f"gamma must be in [0, 1], got {gamma}"
         raise ValueError(msg)
 
-    def node_variances(left: Cluster, right: Cluster, cov_np: np.ndarray, index: dict[str, int]) -> tuple[float, float]:
+    def node_variances(left: Block, right: Block, op: CovarianceOperator) -> tuple[float, float]:
         """Schur-augmented block variance of each child, conditioned on the other."""
-        li = [index[a] for a in left.portfolio.assets]
-        ri = [index[a] for a in right.portfolio.assets]
+        (li, w_left), (ri, w_right) = left, right
 
-        a_mat = cov_np[np.ix_(li, li)]
-        b_mat = cov_np[np.ix_(li, ri)]
-        d_mat = cov_np[np.ix_(ri, ri)]
+        v_left = _block_variance(left, op)
+        v_right = _block_variance(right, op)
+        if gamma == 0.0:
+            return v_left, v_right
 
-        w_left = np.array([left.portfolio[a] for a in left.portfolio.assets])
-        w_right = np.array([right.portfolio[a] for a in right.portfolio.assets])
-
-        # Schur-augmented blocks: condition each group on the other
-        a_aug = a_mat - gamma * (b_mat @ _solve(d_mat, b_mat.T))
-        d_aug = d_mat - gamma * (b_mat.T @ _solve(a_mat, b_mat))
-
-        v_left = float(w_left @ a_aug @ w_left)
-        v_right = float(w_right @ d_aug @ w_right)
+        # Schur-augmented blocks A - gamma B D^{-1} B^T and D - gamma B^T A^{-1} B
+        # (A = Sigma_LL, B = Sigma_LR, D = Sigma_RR), applied to the child weights
+        # through one cross product and one block solve each.
+        bt_w = op.block_matvec(ri, li, w_left)
+        b_w = op.block_matvec(li, ri, w_right)
+        v_left -= gamma * float(bt_w @ solve_block(op, ri, bt_w))
+        v_right -= gamma * float(b_w @ solve_block(op, li, b_w))
         return v_left, v_right
 
-    return _allocate_with(root, cov, node_variances)
+    return _allocate_with(root, cov, node_variances, assets)
 
 
-# Given a node's two children (plus the precomputed covariance array and the
-# column->row index), return the (v_left, v_right) risk pair used to split it.
-NodeVariances = Callable[[Cluster, Cluster, np.ndarray, dict[str, int]], tuple[float, float]]
+# A child sub-portfolio as (positions into the covariance, weights), in leaf order.
+Block = tuple[np.ndarray, np.ndarray]
+
+# Given a node's two children and the covariance operator, return the
+# (v_left, v_right) risk pair used to split the node.
+NodeVariances = Callable[[Block, Block, CovarianceOperator], tuple[float, float]]
 
 
-def _allocate_with(root: Cluster, cov: pl.DataFrame, node_variances: NodeVariances) -> Cluster:
+def _allocate_with(
+    root: Cluster,
+    cov: pl.DataFrame | CovarianceOperator,
+    node_variances: NodeVariances,
+    assets: Sequence[str] | None = None,
+) -> Cluster:
     """Shared scaffolding for the recursive risk-based allocators.
 
-    Builds the numpy covariance array and column index once, then walks the tree
-    bottom-up, splitting each node's weight between its children inversely to the
-    ``(v_left, v_right)`` pair supplied by ``node_variances``. The only thing that
-    distinguishes ``risk_parity`` from ``schur_risk_parity`` is that per-node
-    variance rule; everything else — the ``cov``/``index`` setup, the combine
-    wrapper, and the rebuild-from-scratch traversal — lives here.
+    Wraps the covariance as an operator, then walks the tree bottom-up, splitting
+    each node's weight between its children inversely to the ``(v_left, v_right)``
+    pair supplied by ``node_variances``. The only thing that distinguishes
+    ``risk_parity`` from ``schur_risk_parity`` is that per-node variance rule;
+    everything else lives here.
+
+    The walk holds one weight per asset, not one portfolio per node. Every node's
+    subtree covers a contiguous slice of the leaf order, so after its children are
+    split that slice holds the node's own portfolio; scaling it in place by the
+    node's split turns it into the parent's share. Memory is ``O(n)`` for any tree
+    shape. Each node keeps only its split, from which its portfolio is rebuilt
+    when read (see :class:`~pyhrp.cluster.Cluster`).
 
     Args:
         root (Cluster): The root node of the cluster tree.
-        cov (pl.DataFrame): Covariance matrix of asset returns.
+        cov (pl.DataFrame | CovarianceOperator): Covariance matrix of asset returns.
         node_variances (NodeVariances): Per-node rule mapping a node's left/right
-            children (and the precomputed covariance array and column index) to
-            the ``(v_left, v_right)`` risk pair used to split that node.
+            child sub-portfolios (and the covariance operator) to the
+            ``(v_left, v_right)`` risk pair used to split that node.
+        assets (Sequence[str], optional): Asset names for an operator ``cov``.
 
     Returns:
         Cluster: The root node with portfolio weights assigned.
@@ -173,119 +205,66 @@ def _allocate_with(root: Cluster, cov: pl.DataFrame, node_variances: NodeVarianc
     Raises:
         ValueError: If the tree's leaves do not index the covariance columns one-to-one.
     """
-    # A leaf's value indexes into cov.columns, so a tree built for a different universe
+    op, names = as_operator(cov, assets)
+
+    # Iterative layout rather than recursion: a chain-degenerate tree is as deep as
+    # the universe is wide. The layout validates every non-leaf node, so a malformed
+    # tree raises before any weight is written.
+    leaves, spans = root._layout()
+
+    # A leaf's value indexes into the assets, so a tree built for a different universe
     # would either silently drop assets or fail with a bare IndexError deep in the walk.
-    leaf_values = sorted(int(leaf.value) for leaf in root.leaves)
-    if leaf_values != list(range(len(cov.columns))):
+    leaf_values = sorted(int(leaf.value) for leaf in leaves)
+    if leaf_values != list(range(op.n)):
         msg = (
-            f"Cluster tree does not match the covariance matrix: expected {len(cov.columns)} leaves "
-            f"indexing columns 0..{len(cov.columns) - 1}, got {len(leaf_values)} leaves with values {leaf_values}"
+            f"Cluster tree does not match the covariance matrix: expected {op.n} leaves "
+            f"indexing columns 0..{op.n - 1}, got {len(leaf_values)} leaves with values {leaf_values}"
         )
         raise ValueError(msg)
 
-    cov_np = cov.to_numpy()
-    index = {name: i for i, name in enumerate(cov.columns)}
+    position = np.array([int(leaf.value) for leaf in leaves], dtype=np.intp)
+    w = np.ones(len(leaves))
+    shares: list[float] = []
+    for _, lo, mid, hi in spans:
+        v_left, v_right = node_variances((position[lo:mid], w[lo:mid]), (position[mid:hi], w[mid:hi]), op)
+        share = _left_share(v_left, v_right)
+        w[lo:mid] *= share
+        w[mid:hi] *= 1.0 - share
+        shares.append(share)
 
-    def combine(cluster: Cluster) -> Cluster:
-        """Combine the child portfolios of a cluster via an inverse-variance split."""
-        left, right = cluster._child_clusters()
-        v_left, v_right = node_variances(left, right, cov_np, index)
-        return _split(cluster, v_left, v_right)
-
-    return _allocate(root, cov.columns, combine)
-
-
-def _allocate(root: Cluster, assets: list[str], combine: Callable[[Cluster], Cluster]) -> Cluster:
-    """Traverse the tree bottom-up, assigning leaf portfolios and combining children.
-
-    Every node's portfolio is replaced, never accumulated into, which keeps
-    repeated allocations on the same tree idempotent.
-
-    Args:
-        root (Cluster): The (sub)tree to allocate weights for
-        assets (list[str]): Asset names; a leaf's value indexes into this list
-        combine (Callable[[Cluster], Cluster]): Combines the two child portfolios
-            of a node into the node's own portfolio
-
-    Returns:
-        Cluster: The input node with portfolio weights assigned
-    """
-    # Iterative post-order rather than recursion: a chain-degenerate tree is as deep
-    # as the universe is wide, and recursing here capped the number of assets that
-    # could be allocated. Pass one collects nodes parent-before-child (validating
-    # each non-leaf as it goes, so a malformed tree still raises before any weight is
-    # written); reversing that order guarantees both children hold a portfolio before
-    # their parent combines them.
-    order: list[Cluster] = []
-    stack: list[Cluster] = [root]
-    while stack:
-        node = stack.pop()
-        order.append(node)
-        if not node.is_leaf:
-            left, right = node._child_clusters()
-            stack.append(left)
-            stack.append(right)
-
-    for node in reversed(order):
-        if node.is_leaf:
-            node.portfolio = Portfolio()
-            node.portfolio[assets[int(node.value)]] = 1.0
-        else:
-            # combine() replaces node.portfolio in place; the return value is the
-            # same node, which is why the recursive form's reassignment of
-            # root.left/root.right was always a no-op.
-            combine(node)
-
+    # Every node's portfolio is replaced, never accumulated into, which keeps
+    # repeated allocations on the same tree idempotent.
+    for leaf in leaves:
+        leaf._set_allocation(1.0, names)
+    for (node, _, _, _), share in zip(spans, shares, strict=True):
+        node._set_allocation(share, names)
+    # The root's portfolio is the weight vector just computed; keep it rather than rebuild it.
+    root.portfolio = _portfolio(leaves, w, names)
     return root
 
 
-def _block_variance(portfolio: Portfolio, cov_np: np.ndarray, index: dict[str, int]) -> float:
-    """Compute the variance of a portfolio against a precomputed covariance array."""
-    assets = portfolio.assets
-    idx = [index[a] for a in assets]
-    w = np.array([portfolio[a] for a in assets])
-    return float(w @ cov_np[np.ix_(idx, idx)] @ w)
+def _block_variance(block: Block, op: CovarianceOperator) -> float:
+    """Compute the variance of a sub-portfolio from one block product with the covariance operator."""
+    idx, w = block
+    return float(w @ op.block_matvec(idx, idx, w))
 
 
-def _split(cluster: Cluster, v_left: float, v_right: float) -> Cluster:
-    """Distribute weight between the two children inversely proportional to risk.
+def _left_share(v_left: float, v_right: float) -> float:
+    """The share of a node's weight that goes to its left child, inversely proportional to risk.
 
     The split satisfies v_left * alpha_left == v_right * alpha_right with
     alpha_left + alpha_right == 1. If both variances are zero (e.g. riskless
     sub-portfolios), the weight is split equally.
 
     Args:
-        cluster (Cluster): The parent cluster with left and right children
         v_left (float): Variance of the left sub-portfolio
         v_right (float): Variance of the right sub-portfolio
 
     Returns:
-        Cluster: The parent cluster with portfolio weights assigned
+        float: ``alpha_left``, in [0, 1]
     """
-    left, right = cluster._child_clusters()
     total = v_left + v_right
-    alpha_left = v_right / total if total > 0 else 0.5
-    alpha_right = 1.0 - alpha_left
-
-    cluster.portfolio = Portfolio()
-    for asset, weight in left.portfolio.weights.items():
-        cluster.portfolio[asset] = alpha_left * weight
-    for asset, weight in right.portfolio.weights.items():
-        cluster.portfolio[asset] = alpha_right * weight
-
-    return cluster
-
-
-def _solve(m: np.ndarray, b: np.ndarray) -> np.ndarray:
-    """Solve m @ x = b, falling back to least squares for singular matrices.
-
-    Covariance blocks of collinear assets are singular; the minimum-norm
-    least-squares solution keeps the Schur augmentation well-defined there.
-    """
-    try:
-        return np.linalg.solve(m, b)
-    except np.linalg.LinAlgError:
-        return np.asarray(np.linalg.lstsq(m, b, rcond=None)[0])
+    return v_right / total if total > 0 else 0.5
 
 
 def one_over_n(root: Cluster, assets: list[str]) -> Generator[tuple[int, Portfolio]]:

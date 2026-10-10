@@ -14,6 +14,7 @@ from typing import Literal
 import numpy as np
 import polars as pl
 import pytest
+from cvx.linalg import FactorOperator, GramOperator
 from hypothesis import given, settings
 from hypothesis import strategies as st
 from hypothesis.extra import numpy as hnp
@@ -29,7 +30,9 @@ from pyhrp.dendrogram import (
     _compute_distance_matrix,
     _get_linkage,
     build_tree,
+    build_tree_from_operator,
 )
+from pyhrp.operators import DenseCovariance
 
 
 @st.composite
@@ -660,3 +663,71 @@ def test_build_tree_bisection_stays_shallow_on_a_deep_chain() -> None:
     assert len(dendrogram.root.leaves) == n_assets
     assert dendrogram.linkage is not None
     assert dendrogram.linkage.shape == (n_assets - 1, 4)
+
+
+# --- build_tree_from_operator ---------------------------------------------------
+
+
+def _factor_universe(n: int = 40, k: int = 3, seed: int = 0) -> tuple[FactorOperator, pl.DataFrame, list[str]]:
+    """A factor covariance as an operator, and its correlation as a DataFrame."""
+    rng = np.random.default_rng(seed)
+    u = rng.standard_normal((n, k))
+    d = rng.uniform(0.5, 2.0, n)
+    sigma = np.diag(d) + u @ u.T
+    vol = np.sqrt(np.diag(sigma))
+    names = [f"A{i}" for i in range(n)]
+    cor = pl.DataFrame(dict(zip(names, sigma / np.outer(vol, vol), strict=True)))
+    return FactorOperator(d, u, np.eye(k)), cor, names
+
+
+def test_operator_single_linkage_matches_scipy() -> None:
+    """The matrix-free single linkage reproduces scipy's tree and linkage matrix."""
+    op, cor, names = _factor_universe()
+    reference = build_tree(cor, method="single")
+    dg = build_tree_from_operator(op, assets=names)
+    assert dg.names == reference.names
+    assert dg.distance is None
+    assert dg.linkage is not None
+    assert reference.linkage is not None
+    np.testing.assert_allclose(dg.linkage, reference.linkage, atol=1e-12)
+
+
+def test_operator_single_linkage_on_a_singular_gram() -> None:
+    """A Gram operator with fewer observations than assets clusters without a ridge."""
+    rng = np.random.default_rng(1)
+    x = rng.standard_normal((10, 25))
+    xc = (x - x.mean(axis=0)) / 3.0
+    sigma = xc.T @ xc
+    vol = np.sqrt(np.diag(sigma))
+    names = [f"A{i}" for i in range(25)]
+    cor = pl.DataFrame(dict(zip(names, sigma / np.outer(vol, vol), strict=True)))
+    dg = build_tree_from_operator(GramOperator(xc), assets=names)
+    assert dg.names == build_tree(cor, method="single").names
+
+
+@pytest.mark.parametrize(("method", "bisection"), [("ward", False), ("average", False), ("single", True)])
+def test_operator_tree_delegates_when_not_matrix_free(method: LinkageMethod, bisection: bool) -> None:
+    """Other methods, and bisection, materialise the correlation and match build_tree."""
+    op, cor, names = _factor_universe(n=12)
+    dg = build_tree_from_operator(op, assets=names, method=method, bisection=bisection)
+    reference = build_tree(cor, method=method, bisection=bisection)
+    assert dg.names == reference.names
+    assert dg.distance is not None
+
+
+def test_operator_tree_default_names() -> None:
+    """Without names the assets are labelled by position."""
+    dg = build_tree_from_operator(DenseCovariance(np.eye(3)))
+    assert sorted(dg.assets) == ["0", "1", "2"]
+
+
+def test_operator_tree_needs_two_assets() -> None:
+    """A one-asset covariance has no tree."""
+    with pytest.raises(ValueError, match="at least two assets"):
+        build_tree_from_operator(DenseCovariance(np.eye(1)))
+
+
+def test_operator_tree_needs_positive_variances() -> None:
+    """A zero variance leaves the correlation undefined and is refused by position."""
+    with pytest.raises(ValueError, match=r"positions \[1\]"):
+        build_tree_from_operator(DenseCovariance(np.diag([1.0, 0.0, 2.0])))

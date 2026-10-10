@@ -3,12 +3,13 @@
 This module builds the hierarchical clustering tree consumed by the HRP
 allocation entry points and stores it in a :class:`Dendrogram`:
 - build_tree: Build a hierarchical cluster tree from a correlation matrix
+- build_tree_from_operator: Build the tree from a covariance operator, matrix-free for single linkage
 - Dendrogram: Container for the clustering result and its visualization
 """
 
 from __future__ import annotations
 
-from collections.abc import Generator
+from collections.abc import Generator, Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
@@ -19,11 +20,12 @@ import scipy.spatial.distance as ssd
 
 from .algos import one_over_n as _one_over_n
 from .cluster import Cluster, Portfolio
+from .operators import CovarianceOperator, as_operator, block
 
 if TYPE_CHECKING:
     import plotly.graph_objects as go
 
-__all__ = ["Dendrogram", "build_tree"]
+__all__ = ["Dendrogram", "build_tree", "build_tree_from_operator"]
 
 
 @dataclass(frozen=True)
@@ -305,3 +307,131 @@ def build_tree(
         links = np.array(_get_linkage(root, dist.to_numpy()))
 
     return Dendrogram(root=root, linkage=links, method=method, distance=dist, assets=cor.columns)
+
+
+def _volatilities(op: CovarianceOperator) -> np.ndarray:
+    """Return ``sqrt(diag(Sigma))``, refusing an asset without positive variance."""
+    var = np.asarray(op.diag, dtype=np.float64)
+    if not np.all(var > 0.0):
+        bad = np.flatnonzero(~(var > 0.0)).tolist()
+        msg = f"Covariance has non-positive or non-finite variance at positions {bad}; correlations are undefined."
+        raise ValueError(msg)
+    return np.sqrt(var)
+
+
+def _single_linkage(op: CovarianceOperator, vol: np.ndarray) -> np.ndarray:
+    """Single linkage on ``d_ij = sqrt((1 - rho_ij) / 2)`` without the distance matrix.
+
+    Single linkage is the minimum spanning tree of the distance graph. Prim's
+    algorithm grows it from one column of ``Sigma`` per step, restricted to the
+    assets not yet in the tree, so memory is ``O(n)`` beyond the operator and the
+    time is ``n`` column products (``O(n k)`` each for a rank-``k`` factor or Gram
+    operator). Sorting the tree's edges and merging them by union-find gives the
+    linkage matrix, labelled the way SciPy labels it.
+
+    Args:
+        op (CovarianceOperator): The covariance.
+        vol (np.ndarray): The volatilities ``sqrt(diag(Sigma))``.
+
+    Returns:
+        np.ndarray: The ``(n - 1) x 4`` linkage matrix in SciPy's format.
+    """
+    n = op.n
+    in_tree = np.zeros(n, dtype=bool)
+    best = np.full(n, np.inf)
+    parent = np.zeros(n, dtype=np.intp)
+    edges: list[tuple[float, int, int]] = []
+    current = 0
+    for _ in range(n - 1):
+        in_tree[current] = True
+        rest = np.flatnonzero(~in_tree)
+        column = np.asarray(op.block_matvec(rest, np.array([current]), np.ones(1)))
+        rho = column / (vol[rest] * vol[current])
+        dist = np.sqrt(np.clip((1.0 - rho) / 2.0, 0.0, 1.0))
+        closer = dist < best[rest]
+        best[rest[closer]] = dist[closer]
+        parent[rest[closer]] = current
+        current = int(rest[np.argmin(best[rest])])
+        edges.append((float(best[current]), int(parent[current]), current))
+
+    # Union-find over the assets; label[r] is the cluster id of the set rooted at r.
+    root = np.arange(n)
+    label = np.arange(n)
+    size = np.ones(n, dtype=np.intp)
+
+    def find(i: int) -> int:
+        """Return the representative of ``i``, halving the path on the way."""
+        while root[i] != i:
+            root[i] = root[root[i]]
+            i = int(root[i])
+        return i
+
+    links = np.empty((n - 1, 4))
+    for k, (dist_k, i, j) in enumerate(sorted(edges, key=lambda edge: edge[0])):
+        a, b = find(i), find(j)
+        links[k] = (min(label[a], label[b]), max(label[a], label[b]), dist_k, size[a] + size[b])
+        root[b] = a
+        label[a] = n + k
+        size[a] += size[b]
+    return links
+
+
+def build_tree_from_operator(
+    cov: CovarianceOperator,
+    assets: Sequence[str] | None = None,
+    method: Literal["single", "complete", "average", "ward"] = "single",
+    bisection: bool = False,
+) -> Dendrogram:
+    """Build the hierarchical cluster tree from a covariance operator.
+
+    The correlation distance is ``d_ij = sqrt((1 - rho_ij) / 2)``, as in
+    :func:`build_tree`. With ``method="single"`` and no bisection the tree is
+    built **matrix-free**: from the operator's diagonal and one column per step
+    (see :func:`_single_linkage`), never forming the ``n x n`` correlation or
+    distance matrix, so a factor or Gram operator clusters a universe whose
+    covariance would not fit in memory. The returned :class:`Dendrogram` then
+    carries no ``distance`` frame.
+
+    Every other method, and bisection (whose merge heights are cluster
+    diameters), needs all pairwise distances; the correlation is then
+    materialised from the operator and the call is delegated to
+    :func:`build_tree`, at ``O(n**2)`` memory.
+
+    Args:
+        cov (CovarianceOperator): The covariance as an operator.
+        assets (Sequence[str], optional): Asset names; defaults to ``"0", "1", ...``.
+        method (Literal["single", "complete", "average", "ward"]): Linkage method.
+            Defaults to ``"single"``, the only matrix-free one.
+        bisection (bool): Whether to rebuild the tree by bisection of the leaf order.
+
+    Returns:
+        Dendrogram: The clustering tree over the operator's assets.
+
+    Raises:
+        ValueError: If there are fewer than two assets, an asset has no positive
+            variance, or ``assets`` has the wrong length.
+
+    Examples:
+        >>> import numpy as np
+        >>> from pyhrp.dendrogram import build_tree_from_operator
+        >>> from pyhrp.operators import DenseCovariance
+        >>> sigma = np.array([[1.0, 0.9, 0.0], [0.9, 1.0, 0.0], [0.0, 0.0, 1.0]])
+        >>> dg = build_tree_from_operator(DenseCovariance(sigma), assets=["A", "B", "C"])
+        >>> dg.names
+        ['C', 'A', 'B']
+    """
+    op, names = as_operator(cov, assets)
+    if op.n < 2:
+        msg = "Covariance must contain at least two assets."
+        raise ValueError(msg)
+    vol = _volatilities(op)
+
+    if method == "single" and not bisection:
+        links = _single_linkage(op, vol)
+        root = _to_cluster(sch.to_tree(links, rd=False))
+        return Dendrogram(root=root, linkage=links, method=method, assets=names)
+
+    idx = np.arange(op.n)
+    corr = block(op, idx, idx) / np.outer(vol, vol)
+    np.fill_diagonal(corr, 1.0)
+    return build_tree(pl.DataFrame(dict(zip(names, corr, strict=True))), method=method, bisection=bisection)

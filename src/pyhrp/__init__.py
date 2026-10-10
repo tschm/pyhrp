@@ -10,17 +10,21 @@ import importlib.metadata
 from .algos import one_over_n, risk_parity, schur_risk_parity
 from .cluster import Cluster, Portfolio
 from .covariance import compute_corr, compute_cov, compute_returns
-from .dendrogram import Dendrogram, build_tree
+from .dendrogram import Dendrogram, build_tree, build_tree_from_operator
 from .hrp import hrp, schur_hrp
+from .operators import CovarianceOperator, DenseCovariance
 
 __version__ = importlib.metadata.version("pyhrp")
 
 __all__ = [
     "Cluster",
+    "CovarianceOperator",
     "Dendrogram",
+    "DenseCovariance",
     "Portfolio",
     "__version__",
     "build_tree",
+    "build_tree_from_operator",
     "compute_corr",
     "compute_cov",
     "compute_returns",

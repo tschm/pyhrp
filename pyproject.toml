@@ -29,6 +29,7 @@ Changelog = "https://github.com/tschm/pyhrp/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 dev = [
+    "cvx-linalg>=1.1.2",
     "hypothesis>=6.150.0",
     "hypothesis[numpy]>=6.150.0",
     "kaleido>=1.3.0",
