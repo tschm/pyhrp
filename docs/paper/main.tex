@@ -427,10 +427,76 @@ minimiser is unique.
         target.
 \end{itemize}
 
-\paragraph{Numerical results.}
-\textcolor{red}{TODO: constrained results on the twenty-asset panel ---
-tracking error to HRP and active constraints for a set of sector and
-position limits.}
+\subsection{Numerical results}
+
+\begin{table}[htb]
+\centering
+\caption{Constrained HRP on the twenty-asset panel, \code{ward} linkage. All
+rows also impose the budget $\mathbf{1}^{\top} w = 1$. TE is the annualised
+tracking error to the unconstrained HRP portfolio, in basis points. Sectors:
+Technology (GOOG, AAPL, FB, BABA, AMZN, AMD), Financials (BAC, MA, JPM),
+Consumer (WMT, UAA, SHLD, BBY, SBUX, GM), Energy (XOM, RRC), Other (GE, T,
+PFE).}
+\label{tab:cla}
+\begin{tabular}{lrrrrrrr}
+\toprule
+& & \multicolumn{3}{c}{nearest to HRP, $w(1)$}
+  & \multicolumn{3}{c}{minimum variance, $w(0)$} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+Constraints & TPs & Ann.\ vol. & TE & $N_{\mathrm{eff}}$
+  & Ann.\ vol. & TE & $N_{\mathrm{eff}}$ \\
+\midrule
+$0 \le w$                          & 30 & $0.1175$ & $0$   & $13.27$ & $0.1048$ & $443$ & $6.20$ \\
+$0 \le w \le 0.10$                 & 38 & $0.1182$ & $64$  & $14.21$ & $0.1110$ & $284$ & $11.13$ \\
+$0 \le w$, sectors $\le 0.25$      & 31 & $0.1171$ & $88$  & $13.41$ & $0.1065$ & $384$ & $7.16$ \\
+$0.02 \le w \le 0.10$, sectors $\le 0.25$
+                                   & 38 & $0.1202$ & $151$ & $14.43$ & $0.1179$ & $199$ & $13.69$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:cla} applies the construction to the HRP portfolio of
+Table~\ref{tab:linkage} (\code{ward}, no bisection) under four constraint sets
+of increasing strength. Each row is a single CLA run with
+$\mu = \Sigma w^{\mathrm{H}}$. The nearest portfolio $w(1)$ is interpolated at
+$\lambda = 1$, and the endpoint $w(0)$ of the same run is the minimum-variance
+portfolio under the same constraints. TPs counts the turning points on the
+path. As an independent check, both points were recomputed for every row as a
+quadratic program with an interior-point solver; the largest weight difference
+over all eight solves is $9 \times 10^{-9}$.
+
+\paragraph{Feasible HRP is returned unchanged.}
+Under long-only constraints alone the HRP portfolio is already feasible, and
+$w(1)$ reproduces it to $8 \times 10^{-16}$, as the first property predicts.
+The other endpoint of the same path, the long-only minimum-variance portfolio,
+has a tracking error of $443$ basis points to HRP and $N_{\mathrm{eff}} = 6.20$
+against HRP's $13.27$. Since HRP is the target, the path spans the whole range
+from a concentrated, low-variance portfolio to HRP itself.
+
+\paragraph{Binding constraints cost little tracking error.}
+HRP's largest positions exceed $10\%$. Capping every position at $10\%$ binds
+for WMT, XOM and SBUX and costs $64$ basis points of tracking error. The
+weight released by the capped names is spread over the remaining assets, so
+the cap raises $N_{\mathrm{eff}}$ from $13.27$ to $14.21$ and volatility by
+$7$ basis points. The constrained minimum-variance portfolio is $284$ basis
+points away from HRP, more than four times as far.
+
+\paragraph{The projection moves weight along correlations, not pro rata.}
+HRP holds $32.5\%$ in Consumer and $24.1\%$ in Technology. A $25\%$ cap per
+sector binds for Consumer, as expected, but in the nearest portfolio it also
+binds for Technology, which HRP left below the cap. Measured in the
+$\Sigma$-norm, the cheapest way to shed Consumer weight is to move it to the
+assets whose returns best replace it, and on this panel some of those sit in
+Technology. Clipping Consumer and rescaling the rest pro rata would ignore
+this. Here the constraint even lowers volatility slightly, from $0.1175$ to
+$0.1171$.
+
+\paragraph{Tighter constraints bring the endpoints together.}
+With position floors of $2\%$, caps of $10\%$ and the sector caps combined,
+eight assets sit at their floor, three at their cap, and both sector caps
+bind. The tracking error of $w(1)$ rises to $151$ basis points, while that of
+the minimum-variance endpoint falls to $199$. The feasible set has shrunk enough that the two ends of the path are no longer
+far apart.
 
 \section{Limitations}
 
@@ -565,6 +631,31 @@ for _ in range(200):
          for g in (0.0, 0.5, 1.0)]
     violations += not (v[0] >= v[1] >= v[2] - 1e-18)
 print(violations, "/ 200")
+\end{verbatim}
+
+The constrained results of Table~\ref{tab:cla} use \code{cvxcla} 2.3.4. The
+path is affine in $\lambda$ between turning points, so $w(1)$ is interpolated
+exactly from the two that bracket $\lambda = 1$:
+
+\begin{verbatim}
+from cvxcla import CLA
+
+S = cov.to_numpy()
+names = cov.columns
+root = hrp(prices=prices, method="ward")
+wh = np.array([root.portfolio.weights[a] for a in names])
+n = len(names)
+
+cla = CLA(mean=S @ wh, covariance=S,
+          lower_bounds=np.full(n, 0.0), upper_bounds=np.full(n, 0.10),
+          a=np.ones((1, n)), b=np.ones(1),
+          g=G_sector, h=np.full(5, 0.25))   # optional sector rows
+tps = cla.turning_points                   # lambda decreasing to 0
+hi, lo = next((p, q) for p, q in zip(tps, tps[1:])
+              if p.lamb >= 1.0 >= q.lamb)
+t = (hi.lamb - 1.0) / (hi.lamb - lo.lamb)
+w_star = (1 - t) * hi.weights + t * lo.weights   # nearest to HRP
+w_minvar = tps[-1].weights                       # lambda = 0
 \end{verbatim}
 
 \bibliographystyle{plainnat}
