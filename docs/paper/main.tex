@@ -519,19 +519,30 @@ evidence about performance --- the out-of-sample question that motivates HRP
 
 \section{Conclusion}
 
-Allocating on an explicit tree costs little and buys inspectability: the
-intermediate budget of every cluster survives in the returned object, which
-makes an HRP allocation auditable in a way a weight vector is not. The
-construction is otherwise faithful to the published algorithm, and the two
-variants the package adds behave as follows on the panel it ships. Bisection is
-a real improvement in balance, and most valuable exactly where the linkage tree
-is worst. The Schur parameter $\gamma$ is a much weaker instrument than its
-documentation suggests: it moves the allocation by fractions of a percent, its
-variance reduction is not monotone across panels, and its $\gamma=1$ endpoint is
-not the minimum-variance portfolio, because the split rule it feeds stays
-inverse-variance throughout. Users should treat $\gamma$ as a small perturbation
-of HRP rather than as a dial between HRP and minimum variance, and the
-documentation should say so.
+HRP as published fuses a covariance estimate, a tree and a split rule into one
+pipeline. Part I separated them. The risk model is an input, so a shrunk or
+factor-model covariance replaces the sample estimate without touching the
+allocator. The allocation scheme is a rule applied to a tree, so HRP, the Schur
+split and hierarchical $1/N$ run interchangeably on the same tree, and the
+returned tree records the budget of every cluster. On the shipped panel the
+tree matters more than the rule: bisection improves balance most where the
+linkage tree is worst, while the Schur parameter $\gamma$ moves the allocation
+by fractions of a percent (Appendix~\ref{app:claims}).
+
+Part II showed that HRP needs no new recursion to respect constraints. The
+feasible portfolio nearest to HRP in the risk model's own metric is the point
+$\lambda = 1$ on a critical-line path with expected returns
+$\Sigma w^{\mathrm{H}}$, so one CLA run handles any polyhedral constraint set
+and also returns the constrained minimum-variance portfolio at $\lambda = 0$.
+On the panel, a feasible HRP portfolio comes back unchanged. A $10\%$ position
+cap costs $64$ basis points of tracking error, and sector caps redistribute
+weight along correlations rather than pro rata.
+
+The two parts meet in $\Sigma$. The risk model that builds the tree and sizes
+each split also defines what ``closest to HRP'' means once constraints bind,
+so a better risk model improves both the target and the projection. All results
+here are in-sample on one panel; whether constrained HRP keeps the
+out-of-sample behaviour that motivates HRP is the natural next question.
 
 \appendix
 
