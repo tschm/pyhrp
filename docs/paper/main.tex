@@ -37,8 +37,8 @@
 \DeclareMathOperator{\diag}{diag}
 \DeclareMathOperator*{\argmin}{arg\,min}
 
-\title{\code{pyhrp}: Hierarchical Risk Parity and Schur Complementary
-Allocation on an Explicit Cluster Tree}
+\title{\code{pyhrp}: Hierarchical Risk Parity with a Pluggable Risk Model
+and Polyhedral Constraints}
 
 \author{Thomas Schmelzer\thanks{\url{https://github.com/tschm/pyhrp}}}
 
@@ -49,74 +49,57 @@ Allocation on an Explicit Cluster Tree}
 \maketitle
 
 \begin{abstract}
-\code{pyhrp} is a small Python package that implements Hierarchical Risk Parity
-(HRP) and its Schur-complement extension by allocating weights on an
-\emph{explicit}, inspectable binary tree rather than by returning a bare weight
-vector. This paper documents the construction the package actually performs ---
-the correlation-to-distance map, the linkage and bisection trees, the recursive
-inverse-variance split, and the Schur augmentation of the two child blocks ---
-and reports what that construction produces on the twenty-asset panel shipped
-with the test suite. Of three claims the package documents about its Schur
-allocator, one holds exactly and two do not. The one that holds is worth
-relying on: at $\gamma=0$ the Schur allocator reproduces HRP bit for bit, so it
-is a safe drop-in. The two that fail are stated without qualification in the
-package's own documentation --- that $\gamma=1$ recovers the global
-minimum-variance portfolio, and that variance falls monotonically in $\gamma$ ---
-and we give a two-asset counterexample to the first and a $76/200$ failure rate
-for the second. The gap is in the split rule, which stays
-inverse-variance at every $\gamma$; we make its consequences precise, since a
-user choosing $\gamma$ is choosing between two behaviours that the
-documentation currently conflates.
+Hierarchical Risk Parity (HRP) fixes three choices at once: the covariance
+estimate, the cluster tree built from it, and the rule that splits the budget
+down that tree. This paper loosens HRP in two ways. First, we disconnect the
+risk model from the allocation scheme. The covariance becomes an input --- a
+sample, shrunk or factor-model estimate --- and every allocation rule runs on
+any tree, so HRP, its Schur-complement extension and a hierarchical $1/N$ become
+interchangeable rules over a shared tree. Second, HRP honours no constraint
+beyond long-only and fully invested. We use the critical line algorithm (CLA) to
+find the portfolio closest to HRP, measured in the risk model's own metric, that
+satisfies an arbitrary set of polyhedral constraints. No new solver is needed:
+setting the expected returns to $\Sigma w^{\mathrm{HRP}}$ turns the
+nearest-portfolio problem into one point on the CLA path, and when the HRP
+portfolio is already feasible it comes back unchanged.
 \end{abstract}
 
 \section{Introduction}
 
-Mean-variance optimisation \citep{markowitz1952} inverts a covariance matrix.
-That inversion is the source of both its appeal and its notorious instability:
-the smallest eigenvalues of an estimated covariance matrix are the least well
-determined, and inversion weights them most heavily, so small changes in the
-input produce large changes in the output \citep{michaud1989}. The standard
-responses are to improve the estimate --- shrinkage \citep{ledoit2004} --- or to
-abandon the optimisation --- equal weights \citep{demiguel2009}.
+Hierarchical Risk Parity \citep{lopezdeprado2016} avoids the matrix inversion
+that makes mean-variance optimisation \citep{markowitz1952} unstable
+\citep{michaud1989}. It clusters the assets into a binary tree and then splits a
+unit budget down that tree, giving each of a node's two children a share
+inversely proportional to its variance. The result is long-only, fully invested
+and needs no expected returns.
 
-Hierarchical Risk Parity \citep{lopezdeprado2016} takes a third route. It never
-inverts anything. Instead it uses the correlation matrix twice, and only in ways
-that are robust to estimation noise: once to build a hierarchy over the assets
-by agglomerative clustering, and once to compute sub-portfolio variances, which
-are quadratic forms rather than solves. Weights fall out of a recursive top-down
-split of a unit budget between the two children of every node, inversely
-proportional to each child's variance. The result is long-only by construction,
-sums to one without a constraint being imposed, and requires no expected returns.
+As published, HRP is one fused pipeline: prices go in, a sample covariance is
+estimated, a tree is built from the implied correlations, and the same
+covariance drives the split. This paper pulls that pipeline apart and puts it
+back together under constraints.
 
-The idea that a correlation matrix over financial assets carries hierarchical
-structure predates HRP \citep{mantegna1999}; HRP's contribution is to make that
-structure the allocation mechanism rather than a visualisation.
+\paragraph{Part I: the risk model as an input.}
+\code{pyhrp} separates the \emph{risk model}, the covariance $\Sigma$, from the
+\emph{allocation scheme}, the rule that splits the budget at each node. The
+allocators take $\Sigma$ as an argument --- an explicit matrix, or an operator
+that only multiplies, as for a factor model --- and take the tree as an argument
+too. Shrinkage \citep{ledoit2004}, a factor model or any other estimate can
+therefore replace the sample covariance without touching the allocator, and the
+allocator can change without rebuilding the tree. Three schemes share this
+contract: HRP's inverse-variance split, the Schur-complement split of
+\citet{cotton2024}, and a hierarchical $1/N$. The tree itself is returned, not
+just a weight vector, so the budget assigned to every cluster can be inspected.
 
-\subsection{What this package adds}
+\paragraph{Part II: HRP under polyhedral constraints.}
+Real mandates impose bounds, sector limits and budget constraints, and HRP
+cannot honour them. Rather than modify the recursion, we take the HRP portfolio
+as a target and ask for the feasible portfolio nearest to it. Measured in the
+$\Sigma$-norm, that is the portfolio with the smallest tracking error to HRP.
+This is a quadratic program over a polyhedron, and the critical line algorithm
+\citep{markowitz1956} solves it exactly.
 
-\code{pyhrp} makes the tree a first-class object. \code{hrp()} returns the root
-\code{Cluster} of the weighted tree, not a weight series, so the intermediate
-allocation at every node remains available for inspection: which cluster
-received what fraction of the budget, and how that fraction was subdivided. The
-weight vector is one attribute of the root, recovered as
-\code{root.portfolio.weights}.
-
-Three allocators share that tree and the same input contract:
-
-\begin{itemize}
-  \item \code{risk\_parity} --- HRP as published: split by the plain block
-        variance of each child.
-  \item \code{schur\_risk\_parity} --- split by a Schur-augmented block variance
-        \citep{cotton2024}, interpolating with a parameter $\gamma \in [0,1]$.
-  \item \code{one\_over\_n} --- a hierarchical equal-weight allocation,
-        exposed as a generator that yields one complete portfolio per tree
-        level, so the allocation can be watched as the hierarchy deepens.
-\end{itemize}
-
-Section~\ref{sec:method} states the construction, Section~\ref{sec:impl}
-describes the implementation choices that are not implied by the mathematics,
-and Section~\ref{sec:results} reports numerical results, including the two
-documentation claims that do not hold.
+Sections~\ref{sec:method}--\ref{sec:results} cover Part I: the construction, its
+implementation, and numerical results. Section~\ref{sec:cla} covers Part II.
 
 \section{Method}
 \label{sec:method}
@@ -259,7 +242,7 @@ raises, which keeps Eq.~\eqref{eq:aug} defined rather than propagating an
 exception out of a recursion.
 
 Note what is \emph{not} changed: the split rule. Equation~\eqref{eq:split}
-remains inverse-variance for every $\gamma$. Section~\ref{sec:claims} shows why
+remains inverse-variance for every $\gamma$. Appendix~\ref{app:claims} shows why
 that matters.
 
 \subsection{Hierarchical \texorpdfstring{$1/N$}{1/N}}
@@ -379,8 +362,7 @@ GMV (long/short) & $4.137 \times 10^{-5}$ & $0.1021$ & $4.37$ & $0.2438$ \\
 \end{tabular}
 \end{table}
 
-Table~\ref{tab:gamma} is the central empirical result of this paper, and it is
-mostly a null one. Moving $\gamma$ from $0$ to $1$ --- from no cross-block
+Table~\ref{tab:gamma} is mostly a null result. Moving $\gamma$ from $0$ to $1$ --- from no cross-block
 information to the full Schur complement --- reduces the portfolio variance by
 $0.53\%$ and the annualised volatility by $3$ basis points. The allocation
 barely moves: the largest weight changes by $0.002$, and $N_{\mathrm{eff}}$
@@ -392,11 +374,182 @@ $4.137 \times 10^{-5}$, a quarter below the $\gamma=1$ allocation, and it is a
 visibly different object: $N_{\mathrm{eff}} = 4.37$, and it holds short
 positions (its smallest weight is $-0.132$). Whatever $\gamma$ interpolates
 towards in this implementation, on this panel it is not that portfolio.
+Appendix~\ref{app:claims} explains why, and checks the three properties the
+package documents for $\gamma$.
 
-\subsection{Three documented claims, examined}
-\label{sec:claims}
+\section{Constrained HRP via the critical line algorithm}
+\label{sec:cla}
 
-The package documents three properties of the Schur allocator. We tested each.
+Let $w^{\mathrm{H}}$ be the HRP portfolio computed under the risk model
+$\Sigma$, and let
+\begin{equation}
+  \mathcal{P} = \{\, w : A w = b,\; G w \le g,\; l \le w \le u \,\}
+\end{equation}
+be the feasible set: equality constraints such as the budget, general linear
+inequalities such as sector limits, and bounds on every weight. We seek
+\begin{equation}
+  w^{\star} = \argmin_{w \in \mathcal{P}} \;
+  \tfrac12 (w - w^{\mathrm{H}})^{\top} \Sigma \, (w - w^{\mathrm{H}}),
+  \label{eq:nearest}
+\end{equation}
+the feasible portfolio with the smallest tracking-error variance to HRP.
+The distance is measured by the same risk model that produced $w^{\mathrm{H}}$,
+which is what links the two parts of the paper.
+
+\paragraph{Reduction to the CLA path.}
+Expanding Eq.~\eqref{eq:nearest} gives
+$\tfrac12 w^{\top} \Sigma w - (\Sigma w^{\mathrm{H}})^{\top} w$ plus a constant.
+The critical line algorithm traces, for every $\lambda \ge 0$, the solution
+$w(\lambda)$ of
+\begin{equation}
+  \min_{w \in \mathcal{P}} \; \tfrac12 w^{\top} \Sigma w - \lambda \, \mu^{\top} w,
+  \label{eq:clapath}
+\end{equation}
+as a piecewise-linear path between finitely many turning points. With expected
+returns set to $\mu = \Sigma w^{\mathrm{H}}$, Eq.~\eqref{eq:clapath} at
+$\lambda = 1$ is Eq.~\eqref{eq:nearest}, so $w^{\star} = w(1)$ is read off the
+path by linear interpolation between the two turning points that bracket
+$\lambda = 1$.
+
+\paragraph{Properties.}
+Three facts follow directly, assuming $\Sigma$ is positive definite so that the
+minimiser is unique.
+\begin{itemize}
+  \item If $w^{\mathrm{H}} \in \mathcal{P}$, then $w^{\star} = w^{\mathrm{H}}$:
+        the unconstrained minimiser of Eq.~\eqref{eq:nearest} is feasible. Adding
+        constraints that HRP already satisfies changes nothing.
+  \item $w(0)$ is the minimum-variance portfolio in $\mathcal{P}$. The path from
+        $\lambda = 0$ to $\lambda = 1$ therefore runs from constrained minimum
+        variance to constrained HRP, and the whole family comes from a single
+        CLA run.
+  \item The construction is agnostic to how $w^{\mathrm{H}}$ was obtained. Any
+        allocation scheme from Part I, under any risk model, can serve as the
+        target.
+\end{itemize}
+
+\subsection{Numerical results}
+
+\begin{table}[htb]
+\centering
+\caption{Constrained HRP on the twenty-asset panel, \code{ward} linkage. All
+rows also impose the budget $\mathbf{1}^{\top} w = 1$. TE is the annualised
+tracking error to the unconstrained HRP portfolio, in basis points. Sectors:
+Technology (GOOG, AAPL, FB, BABA, AMZN, AMD), Financials (BAC, MA, JPM),
+Consumer (WMT, UAA, SHLD, BBY, SBUX, GM), Energy (XOM, RRC), Other (GE, T,
+PFE).}
+\label{tab:cla}
+\begin{tabular}{lrrrrrrr}
+\toprule
+& & \multicolumn{3}{c}{nearest to HRP, $w(1)$}
+  & \multicolumn{3}{c}{minimum variance, $w(0)$} \\
+\cmidrule(lr){3-5}\cmidrule(lr){6-8}
+Constraints & TPs & Ann.\ vol. & TE & $N_{\mathrm{eff}}$
+  & Ann.\ vol. & TE & $N_{\mathrm{eff}}$ \\
+\midrule
+$0 \le w$                          & 30 & $0.1175$ & $0$   & $13.27$ & $0.1048$ & $443$ & $6.20$ \\
+$0 \le w \le 0.10$                 & 38 & $0.1182$ & $64$  & $14.21$ & $0.1110$ & $284$ & $11.13$ \\
+$0 \le w$, sectors $\le 0.25$      & 31 & $0.1171$ & $88$  & $13.41$ & $0.1065$ & $384$ & $7.16$ \\
+$0.02 \le w \le 0.10$, sectors $\le 0.25$
+                                   & 38 & $0.1202$ & $151$ & $14.43$ & $0.1179$ & $199$ & $13.69$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:cla} applies the construction to the HRP portfolio of
+Table~\ref{tab:linkage} (\code{ward}, no bisection) under four constraint sets
+of increasing strength. Each row is a single CLA run with
+$\mu = \Sigma w^{\mathrm{H}}$. The nearest portfolio $w(1)$ is interpolated at
+$\lambda = 1$, and the endpoint $w(0)$ of the same run is the minimum-variance
+portfolio under the same constraints. TPs counts the turning points on the
+path. As an independent check, both points were recomputed for every row as a
+quadratic program with an interior-point solver; the largest weight difference
+over all eight solves is $9 \times 10^{-9}$.
+
+\paragraph{Feasible HRP is returned unchanged.}
+Under long-only constraints alone the HRP portfolio is already feasible, and
+$w(1)$ reproduces it to $8 \times 10^{-16}$, as the first property predicts.
+The other endpoint of the same path, the long-only minimum-variance portfolio,
+has a tracking error of $443$ basis points to HRP and $N_{\mathrm{eff}} = 6.20$
+against HRP's $13.27$. Since HRP is the target, the path spans the whole range
+from a concentrated, low-variance portfolio to HRP itself.
+
+\paragraph{Binding constraints cost little tracking error.}
+HRP's largest positions exceed $10\%$. Capping every position at $10\%$ binds
+for WMT, XOM and SBUX and costs $64$ basis points of tracking error. The
+weight released by the capped names is spread over the remaining assets, so
+the cap raises $N_{\mathrm{eff}}$ from $13.27$ to $14.21$ and volatility by
+$7$ basis points. The constrained minimum-variance portfolio is $284$ basis
+points away from HRP, more than four times as far.
+
+\paragraph{The projection moves weight along correlations, not pro rata.}
+HRP holds $32.5\%$ in Consumer and $24.1\%$ in Technology. A $25\%$ cap per
+sector binds for Consumer, as expected, but in the nearest portfolio it also
+binds for Technology, which HRP left below the cap. Measured in the
+$\Sigma$-norm, the cheapest way to shed Consumer weight is to move it to the
+assets whose returns best replace it, and on this panel some of those sit in
+Technology. Clipping Consumer and rescaling the rest pro rata would ignore
+this. Here the constraint even lowers volatility slightly, from $0.1175$ to
+$0.1171$.
+
+\paragraph{Tighter constraints bring the endpoints together.}
+With position floors of $2\%$, caps of $10\%$ and the sector caps combined,
+eight assets sit at their floor, three at their cap, and both sector caps
+bind. The tracking error of $w(1)$ rises to $151$ basis points, while that of
+the minimum-variance endpoint falls to $199$. The feasible set has shrunk enough that the two ends of the path are no longer
+far apart.
+
+\section{Limitations}
+
+The covariance estimator is the plain sample one. On a universe whose asset
+count approaches its observation count this estimator is badly conditioned, and
+while HRP never inverts it, the block variances of Eq.~\eqref{eq:blockvar} are
+still computed from it and the Schur augmentation of Eq.~\eqref{eq:aug} does
+solve against it. Shrinkage \citep{ledoit2004} is left to the caller, who may
+pass any covariance frame.
+
+The hierarchical allocators are unconditionally long-only and fully invested;
+constraints enter only through the projection of Section~\ref{sec:cla}, which
+covers linear constraints but not turnover limits or transaction costs. There is
+no rebalancing logic: the package maps one covariance estimate to one
+allocation. Nothing here evaluates HRP as a strategy. All
+variances reported are in-sample, computed against the same covariance matrix
+that produced the weights, and are properties of the construction rather than
+evidence about performance --- the out-of-sample question that motivates HRP
+\citep{lopezdeprado2016} is outside what this package measures.
+
+\section{Conclusion}
+
+HRP as published fuses a covariance estimate, a tree and a split rule into one
+pipeline. Part I separated them. The risk model is an input, so a shrunk or
+factor-model covariance replaces the sample estimate without touching the
+allocator. The allocation scheme is a rule applied to a tree, so HRP, the Schur
+split and hierarchical $1/N$ run interchangeably on the same tree, and the
+returned tree records the budget of every cluster. On the shipped panel the
+tree matters more than the rule: bisection improves balance most where the
+linkage tree is worst, while the Schur parameter $\gamma$ moves the allocation
+by fractions of a percent (Appendix~\ref{app:claims}).
+
+Part II showed that HRP needs no new recursion to respect constraints. The
+feasible portfolio nearest to HRP in the risk model's own metric is the point
+$\lambda = 1$ on a critical-line path with expected returns
+$\Sigma w^{\mathrm{H}}$, so one CLA run handles any polyhedral constraint set
+and also returns the constrained minimum-variance portfolio at $\lambda = 0$.
+On the panel, a feasible HRP portfolio comes back unchanged. A $10\%$ position
+cap costs $64$ basis points of tracking error, and sector caps redistribute
+weight along correlations rather than pro rata.
+
+The two parts meet in $\Sigma$. The risk model that builds the tree and sizes
+each split also defines what ``closest to HRP'' means once constraints bind,
+so a better risk model improves both the target and the projection. All results
+here are in-sample on one panel; whether constrained HRP keeps the
+out-of-sample behaviour that motivates HRP is the natural next question.
+
+\appendix
+
+\section{The Schur allocator's documented claims}
+\label{app:claims}
+
+The package documents three properties of the Schur allocator. We tested each against the panel of Section~\ref{sec:results} and against synthetic data.
 
 \paragraph{$\gamma=0$ reproduces HRP exactly. Confirmed.}
 The two allocators agree to the last bit on this panel: the maximum absolute
@@ -447,42 +600,6 @@ $\gamma$ is a weak knob on this construction. A user who reads
 ``raising $\gamma$ trades robustness for lower in-sample variance'' should not
 expect the trade to be reliably available.
 
-\section{Limitations}
-
-The covariance estimator is the plain sample one. On a universe whose asset
-count approaches its observation count this estimator is badly conditioned, and
-while HRP never inverts it, the block variances of Eq.~\eqref{eq:blockvar} are
-still computed from it and the Schur augmentation of Eq.~\eqref{eq:aug} does
-solve against it. Shrinkage \citep{ledoit2004} is left to the caller, who may
-pass any covariance frame.
-
-The allocation is unconditionally long-only and fully invested. There is no
-provision for weight caps, turnover limits, transaction costs, leverage, or a
-risk-free asset, and no rebalancing logic: the package maps one covariance
-estimate to one allocation. Nothing here evaluates HRP as a strategy. All
-variances reported are in-sample, computed against the same covariance matrix
-that produced the weights, and are properties of the construction rather than
-evidence about performance --- the out-of-sample question that motivates HRP
-\citep{lopezdeprado2016} is outside what this package measures.
-
-\section{Conclusion}
-
-Allocating on an explicit tree costs little and buys inspectability: the
-intermediate budget of every cluster survives in the returned object, which
-makes an HRP allocation auditable in a way a weight vector is not. The
-construction is otherwise faithful to the published algorithm, and the two
-variants the package adds behave as follows on the panel it ships. Bisection is
-a real improvement in balance, and most valuable exactly where the linkage tree
-is worst. The Schur parameter $\gamma$ is a much weaker instrument than its
-documentation suggests: it moves the allocation by fractions of a percent, its
-variance reduction is not monotone across panels, and its $\gamma=1$ endpoint is
-not the minimum-variance portfolio, because the split rule it feeds stays
-inverse-variance throughout. Users should treat $\gamma$ as a small perturbation
-of HRP rather than as a dial between HRP and minimum variance, and the
-documentation should say so.
-
-\appendix
-
 \section{Reproducibility}
 \label{app:repro}
 
@@ -511,7 +628,7 @@ for gamma in [0.0, 0.25, 0.5, 0.75, 1.0]:
 
 The minimum-variance reference row is
 $w^{\star} \propto \Sigma^{-1} \mathbf{1}$, normalised to sum to one. The
-monotonicity experiment of Section~\ref{sec:claims}:
+monotonicity experiment of Appendix~\ref{app:claims}:
 
 \begin{verbatim}
 rng = np.random.default_rng(0)
@@ -525,6 +642,31 @@ for _ in range(200):
          for g in (0.0, 0.5, 1.0)]
     violations += not (v[0] >= v[1] >= v[2] - 1e-18)
 print(violations, "/ 200")
+\end{verbatim}
+
+The constrained results of Table~\ref{tab:cla} use \code{cvxcla} 2.3.4. The
+path is affine in $\lambda$ between turning points, so $w(1)$ is interpolated
+exactly from the two that bracket $\lambda = 1$:
+
+\begin{verbatim}
+from cvxcla import CLA
+
+S = cov.to_numpy()
+names = cov.columns
+root = hrp(prices=prices, method="ward")
+wh = np.array([root.portfolio.weights[a] for a in names])
+n = len(names)
+
+cla = CLA(mean=S @ wh, covariance=S,
+          lower_bounds=np.full(n, 0.0), upper_bounds=np.full(n, 0.10),
+          a=np.ones((1, n)), b=np.ones(1),
+          g=G_sector, h=np.full(5, 0.25))   # optional sector rows
+tps = cla.turning_points                   # lambda decreasing to 0
+hi, lo = next((p, q) for p, q in zip(tps, tps[1:])
+              if p.lamb >= 1.0 >= q.lamb)
+t = (hi.lamb - 1.0) / (hi.lamb - lo.lamb)
+w_star = (1 - t) * hi.weights + t * lo.weights   # nearest to HRP
+w_minvar = tps[-1].weights                       # lambda = 0
 \end{verbatim}
 
 \bibliographystyle{plainnat}
