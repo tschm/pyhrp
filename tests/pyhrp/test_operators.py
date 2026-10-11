@@ -100,6 +100,10 @@ def test_solve_block_failed_solve_falls_back_to_cg() -> None:
     class Failing(DenseCovariance):
         """Dense operator whose solve always fails."""
 
+        def rcond_free(self, free: object) -> float:
+            """Report a well-conditioned block, so the solve is attempted."""
+            return 1.0
+
         def solve_free(self, free: object, rhs: np.ndarray) -> np.ndarray:
             """Raise as a singular LU factorisation would."""
             raise np.linalg.LinAlgError
@@ -178,3 +182,17 @@ def test_solve_block_uses_a_restricted_operator_when_offered() -> None:
     solution = solve_block(op, idx, b)
     assert len(sliced) == 1
     np.testing.assert_allclose(op.block_matvec(idx, idx, solution), b, atol=1e-8)
+
+
+def test_solve_block_on_an_operator_that_cannot_solve() -> None:
+    """NotImplementedError from rcond_free or solve_free sends the block to CG."""
+
+    class ForwardOnly(DenseCovariance):
+        """Dense operator offering products only."""
+
+        def rcond_free(self, free: object) -> float:
+            """Not available."""
+            raise NotImplementedError
+
+    x = solve_block(ForwardOnly(np.diag([2.0, 4.0])), np.array([0, 1]), np.array([2.0, 4.0]))
+    np.testing.assert_allclose(x, [1.0, 1.0])

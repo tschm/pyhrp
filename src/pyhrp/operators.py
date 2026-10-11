@@ -175,12 +175,17 @@ def solve_block(op: CovarianceOperator, idx: np.ndarray, rhs: np.ndarray) -> np.
     (a Gram operator with ``T < n``), are singular. A block the operator reports
     as singular, or whose solve fails, is solved by conjugate gradients over
     ``block_matvec`` (see :func:`cg_min_norm`), which never forms the block.
+
+    So is every block of an operator that can multiply but not solve, one whose
+    ``rcond_free`` or ``solve_free`` raises ``NotImplementedError`` -- such as a
+    cvx-linalg ``SumOperator`` blending the sample covariance with a shrinkage
+    target. The Schur allocator therefore needs no direct solver at all.
     """
-    if op.rcond_free(idx) >= RCOND_MIN:
-        try:
+    try:
+        if op.rcond_free(idx) >= RCOND_MIN:
             return np.asarray(op.solve_free(idx, rhs))
-        except np.linalg.LinAlgError:
-            pass
+    except (np.linalg.LinAlgError, NotImplementedError):
+        pass
     return cg_min_norm(_block_product(op, idx), rhs)
 
 

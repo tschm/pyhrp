@@ -13,7 +13,7 @@ from typing import Literal
 import numpy as np
 import polars as pl
 import pytest
-from cvx.linalg import FactorOperator, GramOperator
+from cvx.linalg import FactorOperator, GramOperator, SumOperator
 from hypothesis import given, settings
 from hypothesis import strategies as st
 from hypothesis.extra import numpy as hnp
@@ -577,3 +577,20 @@ def test_schur_variance_keeps_real_variance_and_zeroes_cancellation() -> None:
     assert _schur_variance(1.0, 0.25) == 0.75
     assert _schur_variance(1.0, 1.0 - 1e-14) == 0.0
     assert _schur_variance(1.0, 1.0 + 1e-14) == 0.0
+
+
+def test_schur_risk_parity_on_a_forward_only_shrinkage_operator() -> None:
+    """A SumOperator cannot solve; Schur falls back to CG and matches the dense shrunk covariance."""
+    rng = np.random.default_rng(12)
+    x = rng.standard_normal((15, 40))
+    xc = (x - x.mean(axis=0)) / np.sqrt(14.0)
+    sample = GramOperator(xc)
+    target = FactorOperator(sample.diag, np.zeros((40, 1)), np.eye(1))
+    shrunk = SumOperator([(0.7, sample), (0.3, target)])
+    sigma = 0.7 * (xc.T @ xc) + 0.3 * np.diag(sample.diag)
+    names = [f"A{i}" for i in range(40)]
+    cov = pl.DataFrame(dict(zip(names, sigma, strict=True)))
+    root = build_tree_from_operator(shrunk, assets=names).root
+    dense = schur_risk_parity(deepcopy(root), cov, gamma=0.5).portfolio.weights
+    matrix_free = schur_risk_parity(root, shrunk, gamma=0.5, assets=names).portfolio.weights
+    np.testing.assert_allclose(list(matrix_free.values()), list(dense.values()), atol=1e-10)
