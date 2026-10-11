@@ -3,12 +3,13 @@
 This module builds the hierarchical clustering tree consumed by the HRP
 allocation entry points and stores it in a :class:`Dendrogram`:
 - build_tree: Build a hierarchical cluster tree from a correlation matrix
+- build_tree_from_operator: Build the tree from a covariance operator, matrix-free for single linkage
 - Dendrogram: Container for the clustering result and its visualization
 """
 
 from __future__ import annotations
 
-from collections.abc import Generator
+from collections.abc import Generator, Sequence
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Literal
 
@@ -19,11 +20,12 @@ import scipy.spatial.distance as ssd
 
 from .algos import one_over_n as _one_over_n
 from .cluster import Cluster, Portfolio
+from .operators import CovarianceOperator, as_operator, block
 
 if TYPE_CHECKING:
     import plotly.graph_objects as go
 
-__all__ = ["Dendrogram", "build_tree"]
+__all__ = ["Dendrogram", "build_tree", "build_tree_from_operator"]
 
 
 @dataclass(frozen=True)
@@ -305,3 +307,255 @@ def build_tree(
         links = np.array(_get_linkage(root, dist.to_numpy()))
 
     return Dendrogram(root=root, linkage=links, method=method, distance=dist, assets=cor.columns)
+
+
+def _volatilities(op: CovarianceOperator) -> np.ndarray:
+    """Return ``sqrt(diag(Sigma))``, refusing an asset without positive variance."""
+    var = np.asarray(op.diag, dtype=np.float64)
+    if not np.all(var > 0.0):
+        bad = np.flatnonzero(~(var > 0.0)).tolist()
+        msg = f"Covariance has non-positive or non-finite variance at positions {bad}; correlations are undefined."
+        raise ValueError(msg)
+    return np.sqrt(var)
+
+
+def _unit(n: int, i: int) -> np.ndarray:
+    """The ``i``-th unit vector of length ``n``."""
+    e = np.zeros(n)
+    e[i] = 1.0
+    return e
+
+
+def _linkage_from_merges(merges: list[tuple[float, int, int]], n: int) -> np.ndarray:
+    """Turn merges into SciPy's linkage format.
+
+    Each merge ``(height, i, j)`` joins the clusters holding assets ``i`` and
+    ``j``. Merges are sorted by height and replayed by union-find, and each row
+    lists its two cluster ids smaller first, as SciPy labels them.
+
+    Args:
+        merges (list[tuple[float, int, int]]): The ``n - 1`` merges, in any order.
+        n (int): The number of assets.
+
+    Returns:
+        np.ndarray: The ``(n - 1) x 4`` linkage matrix.
+    """
+    # Union-find over the assets; label[r] is the cluster id of the set rooted at r.
+    root = np.arange(n)
+    label = np.arange(n)
+    size = np.ones(n, dtype=np.intp)
+
+    def find(i: int) -> int:
+        """Return the representative of ``i``, halving the path on the way."""
+        while root[i] != i:
+            root[i] = root[root[i]]
+            i = int(root[i])
+        return i
+
+    links = np.empty((n - 1, 4))
+    for k, (height, i, j) in enumerate(sorted(merges, key=lambda merge: merge[0])):
+        a, b = find(i), find(j)
+        links[k] = (min(label[a], label[b]), max(label[a], label[b]), height, size[a] + size[b])
+        root[b] = a
+        label[a] = n + k
+        size[a] += size[b]
+    return links
+
+
+def _single_linkage(op: CovarianceOperator, vol: np.ndarray) -> np.ndarray:
+    """Single linkage on ``d_ij = sqrt((1 - rho_ij) / 2)`` without the distance matrix.
+
+    Single linkage is the minimum spanning tree of the distance graph. Prim's
+    algorithm grows it from one column of ``Sigma`` per step, so memory is
+    ``O(n)`` beyond the operator and the time is ``n`` column products
+    (``O(n k)`` each for a rank-``k`` factor or Gram operator).
+
+    Args:
+        op (CovarianceOperator): The covariance.
+        vol (np.ndarray): The volatilities ``sqrt(diag(Sigma))``.
+
+    Returns:
+        np.ndarray: The ``(n - 1) x 4`` linkage matrix in SciPy's format.
+    """
+    n = op.n
+    in_tree = np.zeros(n, dtype=bool)
+    best = np.full(n, np.inf)
+    parent = np.zeros(n, dtype=np.intp)
+    edges: list[tuple[float, int, int]] = []
+    current = 0
+    for _ in range(n - 1):
+        in_tree[current] = True
+        rest = np.flatnonzero(~in_tree)
+        column = np.asarray(op.matvec(_unit(n, current)))[rest]
+        rho = column / (vol[rest] * vol[current])
+        dist = np.sqrt(np.clip((1.0 - rho) / 2.0, 0.0, 1.0))
+        closer = dist < best[rest]
+        best[rest[closer]] = dist[closer]
+        parent[rest[closer]] = current
+        current = int(rest[np.argmin(best[rest])])
+        edges.append((float(best[current]), int(parent[current]), current))
+    return _linkage_from_merges(edges, n)
+
+
+def _ward_linkage(op: CovarianceOperator, vol: np.ndarray) -> np.ndarray:
+    """Ward linkage on ``d_ij = sqrt((1 - rho_ij) / 2)`` without the distance matrix.
+
+    These distances are Euclidean: they are ``|p_i - p_j|`` for points with inner
+    products ``p_i . p_j = rho_ij / 4``. The centroid of a cluster ``A`` is then
+    reached through the vector ``v_A`` holding ``1 / (|A| sigma_i)`` on its assets,
+    with ``c_A . c_B = v_A' Sigma v_B / 4``. One product ``Sigma v_A`` therefore gives
+    the centroid inner products of ``A`` with every cluster at once (a sum over each
+    cluster's assets), and with them the Ward distance
+
+        ``D(A, B)**2 = 2 |A| |B| / (|A| + |B|) * |c_A - c_B|**2``,
+
+    which is the distance SciPy's Lance-Williams update reports. The nearest-
+    neighbour chain algorithm needs ``O(n)`` such queries, so the time is ``O(n)``
+    operator products (``O(n k)`` each for a rank-``k`` factor or Gram operator)
+    and the memory is ``O(n)``.
+
+    Args:
+        op (CovarianceOperator): The covariance.
+        vol (np.ndarray): The volatilities ``sqrt(diag(Sigma))``.
+
+    Returns:
+        np.ndarray: The ``(n - 1) x 4`` linkage matrix in SciPy's format.
+    """
+    n = op.n
+    # Every cluster is named by one of its assets, its representative; owner maps an
+    # asset to the representative of its cluster.
+    owner = np.arange(n)
+    size = np.ones(n)
+    norm2 = np.full(n, 0.25)  # |c_A|**2; a single asset has rho_ii / 4
+    active = np.ones(n, dtype=bool)
+    merges: list[tuple[float, int, int]] = []
+    chain: list[int] = []
+    while len(merges) < n - 1:
+        if not chain:
+            chain.append(int(np.flatnonzero(active)[0]))
+        a = chain[-1]
+        members = np.flatnonzero(owner == a)
+        v = np.zeros(n)
+        v[members] = 1.0 / (size[a] * vol[members])
+        g = np.asarray(op.matvec(v))
+        dot = np.bincount(owner, weights=g / vol, minlength=n) / (4.0 * size)
+        d2 = 2.0 * size[a] * size / (size[a] + size) * np.maximum(norm2[a] + norm2 - 2.0 * dot, 0.0)
+        d2[~active] = np.inf
+        d2[a] = np.inf
+        b = int(np.argmin(d2))
+        # Reciprocal nearest neighbours: a's nearest is the cluster below it on the chain.
+        if len(chain) > 1 and d2[chain[-2]] <= d2[b]:
+            b = chain[-2]
+            del chain[-2:]
+            sa, sb = size[a], size[b]
+            norm2[a] = (sa * sa * norm2[a] + 2.0 * sa * sb * dot[b] + sb * sb * norm2[b]) / (sa + sb) ** 2
+            size[a] = sa + sb
+            owner[owner == b] = a
+            active[b] = False
+            merges.append((float(np.sqrt(d2[b])), a, b))
+        else:
+            chain.append(b)
+    return _linkage_from_merges(merges, n)
+
+
+def _bisect_linkage(root: Cluster, links: np.ndarray) -> tuple[Cluster, np.ndarray]:
+    """Rebuild a tree by bisection of its leaf order, without distances.
+
+    The height of a bisection node is the largest merge height between
+    neighbouring leaves in its range, which for a monotone tree is the range's
+    cophenetic diameter. Neighbouring leaves ``i`` and ``i + 1`` of a dendrogram
+    meet at the node that splits between them, so these gaps come from the
+    original tree in one pass. A parent's range contains its children's, so no
+    node sits below its children.
+
+    Args:
+        root (Cluster): The clustering tree (single or Ward linkage).
+        links (np.ndarray): Its ``(n - 1) x 4`` linkage matrix.
+
+    Returns:
+        tuple[Cluster, np.ndarray]: The bisection tree and its linkage matrix.
+    """
+    n = links.shape[0] + 1
+    leaves, spans = root._layout()
+    gaps = np.empty(n - 1)
+    for node, _, mid, _ in spans:
+        gaps[mid - 1] = links[int(node.value) - n, 2]
+
+    ids = [int(leaf.value) for leaf in leaves]
+    bisected, _ = _bisect_tree(ids=ids, next_id=n - 1)
+    rows = np.empty((n - 1, 4))
+    for node, lo, _, hi in bisected._layout()[1]:
+        left, right = node._child_clusters()
+        rows[int(node.value) - n] = (left.value, right.value, gaps[lo : hi - 1].max(), hi - lo)
+    return bisected, rows
+
+
+def build_tree_from_operator(
+    cov: CovarianceOperator,
+    assets: Sequence[str] | None = None,
+    method: Literal["single", "complete", "average", "ward"] = "ward",
+    bisection: bool = False,
+) -> Dendrogram:
+    """Build the hierarchical cluster tree from a covariance operator.
+
+    The correlation distance is ``d_ij = sqrt((1 - rho_ij) / 2)``, as in
+    :func:`build_tree`. Ward (the default) and single linkage are built
+    **matrix-free**, from the operator's diagonal and ``O(n)`` products with it
+    (see :func:`_ward_linkage` and :func:`_single_linkage`), never forming the
+    ``n x n`` correlation or distance matrix, so a factor or Gram operator
+    clusters a universe whose covariance would not fit in memory. They give
+    SciPy's trees. The returned :class:`Dendrogram` carries no ``distance``
+    frame.
+
+    With ``bisection=True`` the leaf order is split at its midpoint, as in
+    Lopez de Prado's original algorithm, giving ``ceil(log2(n))`` levels; this
+    matters for single linkage, whose tree chains to nearly ``n`` levels.
+    Matrix-free, the merge height of a bisection node is the cophenetic
+    diameter of its range in the clustering tree, not the largest pairwise
+    distance :func:`build_tree` reports; the tree is the same, only the plotted
+    heights differ.
+
+    Complete and average linkage need all pairwise distances; the correlation
+    is then materialised from the operator and the call is delegated to
+    :func:`build_tree`, at ``O(n**2)`` memory.
+
+    Args:
+        cov (CovarianceOperator): The covariance as an operator.
+        assets (Sequence[str], optional): Asset names; defaults to ``"0", "1", ...``.
+        method (Literal["single", "complete", "average", "ward"]): Linkage method.
+            Defaults to ``"ward"``; ``"ward"`` and ``"single"`` are matrix-free.
+        bisection (bool): Whether to rebuild the tree by bisection of the leaf order.
+
+    Returns:
+        Dendrogram: The clustering tree over the operator's assets.
+
+    Raises:
+        ValueError: If there are fewer than two assets, an asset has no positive
+            variance, or ``assets`` has the wrong length.
+
+    Examples:
+        >>> import numpy as np
+        >>> from pyhrp.dendrogram import build_tree_from_operator
+        >>> from pyhrp.operators import DenseCovariance
+        >>> sigma = np.array([[1.0, 0.9, 0.0], [0.9, 1.0, 0.0], [0.0, 0.0, 1.0]])
+        >>> dg = build_tree_from_operator(DenseCovariance(sigma), assets=["A", "B", "C"], method="single")
+        >>> dg.names
+        ['C', 'A', 'B']
+    """
+    op, names = as_operator(cov, assets)
+    if op.n < 2:
+        msg = "Covariance must contain at least two assets."
+        raise ValueError(msg)
+    vol = _volatilities(op)
+
+    if method in ("single", "ward"):
+        links = _single_linkage(op, vol) if method == "single" else _ward_linkage(op, vol)
+        root = _to_cluster(sch.to_tree(links, rd=False))
+        if bisection:
+            root, links = _bisect_linkage(root, links)
+        return Dendrogram(root=root, linkage=links, method=method, assets=names)
+
+    idx = np.arange(op.n)
+    corr = block(op, idx, idx) / np.outer(vol, vol)
+    np.fill_diagonal(corr, 1.0)
+    return build_tree(pl.DataFrame(dict(zip(names, corr, strict=True))), method=method, bisection=bisection)

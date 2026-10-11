@@ -6,6 +6,7 @@ import plotly.graph_objects as go
 import polars as pl
 import pytest
 
+from pyhrp.algos import risk_parity
 from pyhrp.cluster import Cluster, Portfolio
 from pyhrp.treelib import Node
 
@@ -114,3 +115,59 @@ class TestCluster:
         cluster.right = Node(1)  # type: ignore[assignment]
         with pytest.raises(TypeError, match="Expected right child to be a Cluster"):
             _ = cluster.leaves
+
+
+# --- portfolios rebuilt from the allocation's splits ----------------------------
+
+
+def _allocated_tree() -> Cluster:
+    """A four-asset tree ((A, B), (C, D)) weighted by risk_parity on a diagonal covariance."""
+    cov = pl.DataFrame(
+        {"A": [1.0, 0.0, 0.0, 0.0], "B": [0.0, 4.0, 0.0, 0.0], "C": [0.0, 0.0, 2.0, 0.0], "D": [0.0, 0.0, 0.0, 8.0]}
+    )
+    root = Cluster(6, left=Cluster(4, left=Cluster(0), right=Cluster(1)), right=Cluster(5, Cluster(2), Cluster(3)))
+    return risk_parity(root, cov)
+
+
+def test_inner_portfolios_are_rebuilt_from_the_splits() -> None:
+    """Each node's portfolio is its children's, scaled by its split, as if stored."""
+    root = _allocated_tree()
+    assert root.left is not None
+    assert root.right is not None
+    assert root.left.portfolio.weights == pytest.approx({"A": 0.8, "B": 0.2})
+    assert root.right.portfolio.weights == pytest.approx({"C": 0.8, "D": 0.2})
+    assert root.left.left is not None
+    assert root.left.left.portfolio.weights == {"A": 1.0}
+    share = root._share
+    expected = {a: share * w for a, w in root.left.portfolio.weights.items()}
+    expected |= {a: (1.0 - share) * w for a, w in root.right.portfolio.weights.items()}
+    assert root.portfolio.weights == pytest.approx(expected, rel=1e-15)
+
+
+def test_inner_portfolio_is_kept_once_built() -> None:
+    """A rebuilt portfolio is cached, so repeated reads return the same object."""
+    root = _allocated_tree()
+    assert root.left is not None
+    assert root.left.portfolio is root.left.portfolio
+
+
+def test_reallocation_replaces_cached_inner_portfolios() -> None:
+    """Allocating again with another covariance rebuilds every node's portfolio."""
+    root = _allocated_tree()
+    assert root.left is not None
+    first = root.left.portfolio.weights
+    cov = pl.DataFrame(
+        {"A": [4.0, 0.0, 0.0, 0.0], "B": [0.0, 1.0, 0.0, 0.0], "C": [0.0, 0.0, 1.0, 0.0], "D": [0.0, 0.0, 0.0, 1.0]}
+    )
+    risk_parity(root, cov)
+    assert first == pytest.approx({"A": 0.8, "B": 0.2})
+    assert root.left.portfolio.weights == pytest.approx({"A": 0.2, "B": 0.8})
+
+
+def test_portfolio_setter_overrides_the_splits() -> None:
+    """An explicitly assigned portfolio is returned as-is."""
+    root = _allocated_tree()
+    custom = Portfolio()
+    custom["A"] = 1.0
+    root.portfolio = custom
+    assert root.portfolio is custom
