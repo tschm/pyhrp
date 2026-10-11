@@ -21,7 +21,7 @@ The `src/pyhrp/` package is split into small, focused modules:
 | `algos.py` | The allocation algorithms that size a cluster tree: `risk_parity` (recursive HRP), `schur_risk_parity` (Schur Complementary Allocation), and `one_over_n` (equal weight). |
 | `cluster.py` | Core data structures — `Cluster` (a node in the hierarchical tree) and `Portfolio` (an asset-to-weight mapping with analysis/plot helpers). |
 | `covariance.py` | `compute_returns` turns a price frame into simple returns; `compute_cov`/`compute_corr` turn that returns frame into covariance/correlation matrices. |
-| `dendrogram.py` | `build_tree` plus the `Dendrogram` container (the clustering result and its plotting/ordering helpers); `build_tree_from_operator` builds the tree from a covariance operator, matrix-free (Prim's MST) for single linkage. |
+| `dendrogram.py` | `build_tree` plus the `Dendrogram` container (the clustering result and its plotting/ordering helpers); `build_tree_from_operator` builds the tree from a covariance operator, matrix-free (Prim's MST) for single linkage, with or without bisection (log2 n levels; heights are single-linkage cophenetic diameters). |
 | `operators.py` | The `CovarianceOperator` protocol (`n`, `diag`, `block_matvec`, `solve_free`, `rcond_free` — the cvx-linalg `SymmetricOperator` surface, satisfied structurally), the `DenseCovariance` adapter a DataFrame is wrapped in, and the singular-block guard `solve_block`. |
 | `treelib.py` | A minimal generic binary-tree `Node`, kept in-house to avoid a `binarytree` dependency. |
 | `plot.py` | Plotly dendrogram rendering (`plot_dendrogram`), kept separate so the optional plotting dependency does not couple the algorithm modules. |

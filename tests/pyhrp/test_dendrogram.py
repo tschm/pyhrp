@@ -14,6 +14,8 @@ from typing import Literal
 import numpy as np
 import polars as pl
 import pytest
+import scipy.cluster.hierarchy as sch
+import scipy.spatial.distance as ssd
 from cvx.linalg import FactorOperator, GramOperator
 from hypothesis import given, settings
 from hypothesis import strategies as st
@@ -705,9 +707,9 @@ def test_operator_single_linkage_on_a_singular_gram() -> None:
     assert dg.names == build_tree(cor, method="single").names
 
 
-@pytest.mark.parametrize(("method", "bisection"), [("ward", False), ("average", False), ("single", True)])
+@pytest.mark.parametrize(("method", "bisection"), [("ward", False), ("average", True)])
 def test_operator_tree_delegates_when_not_matrix_free(method: LinkageMethod, bisection: bool) -> None:
-    """Other methods, and bisection, materialise the correlation and match build_tree."""
+    """Methods other than single linkage materialise the correlation and match build_tree."""
     op, cor, names = _factor_universe(n=12)
     dg = build_tree_from_operator(op, assets=names, method=method, bisection=bisection)
     reference = build_tree(cor, method=method, bisection=bisection)
@@ -731,3 +733,34 @@ def test_operator_tree_needs_positive_variances() -> None:
     """A zero variance leaves the correlation undefined and is refused by position."""
     with pytest.raises(ValueError, match=r"positions \[1\]"):
         build_tree_from_operator(DenseCovariance(np.diag([1.0, 0.0, 2.0])))
+
+
+def test_operator_bisection_is_matrix_free_and_shallow() -> None:
+    """Single linkage with bisection stays matrix-free and matches build_tree's tree.
+
+    Leaf order, children and cluster sizes agree with the dense path; the merge
+    heights are the single-linkage cophenetic diameters of each range instead of
+    the largest pairwise distance, and never drop below a child's.
+    """
+    op, cor, names = _factor_universe(n=200)
+    reference = build_tree(cor, method="single", bisection=True)
+    dg = build_tree_from_operator(op, assets=names, bisection=True)
+    assert dg.distance is None
+    assert dg.names == reference.names
+    assert dg.linkage is not None
+    assert reference.linkage is not None
+    np.testing.assert_array_equal(dg.linkage[:, [0, 1, 3]], reference.linkage[:, [0, 1, 3]])
+    assert len(dg.root.levels) == 9  # ceil(log2(200)) + 1 levels, leaves included
+
+    single = build_tree(cor, method="single").linkage
+    assert single is not None
+    cophenetic = ssd.squareform(sch.cophenet(single))
+    n = len(names)
+    for node in dg.root:
+        if not node.is_leaf:
+            idx = [leaf.value for leaf in node.leaves]
+            assert dg.linkage[node.value - n, 2] == pytest.approx(cophenetic[np.ix_(idx, idx)].max(), abs=1e-12)
+            for child in (node.left, node.right):
+                assert child is not None
+                if not child.is_leaf:
+                    assert dg.linkage[node.value - n, 2] >= dg.linkage[child.value - n, 2]

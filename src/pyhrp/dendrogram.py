@@ -376,6 +376,37 @@ def _single_linkage(op: CovarianceOperator, vol: np.ndarray) -> np.ndarray:
     return links
 
 
+def _bisect_single_linkage(root: Cluster, links: np.ndarray) -> tuple[Cluster, np.ndarray]:
+    """Rebuild a single-linkage tree by bisection of its leaf order, without distances.
+
+    The height of a bisection node is the largest merge height between
+    neighbouring leaves in its range. Neighbouring leaves ``i`` and ``i + 1``
+    of a dendrogram meet at the node that splits between them, so these gaps
+    come from the single-linkage tree in one pass. A parent's range contains
+    its children's, so no node sits below its children.
+
+    Args:
+        root (Cluster): The single-linkage tree.
+        links (np.ndarray): Its ``(n - 1) x 4`` linkage matrix.
+
+    Returns:
+        tuple[Cluster, np.ndarray]: The bisection tree and its linkage matrix.
+    """
+    n = links.shape[0] + 1
+    leaves, spans = root._layout()
+    gaps = np.empty(n - 1)
+    for node, _, mid, _ in spans:
+        gaps[mid - 1] = links[int(node.value) - n, 2]
+
+    ids = [int(leaf.value) for leaf in leaves]
+    bisected, _ = _bisect_tree(ids=ids, next_id=n - 1)
+    rows = np.empty((n - 1, 4))
+    for node, lo, _, hi in bisected._layout()[1]:
+        left, right = node._child_clusters()
+        rows[int(node.value) - n] = (left.value, right.value, gaps[lo : hi - 1].max(), hi - lo)
+    return bisected, rows
+
+
 def build_tree_from_operator(
     cov: CovarianceOperator,
     assets: Sequence[str] | None = None,
@@ -385,15 +416,24 @@ def build_tree_from_operator(
     """Build the hierarchical cluster tree from a covariance operator.
 
     The correlation distance is ``d_ij = sqrt((1 - rho_ij) / 2)``, as in
-    :func:`build_tree`. With ``method="single"`` and no bisection the tree is
-    built **matrix-free**: from the operator's diagonal and one column per step
-    (see :func:`_single_linkage`), never forming the ``n x n`` correlation or
+    :func:`build_tree`. With ``method="single"`` the tree is built
+    **matrix-free**: from the operator's diagonal and one column per step (see
+    :func:`_single_linkage`), never forming the ``n x n`` correlation or
     distance matrix, so a factor or Gram operator clusters a universe whose
     covariance would not fit in memory. The returned :class:`Dendrogram` then
     carries no ``distance`` frame.
 
-    Every other method, and bisection (whose merge heights are cluster
-    diameters), needs all pairwise distances; the correlation is then
+    Single linkage chains: its tree can be nearly ``n`` levels deep, and the
+    allocators split along the tree, so their cost grows like ``n**2``. For a
+    large universe pass ``bisection=True``. It keeps single linkage's leaf
+    order but splits it at the midpoint, as Lopez de Prado's original
+    algorithm does, giving ``ceil(log2(n))`` levels. Matrix-free, the merge
+    height of a bisection node is the largest single-linkage merge height
+    between neighbouring leaves in its range (its single-linkage cophenetic
+    diameter), not the largest pairwise distance :func:`build_tree` reports;
+    the tree is the same, only the plotted heights differ.
+
+    Every other method needs all pairwise distances; the correlation is then
     materialised from the operator and the call is delegated to
     :func:`build_tree`, at ``O(n**2)`` memory.
 
@@ -426,9 +466,11 @@ def build_tree_from_operator(
         raise ValueError(msg)
     vol = _volatilities(op)
 
-    if method == "single" and not bisection:
+    if method == "single":
         links = _single_linkage(op, vol)
         root = _to_cluster(sch.to_tree(links, rd=False))
+        if bisection:
+            root, links = _bisect_single_linkage(root, links)
         return Dendrogram(root=root, linkage=links, method=method, assets=names)
 
     idx = np.arange(op.n)
