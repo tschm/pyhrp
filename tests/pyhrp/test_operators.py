@@ -20,6 +20,8 @@ def test_dense_covariance_matches_matrix() -> None:
     v = rng.standard_normal(2)
     assert op.n == 6
     np.testing.assert_allclose(op.diag, np.diag(a))
+    x = rng.standard_normal(6)
+    np.testing.assert_allclose(op.matvec(x), a @ x)
     np.testing.assert_allclose(op.block_matvec(rows, cols, v), a[np.ix_(rows, cols)] @ v)
     np.testing.assert_allclose(a[np.ix_(rows, rows)] @ op.solve_free(rows, np.ones(3)), np.ones(3))
     assert op.rcond_free(rows) == pytest.approx(1.0 / np.linalg.cond(a[np.ix_(rows, rows)]))

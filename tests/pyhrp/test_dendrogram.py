@@ -686,7 +686,7 @@ def test_operator_single_linkage_matches_scipy() -> None:
     """The matrix-free single linkage reproduces scipy's tree and linkage matrix."""
     op, cor, names = _factor_universe()
     reference = build_tree(cor, method="single")
-    dg = build_tree_from_operator(op, assets=names)
+    dg = build_tree_from_operator(op, assets=names, method="single")
     assert dg.names == reference.names
     assert dg.distance is None
     assert dg.linkage is not None
@@ -703,13 +703,13 @@ def test_operator_single_linkage_on_a_singular_gram() -> None:
     vol = np.sqrt(np.diag(sigma))
     names = [f"A{i}" for i in range(25)]
     cor = pl.DataFrame(dict(zip(names, sigma / np.outer(vol, vol), strict=True)))
-    dg = build_tree_from_operator(GramOperator(xc), assets=names)
+    dg = build_tree_from_operator(GramOperator(xc), assets=names, method="single")
     assert dg.names == build_tree(cor, method="single").names
 
 
-@pytest.mark.parametrize(("method", "bisection"), [("ward", False), ("average", True)])
+@pytest.mark.parametrize(("method", "bisection"), [("complete", False), ("average", True)])
 def test_operator_tree_delegates_when_not_matrix_free(method: LinkageMethod, bisection: bool) -> None:
-    """Methods other than single linkage materialise the correlation and match build_tree."""
+    """Complete and average linkage materialise the correlation and match build_tree."""
     op, cor, names = _factor_universe(n=12)
     dg = build_tree_from_operator(op, assets=names, method=method, bisection=bisection)
     reference = build_tree(cor, method=method, bisection=bisection)
@@ -744,7 +744,7 @@ def test_operator_bisection_is_matrix_free_and_shallow() -> None:
     """
     op, cor, names = _factor_universe(n=200)
     reference = build_tree(cor, method="single", bisection=True)
-    dg = build_tree_from_operator(op, assets=names, bisection=True)
+    dg = build_tree_from_operator(op, assets=names, method="single", bisection=True)
     assert dg.distance is None
     assert dg.names == reference.names
     assert dg.linkage is not None
@@ -764,3 +764,41 @@ def test_operator_bisection_is_matrix_free_and_shallow() -> None:
                 assert child is not None
                 if not child.is_leaf:
                     assert dg.linkage[node.value - n, 2] >= dg.linkage[child.value - n, 2]
+
+
+def test_operator_ward_matches_scipy() -> None:
+    """The matrix-free Ward linkage reproduces scipy's tree, heights included."""
+    op, cor, names = _factor_universe(n=150, k=4, seed=3)
+    reference = build_tree(cor, method="ward")
+    dg = build_tree_from_operator(op, assets=names)
+    assert dg.method == "ward"
+    assert dg.distance is None
+    assert dg.names == reference.names
+    assert dg.linkage is not None
+    assert reference.linkage is not None
+    np.testing.assert_array_equal(dg.linkage[:, [0, 1, 3]], reference.linkage[:, [0, 1, 3]])
+    np.testing.assert_allclose(dg.linkage[:, 2], reference.linkage[:, 2], atol=1e-12)
+
+
+def test_operator_ward_on_a_singular_gram() -> None:
+    """Ward clusters a Gram operator with fewer observations than assets, as scipy does."""
+    rng = np.random.default_rng(7)
+    x = rng.standard_normal((12, 40))
+    xc = (x - x.mean(axis=0)) / np.sqrt(11.0)
+    sigma = xc.T @ xc
+    vol = np.sqrt(np.diag(sigma))
+    names = [f"A{i}" for i in range(40)]
+    cor = pl.DataFrame(dict(zip(names, sigma / np.outer(vol, vol), strict=True)))
+    assert build_tree_from_operator(GramOperator(xc), assets=names).names == build_tree(cor, method="ward").names
+
+
+def test_operator_ward_bisection_matches_build_tree() -> None:
+    """Bisection of the Ward leaf order gives build_tree's tree, with cophenetic heights."""
+    op, cor, names = _factor_universe(n=64, seed=5)
+    reference = build_tree(cor, method="ward", bisection=True)
+    dg = build_tree_from_operator(op, assets=names, bisection=True)
+    assert dg.names == reference.names
+    assert dg.linkage is not None
+    assert reference.linkage is not None
+    np.testing.assert_array_equal(dg.linkage[:, [0, 1, 3]], reference.linkage[:, [0, 1, 3]])
+    assert len(dg.root.levels) == 7

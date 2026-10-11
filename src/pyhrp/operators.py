@@ -2,9 +2,9 @@
 
 The allocators never need the covariance as an explicit array. Risk parity needs
 quadratic forms on principal blocks, the Schur variant adds cross-block products
-and solves against a principal block, and single-linkage clustering needs the
-diagonal plus one column at a time. This module captures that as the structural
-protocol :class:`CovarianceOperator`, the same five members as the
+and solves against a principal block, and Ward or single-linkage clustering
+needs the diagonal plus products with the full matrix. This module captures that
+as the structural protocol :class:`CovarianceOperator`, six members of the
 ``SymmetricOperator`` of `cvx-linalg <https://github.com/Jebel-Quant/linalg>`_,
 whose dense, factor (diagonal-plus-low-rank) and Gram (returns-matrix) backends
 satisfy it without an adapter. A factor or Gram backend never forms the
@@ -45,6 +45,10 @@ class CovarianceOperator(Protocol):
     @property
     def diag(self) -> np.ndarray:
         """The variances, ``diag(Sigma)``, as a length-``n`` vector."""
+        ...
+
+    def matvec(self, x: np.ndarray) -> np.ndarray:
+        """Return ``Sigma @ x``."""
         ...
 
     def block_matvec(self, rows: Any, cols: Any, v: np.ndarray) -> np.ndarray:
@@ -92,6 +96,10 @@ class DenseCovariance:
     def diag(self) -> np.ndarray:
         """The variances, ``diag(Sigma)``."""
         return np.diagonal(self._a).copy()
+
+    def matvec(self, x: np.ndarray) -> np.ndarray:
+        """Return ``Sigma @ x``."""
+        return np.asarray(self._a @ x)
 
     def block_matvec(self, rows: Any, cols: Any, v: np.ndarray) -> np.ndarray:
         """Return ``Sigma[rows, cols] @ v``."""
