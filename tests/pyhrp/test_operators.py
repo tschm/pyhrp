@@ -7,7 +7,7 @@ import polars as pl
 import pytest
 from cvx.linalg import FactorOperator, GramOperator
 
-from pyhrp.operators import CovarianceOperator, DenseCovariance, as_operator, block, solve_block
+from pyhrp.operators import CovarianceOperator, DenseCovariance, as_operator, block, cg_min_norm, solve_block
 
 
 def test_dense_covariance_matches_matrix() -> None:
@@ -85,8 +85,8 @@ def test_solve_block_uses_the_operator_solve() -> None:
     np.testing.assert_allclose(block(op, idx, idx) @ x, [1.0, 1.0])
 
 
-def test_solve_block_singular_falls_back_to_lstsq() -> None:
-    """A singular block gets the minimum-norm least-squares solution."""
+def test_solve_block_singular_falls_back_to_cg() -> None:
+    """A singular block gets the minimum-norm solution, by conjugate gradients."""
     m = np.array([[1.0, 2.0], [2.0, 4.0]])  # rank 1, singular
     b = np.array([1.0, 2.0])
     x = solve_block(DenseCovariance(m), np.array([0, 1]), b)
@@ -94,8 +94,8 @@ def test_solve_block_singular_falls_back_to_lstsq() -> None:
     np.testing.assert_allclose(x, np.linalg.pinv(m) @ b)
 
 
-def test_solve_block_failed_solve_falls_back_to_lstsq() -> None:
-    """A solve that raises despite a passing condition check falls back to least squares."""
+def test_solve_block_failed_solve_falls_back_to_cg() -> None:
+    """A solve that raises despite a passing condition check falls back to conjugate gradients."""
 
     class Failing(DenseCovariance):
         """Dense operator whose solve always fails."""
@@ -106,3 +106,75 @@ def test_solve_block_failed_solve_falls_back_to_lstsq() -> None:
 
     x = solve_block(Failing(np.diag([2.0, 4.0])), np.array([0, 1]), np.array([2.0, 4.0]))
     np.testing.assert_allclose(x, [1.0, 1.0])
+
+
+def test_cg_matches_lstsq_on_a_singular_gram_block_without_forming_it() -> None:
+    """On a Gram block with more assets than observations CG gives lstsq's minimum-norm solution."""
+    rng = np.random.default_rng(3)
+    x = rng.standard_normal((30, 200))
+    xc = (x - x.mean(axis=0)) / np.sqrt(29.0)
+    op = GramOperator(xc)
+    left, right = np.arange(100), np.arange(100, 200)
+    b = op.block_matvec(right, left, np.full(100, 0.01))
+    assert op.rcond_free(right) < 1e-12
+
+    products = 0
+
+    def apply(v: np.ndarray) -> np.ndarray:
+        """Count the block products CG takes."""
+        nonlocal products
+        products += 1
+        return np.asarray(op.block_matvec(right, right, v))
+
+    solution = cg_min_norm(apply, b)
+    reference = np.linalg.lstsq(block(op, right, right), b, rcond=None)[0]
+    np.testing.assert_allclose(solution, reference, rtol=1e-8, atol=1e-10 * np.abs(reference).max())
+    assert b @ solution == pytest.approx(b @ reference, rel=1e-12)
+    assert products <= 60  # about the rank (30), far below the block size (100)
+
+
+def test_cg_zero_rhs_returns_zero() -> None:
+    """A zero right-hand side is solved without a product."""
+    np.testing.assert_array_equal(cg_min_norm(lambda v: pytest.fail("no product expected"), np.zeros(3)), np.zeros(3))
+
+
+def test_cg_stops_on_a_null_direction() -> None:
+    """An inconsistent system stops when a search direction has no curvature."""
+    a = np.diag([1.0, 0.0])
+    assert np.all(np.isfinite(cg_min_norm(lambda v: a @ v, np.array([1.0, 1.0]))))
+
+
+def test_cg_stops_after_twice_the_dimension() -> None:
+    """The iteration is capped at 2 * len(b) products."""
+    products = 0
+    rotation = np.array([[1.0, 1.0], [-1.0, 1.0]])  # positive curvature, but not symmetric: CG never converges
+
+    def apply(v: np.ndarray) -> np.ndarray:
+        """Count products with a matrix CG cannot solve."""
+        nonlocal products
+        products += 1
+        return rotation @ v
+
+    cg_min_norm(apply, np.array([1.0, 0.0]), rtol=0.0)
+    assert products == 4
+
+
+def test_solve_block_uses_a_restricted_operator_when_offered() -> None:
+    """A singular Gram block is sliced once by restricted() and solved with its matvec."""
+    rng = np.random.default_rng(8)
+    x = rng.standard_normal((5, 12))
+    op = GramOperator(x)
+    idx = np.arange(12)
+    b = op.block_matvec(idx, idx, rng.standard_normal(12))
+    sliced = []
+    real = op.restricted
+
+    def counting(free: np.ndarray) -> GramOperator:
+        """Record each slicing."""
+        sliced.append(free)
+        return real(free)
+
+    op.restricted = counting  # type: ignore[method-assign]
+    solution = solve_block(op, idx, b)
+    assert len(sliced) == 1
+    np.testing.assert_allclose(op.block_matvec(idx, idx, solution), b, atol=1e-8)

@@ -155,9 +155,10 @@ def schur_risk_parity(
         # through one cross product and one block solve each.
         bt_w = op.block_matvec(ri, li, w_left)
         b_w = op.block_matvec(li, ri, w_right)
-        v_left -= gamma * float(bt_w @ solve_block(op, ri, bt_w))
-        v_right -= gamma * float(b_w @ solve_block(op, li, b_w))
-        return v_left, v_right
+        return (
+            _schur_variance(v_left, gamma * float(bt_w @ solve_block(op, ri, bt_w))),
+            _schur_variance(v_right, gamma * float(b_w @ solve_block(op, li, b_w))),
+        )
 
     return _allocate_with(root, cov, node_variances, assets)
 
@@ -247,6 +248,33 @@ def _block_variance(block: Block, op: CovarianceOperator) -> float:
     """Compute the variance of a sub-portfolio from one block product with the covariance operator."""
     idx, w = block
     return float(w @ op.block_matvec(idx, idx, w))
+
+
+# A Schur-augmented variance within this fraction of the plain block variance is
+# round-off of an exact zero, and is treated as zero.
+SCHUR_RTOL = 1e-10
+
+
+def _schur_variance(variance: float, correction: float) -> float:
+    """The Schur-augmented variance ``variance - correction``, with cancellation set to zero.
+
+    The augmented block ``A - gamma B D^+ B^T`` is positive semidefinite, so the
+    true value is non-negative. It is exactly zero when ``gamma = 1`` and the
+    block adds no rank to its sibling (a Gram covariance with fewer observations
+    than assets), and then round-off of either sign is all that is left; a
+    negative value would push the split outside ``[0, 1]`` and the weights below
+    zero. Values within ``SCHUR_RTOL`` of the plain variance are therefore zero,
+    and two zero children split evenly (see :func:`_left_share`).
+
+    Args:
+        variance (float): The plain block variance ``w' A w``.
+        correction (float): The Schur term ``gamma w' B D^+ B^T w``.
+
+    Returns:
+        float: The augmented variance, ``0.0`` if it is within round-off of zero.
+    """
+    augmented = variance - correction
+    return augmented if augmented > SCHUR_RTOL * variance else 0.0
 
 
 def _left_share(v_left: float, v_right: float) -> float:

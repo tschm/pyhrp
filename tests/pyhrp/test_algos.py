@@ -19,10 +19,10 @@ from hypothesis import strategies as st
 from hypothesis.extra import numpy as hnp
 from polars import DataFrame
 
-from pyhrp.algos import one_over_n, risk_parity, schur_risk_parity
+from pyhrp.algos import _schur_variance, one_over_n, risk_parity, schur_risk_parity
 from pyhrp.cluster import Cluster, Portfolio
 from pyhrp.covariance import compute_corr, compute_cov
-from pyhrp.dendrogram import Dendrogram, build_tree
+from pyhrp.dendrogram import Dendrogram, build_tree, build_tree_from_operator
 from pyhrp.operators import DenseCovariance
 from pyhrp.treelib import Node
 
@@ -552,3 +552,28 @@ def test_risk_parity_memory_is_linear_on_a_chain_tree() -> None:
     finally:
         tracemalloc.stop()
     assert peak < 5 * 2**20
+
+
+def test_schur_risk_parity_full_gamma_on_a_singular_gram_stays_long_only() -> None:
+    """At gamma=1 with fewer observations than assets the Schur variances are round-off of zero.
+
+    Every block then has the rank of the whole covariance, so A - B D^+ B^T is exactly
+    zero and only noise of either sign is left. That noise must not turn into a split
+    outside [0, 1]: the weights stay non-negative and the root splits evenly.
+    """
+    rng = np.random.default_rng(11)
+    x = rng.standard_normal((40, 300))
+    xc = (x - x.mean(axis=0)) / np.sqrt(39.0)
+    op = GramOperator(xc)
+    root = build_tree_from_operator(op).root
+    weights = np.array(list(schur_risk_parity(root, op, gamma=1.0).portfolio.weights.values()))
+    assert np.all(weights >= 0.0)
+    assert float(weights.sum()) == pytest.approx(1.0)
+    assert root._share == 0.5
+
+
+def test_schur_variance_keeps_real_variance_and_zeroes_cancellation() -> None:
+    """A clear Schur variance is kept; one within round-off of zero, of either sign, is zero."""
+    assert _schur_variance(1.0, 0.25) == 0.75
+    assert _schur_variance(1.0, 1.0 - 1e-14) == 0.0
+    assert _schur_variance(1.0, 1.0 + 1e-14) == 0.0

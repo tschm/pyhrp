@@ -17,17 +17,20 @@ satisfy it without an adapter. A factor or Gram backend never forms the
 
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from typing import Any, Protocol, runtime_checkable
 
 import numpy as np
 import polars as pl
 
-__all__ = ["CovarianceOperator", "DenseCovariance", "as_operator"]
+__all__ = ["CovarianceOperator", "DenseCovariance", "as_operator", "cg_min_norm"]
 
 # Below this reciprocal condition number a principal block is treated as singular
-# and solved by minimum-norm least squares, matching the dense fallback in _solve.
+# and solved by conjugate gradients for the minimum-norm solution.
 RCOND_MIN = 1e-12
+
+# Conjugate gradients stop once the residual is this small relative to the right-hand side.
+CG_RTOL = 1e-10
 
 
 @runtime_checkable
@@ -168,14 +171,80 @@ def block(op: CovarianceOperator, rows: np.ndarray, cols: np.ndarray) -> np.ndar
 def solve_block(op: CovarianceOperator, idx: np.ndarray, rhs: np.ndarray) -> np.ndarray:
     """Solve against the principal block ``Sigma[idx, idx]``, robust to singularity.
 
-    Covariance blocks of collinear assets (or of more assets than observations)
-    are singular. A block the operator reports as singular, or whose solve
-    fails, is solved by minimum-norm least squares on the materialised block,
-    which keeps the Schur augmentation well defined there.
+    Covariance blocks of collinear assets, or of more assets than observations
+    (a Gram operator with ``T < n``), are singular. A block the operator reports
+    as singular, or whose solve fails, is solved by conjugate gradients over
+    ``block_matvec`` (see :func:`cg_min_norm`), which never forms the block.
     """
     if op.rcond_free(idx) >= RCOND_MIN:
         try:
             return np.asarray(op.solve_free(idx, rhs))
         except np.linalg.LinAlgError:
             pass
-    return np.asarray(np.linalg.lstsq(block(op, idx, idx), rhs, rcond=None)[0])
+    return cg_min_norm(_block_product(op, idx), rhs)
+
+
+def _block_product(op: CovarianceOperator, idx: np.ndarray) -> Callable[[np.ndarray], np.ndarray]:
+    """The product ``v -> Sigma[idx, idx] @ v`` for an iterative solve.
+
+    ``block_matvec`` gathers the block's storage on every call (the columns of a
+    Gram factor, the rows of factor loadings), which dominates a long CG run. An
+    operator that offers ``restricted(idx)``, as the cvx-linalg backends do, is
+    sliced once and then multiplied with its plain ``matvec``.
+    """
+    restricted = getattr(op, "restricted", None)
+    if callable(restricted):
+        sub = restricted(idx)
+        return lambda v: np.asarray(sub.matvec(v))
+    return lambda v: np.asarray(op.block_matvec(idx, idx, v))
+
+
+def cg_min_norm(apply: Callable[[np.ndarray], np.ndarray], b: np.ndarray, rtol: float = CG_RTOL) -> np.ndarray:
+    """Minimum-norm solution of ``A x = b`` for a symmetric PSD ``A``, by conjugate gradients.
+
+    The Schur right-hand sides are ``Sigma[R, L] w_L``, and for a PSD ``Sigma``
+    the columns of ``Sigma[R, L]`` lie in the range of ``Sigma[R, R]``, so the
+    system is consistent even when the block is singular. Started from zero, CG
+    then stays in that range and converges to the minimum-norm solution, the
+    one ``lstsq`` returns, using only products with ``A``.
+
+    Iteration stops when the residual falls below ``rtol * |b|``, when a search
+    direction has no curvature (it lies in the null space, so the residual left
+    is round-off outside the range), or after ``2 * len(b)`` steps. In exact
+    arithmetic CG terminates within ``rank(A)`` steps.
+
+    Args:
+        apply (Callable[[np.ndarray], np.ndarray]): The product ``v -> A @ v``.
+        b (np.ndarray): The right-hand side.
+        rtol (float): Relative residual tolerance.
+
+    Returns:
+        np.ndarray: The approximate minimum-norm solution.
+
+    Examples:
+        >>> import numpy as np
+        >>> from pyhrp.operators import cg_min_norm
+        >>> a = np.array([[1.0, 2.0], [2.0, 4.0]])  # singular
+        >>> x = cg_min_norm(lambda v: a @ v, np.array([1.0, 2.0]))
+        >>> np.allclose(x, np.linalg.pinv(a) @ [1.0, 2.0])
+        True
+    """
+    x = np.zeros_like(b, dtype=np.float64)
+    r = np.asarray(b, dtype=np.float64).copy()
+    p = r.copy()
+    rr = float(r @ r)
+    stop = (rtol**2) * rr
+    for _ in range(2 * b.size):
+        if rr <= stop:
+            break
+        ap = apply(p)
+        curvature = float(p @ ap)
+        if curvature <= 0.0:
+            break
+        alpha = rr / curvature
+        x += alpha * p
+        r -= alpha * ap
+        rr_next = float(r @ r)
+        p = r + (rr_next / rr) * p
+        rr = rr_next
+    return x
