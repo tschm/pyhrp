@@ -12,6 +12,10 @@ templates:
   - legal
 
 exclude:
+  # dependabot.yml is trimmed to the uv ecosystem: only pyproject.toml dependencies get
+  # update PRs here. GitHub Actions in the rhiza workflows are pinned by the template
+  # and move with rhiza sync, so Dependabot bumps to them would only drift and conflict.
+  - .github/dependabot.yml
   # SECURITY.md makes factual claims about THIS repo's security posture (which scanners,
   # which release protections). Only the repo knows which are true, so the file is owned
   # here rather than template-managed.
