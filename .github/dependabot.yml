@@ -24,6 +24,10 @@ updates:
     # project -- as an application and rewrites every `>=` floor to the latest version,
     # which then fails the lowest-direct-dependency CI job.
     versioning-strategy: "increase-if-necessary"
+    # Wait a week before proposing a new release, so a compromised one has time to be
+    # yanked. Security updates are not delayed by this.
+    cooldown:
+      default-days: 7
     schedule:
       interval: "weekly"
       day: "tuesday"
