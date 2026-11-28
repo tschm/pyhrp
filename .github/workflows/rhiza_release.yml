@@ -138,11 +138,12 @@ permissions:
 # workflow's RHIZA_TASK, and moved with them by the same Renovate rule, so the release and CI
 # run one version of the check rather than two.
 env:
-  RHIZA_TASK: rhiza-task@1.11.0
+  RHIZA_TASK: rhiza-task@1.12.0
 
 jobs:
   tag:
     name: Validate Tag
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     permissions:
       contents: read   # Validation only: reads tags and release state
@@ -157,6 +158,8 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          # Credentials kept: the reachability check below runs `git fetch origin`, which needs auth on a private repository.
+          persist-credentials: true
           fetch-depth: 0
 
       - name: Set Tag Variable
@@ -234,6 +237,9 @@ jobs:
 
       - name: Install uv
         uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          # No cache in a release: a tag-triggered job must not restore one a PR run wrote.
+          enable-cache: false
 
       - name: Ensure release version is newer than latest published
         env:
@@ -280,6 +286,7 @@ jobs:
 
   build:
     name: Build
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     needs: tag
     permissions:
@@ -297,12 +304,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           ref: refs/tags/${{ needs.tag.outputs.tag }}
           fetch-depth: 0
 
       - name: Install uv
         uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
         with:
+          # No cache in a release: a tag-triggered job must not restore one a PR run wrote.
+          enable-cache: false
           version: "0.13.10"
 
       - name: Validate consumer dependency setup
@@ -533,6 +543,7 @@ jobs:
   # Don't try to upload artifacts to GitHub Release at all
   draft-release:
     name: Draft GitHub Release
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     needs: [tag, build]
     permissions:
@@ -547,11 +558,15 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           ref: refs/tags/${{ needs.tag.outputs.tag }}
           fetch-depth: 0
 
       - name: Install uv
         uses: astral-sh/setup-uv@37802adc94f370d6bfd71619e3f0bf239e1f3b78 # v7.6.0
+        with:
+          # No cache in a release: a tag-triggered job must not restore one a PR run wrote.
+          enable-cache: false
 
       - name: Generate release notes with git-cliff
         run: uvx git-cliff --latest --output RELEASE_NOTES.md
@@ -586,6 +601,7 @@ jobs:
   # Decide at step-level whether to publish
   pypi:
     name: Publish package
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     environment: release
     needs: [tag, build, draft-release]
@@ -687,6 +703,7 @@ jobs:
 
   conda:
     name: Generate Conda Recipe (artifact only, not published)
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     needs: [tag, pypi]
     permissions:
@@ -703,6 +720,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           ref: refs/tags/${{ needs.tag.outputs.tag }}
           fetch-depth: 0
 
@@ -775,6 +793,7 @@ jobs:
 
   devcontainer:
     name: Publish Devcontainer Image
+    timeout-minutes: 60
     runs-on: ubuntu-latest
     environment: release
     needs: [tag, build, draft-release]
@@ -793,6 +812,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           ref: refs/tags/${{ needs.tag.outputs.tag }}
           fetch-depth: 0
 
@@ -879,6 +899,7 @@ jobs:
 
   finalise-release:
     name: Finalise Release
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     needs: [tag, build, draft-release, pypi, conda, devcontainer]
     # A status function overrides GitHub's implicit success() over all dependencies:
@@ -898,6 +919,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
+          persist-credentials: false
           ref: refs/tags/${{ needs.tag.outputs.tag }}
           fetch-depth: 0
 

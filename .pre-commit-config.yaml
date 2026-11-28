@@ -9,7 +9,7 @@ default_language_version:
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
+    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
     hooks:
       - id: check-toml
         groups: ["fast"]
@@ -35,7 +35,7 @@ repos:
         groups: ["fast"]
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 'v0.17.6'
+    rev: 9026c9127e153371d7a78dfcb0c45ae2046a3d10  # frozen: v0.17.6
     hooks:
       - id: ruff
         args: [ --fix, --exit-non-zero-on-fix, --unsafe-fixes ]
@@ -46,14 +46,14 @@ repos:
         groups: ["python", "format", "fast"]
 
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.50.1
+    rev: bf6d1792b8bc7f6cc93f10cc27735a4cb0c38e47  # frozen: v0.50.1
     hooks:
       - id: markdownlint
         args: ["--disable", "MD013"]
         groups: ["lint", "fast"]
 
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 0.39.0
+    rev: a76b92851fc9eede9f9bc4073eb55202f34eb0df  # frozen: 0.39.0
     hooks:
       - id: check-renovate
         args: [ "--verbose" ]
@@ -64,19 +64,19 @@ repos:
         groups: ["fast"]
 
   - repo: https://github.com/rhysd/actionlint
-    rev: v1.7.12
+    rev: 914e7df21a07ef503a81201c76d2b11c789d3fca  # frozen: v1.7.12
     hooks:
       - id: actionlint
         groups: ["lint", "fast"]
 
   - repo: https://github.com/abravalheri/validate-pyproject
-    rev: "v0.27"
+    rev: 82d21874c3242e4dc27bb47641c996902ef64eef  # frozen: v0.27
     hooks:
       - id: validate-pyproject
         groups: ["python", "fast"]
 
   - repo: https://github.com/PyCQA/bandit
-    rev: 1.9.4
+    rev: 92ae8b82fb422a639f0ed8d99e96cea769594e08  # frozen: 1.9.4
     hooks:
       - id: bandit
         # Scope deliberately lives in .bandit, not here — see that file (#1493).
@@ -84,19 +84,19 @@ repos:
         groups: ["python", "security", "slow"]
 
   - repo: https://github.com/betterleaks/betterleaks
-    rev: v1.10.1
+    rev: 39d5bdcf34db54e944facac5cf6e8b03db5e2b99  # frozen: v1.10.1
     hooks:
       - id: betterleaks
         groups: ["security", "slow"]
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    rev: 0.13.10
+    rev: 81f5f4cd875cc74ecfdfae601ae47d3fd200ad8d  # frozen: 0.13.10
     hooks:
       - id: uv-lock
         groups: ["python", "fast"]
 
   - repo: https://github.com/econchick/interrogate
-    rev: 1.7.0
+    rev: 4894019dc8876092bc9b6d56878798c550fad998  # frozen: 1.7.0
     hooks:
       - id: interrogate
         args: [--config=pyproject.toml]
@@ -111,7 +111,7 @@ repos:
         additional_dependencies: [numpy, polars]
 
   - repo: https://github.com/Jebel-Quant/rhiza-hooks
-    rev: v1.3.2  # Use the latest release
+    rev: c57784340d04eb7eeb57665f2cb5a93cda1efbea  # frozen: v1.3.2
     hooks:
       # Migrated from rhiza
       - id: check-rhiza-workflow-names

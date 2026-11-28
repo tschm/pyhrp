@@ -52,6 +52,7 @@ permissions:
 jobs:
   recipe:
     name: Generate Conda Recipe (artifact only, not published)
+    timeout-minutes: 15
     runs-on: ubuntu-latest
     permissions:
       contents: read   # Reads the tag and the code; uploads a workflow artifact only
